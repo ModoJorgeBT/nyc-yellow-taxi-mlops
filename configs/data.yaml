@@ -1,0 +1,57 @@
+{
+  "format_version": 1,
+  "schema_version": "yellow-taxi-raw-v1",
+  "schema": {
+    "required": ["tpep_pickup_datetime", "tpep_dropoff_datetime", "PULocationID", "DOLocationID"],
+    "columns": {
+      "VendorID": ["int32", "int64"],
+      "tpep_pickup_datetime": ["timestamp[us]"],
+      "tpep_dropoff_datetime": ["timestamp[us]"],
+      "passenger_count": ["int32", "int64"],
+      "trip_distance": ["double"],
+      "RatecodeID": ["int32", "int64"],
+      "store_and_fwd_flag": ["string", "large_string"],
+      "PULocationID": ["int32", "int64"],
+      "DOLocationID": ["int32", "int64"],
+      "payment_type": ["int32", "int64"],
+      "fare_amount": ["double"],
+      "extra": ["double"],
+      "mta_tax": ["double"],
+      "tip_amount": ["double"],
+      "tolls_amount": ["double"],
+      "improvement_surcharge": ["double"],
+      "total_amount": ["double"],
+      "congestion_surcharge": ["double"],
+      "Airport_fee": ["double"],
+      "cbd_congestion_fee": ["double"]
+    }
+  },
+  "quality": {
+    "policy_version": "dq-pending-v1",
+    "status": "PENDIENTE",
+    "timestamp_policy": null,
+    "min_rows": null,
+    "min_eligible_rows": null,
+    "duration_max_minutes": null,
+    "zone_catalog": null,
+    "duplicate_action": null,
+    "passenger_range": null,
+    "passenger_action": null,
+    "category_values": null,
+    "category_action": null,
+    "max_rates": {
+      "timestamp_null": null,
+      "duration_nonpositive": null,
+      "duration_exceeds_max": null,
+      "pickup_outside_month": null,
+      "zone_null": null,
+      "zone_unknown": null,
+      "duplicate": null,
+      "passenger_null": null,
+      "passenger_negative": null,
+      "passenger_out_of_range": null,
+      "category_invalid": null,
+      "invalid_rows": null
+    }
+  }
+}

@@ -1,0 +1,77 @@
+# Entornos y caches de Python
+.venv/
+.venv-verify/
+.cache/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Configuracion local y secretos; conservar la plantilla publica
+.env
+.env.*
+!.env.example
+.aws/
+secrets/
+*.pem
+*.key
+
+# Datos locales: conservar solo los marcadores de estructura
+/data/raw/*
+!/data/raw/.gitkeep
+/data/validated/*
+!/data/validated/.gitkeep
+/data/processed/*
+!/data/processed/.gitkeep
+*.parquet
+# T04 podra versionar exclusivamente fixtures sinteticas pequenas
+!/tests/fixtures/*.parquet
+
+# Tracking, modelos y bases de datos locales
+mlruns/
+mlartifacts/
+/tracking/
+/artifacts/
+/models/
+/model-cache/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+*.pkl
+*.pickle
+*.joblib
+*.onnx
+*.pt
+*.pth
+*.h5
+*.keras
+*.bin
+
+# Reportes generados: permitir documentacion Markdown pequena
+/reports/**
+!/reports/**/
+!/reports/**/*.md
+!/reports/**/.gitkeep
+
+# Temporales y archivos del sistema
+*.log
+*.tmp
+*.part
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+Desktop.ini

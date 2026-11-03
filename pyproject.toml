@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools==84.2.1", "wheel==0.48.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nyc-yellow-taxi-mlops"
+version = "0.1.0"
+description = "Plataforma local MLOps para duracion de viajes NYC Yellow Taxi"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pip==26.2.1",
+    "pip-tools==7.6.2",
+    "pytest==9.2.0",
+    "ruff==0.17.3",
+    "setuptools==84.2.1",
+    "wheel==0.48.0",
+]
+data = ["pyarrow==26.0.1"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src", "src.*"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+include = ["*.py", "*.pyi", "pyproject.toml"]
+extend-exclude = ["data", "reports", ".cache", ".venv-verify"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-config --strict-markers --import-mode=importlib --basetemp=.cache/pytest"
+cache_dir = ".cache/pytest-cache"
