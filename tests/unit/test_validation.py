@@ -11,7 +11,7 @@ import pytest
 from src.validation.rules import METRICS, evaluate_batches
 from src.validation.schema import load_config, validate_schema
 from tests.fixtures.factory import make_table
-from tests.fixtures.policies import synthetic_policy
+from tests.fixtures.policies import pending_policy, synthetic_policy
 
 CONFIG = Path(__file__).resolve().parents[2] / "configs" / "data.yaml"
 
@@ -146,6 +146,7 @@ def test_critical_threshold_blocks_and_equality_is_tolerated(
 
 
 def test_pending_real_policy_never_approves(config: dict, tmp_path: Path) -> None:
+    config = pending_policy(config)
     report = run(make_table(), config, tmp_path)
     assert report["status"] == "FAIL"
     assert not report["quality_passed"] and not report["approved_for_training"]

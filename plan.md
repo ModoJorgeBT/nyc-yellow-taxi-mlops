@@ -1,6 +1,6 @@
 # PLAN — Implementación incremental NYC Yellow Taxi MLOps
 
-**Versión:** 1.0 · **Estado:** T10/T11 autorizadas e implementadas, verificadas técnicamente con fixtures para revisión humana; flujo real sin cierre operativo por D-04/D-06; T12–T38 no ejecutadas · **Entorno:** VS Code + Codex, ejecución local Docker Compose.
+**Versión:** 1.0 · **Estado:** T15 ajuste y validación reales completos/auditados, cierre técnico PASS para revisión humana. T14 integral pendiente; T16–T38 sin ejecutar · **Entorno:** Windows local, Docker sin verificar.
 **Fuentes de verdad:** `intent.md`, `spec.md`, y PDF académico *Proyecto_Maestria_MLOps_NYC_Taxi_Estructura*, septiembre 2026. En caso de contradicción, detenerse y pedir decisión; no cambiar el alcance silenciosamente.
 
 ## 0. Protocolo obligatorio para Codex
@@ -17,16 +17,18 @@
 
 | ID | Decisión | Valor de trabajo / criterio | Estado |
 |---|---|---|---|
-| D-01 | Periodos | Propuesta PDF: train ene–sep 2025, val oct 2025, test nov–dic 2025; monitoreo 2026. Disponibles localmente 24 archivos 2024/2025; no implica usarlos todos ni reasignar periodos | PENDIENTE aprobación |
-| D-02 | Recursos y muestreo | Host y lectura acotada T05 medidos; muestra posicional 2024 autorizada, sin equivaler a protocolo de entrenamiento | PARCIAL: presupuesto y límites Docker pendientes |
-| D-03 | Herramientas | Python 3.14.7, setuptools, Ruff, Pytest, pip-tools y PyArrow aprobados/fijados en T03; MLflow/FastAPI/Compose confirmados sin instalar; Pandas, sklearn, Pydantic, GitHub Actions y Evidently pendientes | PARCIAL; no equivale a compatibilidad del stack completo |
-| D-04 | Umbrales DQ | Contrato estructural T08 aprobado; motor T09 probado con políticas sintéticas; tolerancias, volumen, duración y catálogo reales pendientes | PARCIAL; aprobación operativa pendiente |
+| D-01 | Periodos | Train 2024 completo; validación ene–mar 2025; test final abr–jun 2025; replay jul–dic 2025. Cortes por evento, sin afirmar disponibilidad histórica de publicación | APROBADA; sustituye propuesta inicial |
+| D-02 | Recursos | Todos los elegibles. Preparación/mediana T14/T15: 4 GiB RAM libres/2 GiB RSS/50 GiB disco. SGD/MLP T16 conserva cuatro hilos, 12 GiB libres/8 GiB RSS y dos horas por candidato | APROBADA; supervisión de preparación/baseline probada; candidatos/Docker no ejecutados |
+| D-03 | Herramientas | Entorno T03 y extra features T13 aprobados/fijados: scikit-learn/tzdata y transitivas, lock de 23 paquetes. MLflow/FastAPI/Compose sin instalar; pandas/Pydantic/Actions/Evidently pendientes | PARCIAL; no equivale a compatibilidad del stack completo |
+| D-04 | Umbrales DQ | D-04 v1 congelada; excepción humana ligada solo a marzo 2025/hash/reporte, sin cambiar tasas ni exclusiones | APROBADA E IMPLEMENTADA; 14 lotes pasan calidad, uno aceptado excepcionalmente |
 | D-05 | Drift y promoción | Evaluar propuestas PDF: MAE > 115 % dos ventanas, PSI > 0.20, mejora MAE ≥ 2 % o no inferioridad definida | PENDIENTE |
-| D-06 | API | `pickup_datetime` con offset, zonas origen/destino, pasajero opcional; America/New_York; hipótesis de destino conocido | PENDIENTE aprobación |
+| D-06 | API | Origen/calendario/pasajeros opcionales y convención Nueva York/UTC aprobados; destino deshabilitado. Catálogo operativo aprobado en D-04; contrato REST completo pendiente | PARCIAL |
 | D-07 | MLflow | SQLite persistente y artefactos locales; registry y alias champion según versión compatible | PENDIENTE prueba |
-| D-08 | Definition of Done | Continuación T10/T11 solicitada; integración offline y CLI probados para revisión humana, datos reales bloqueados | PARCIAL; criterio general de PR pendiente |
+| D-08 | Definition of Done | T12/T13 solicitadas y decisiones aprobadas; evidencia de features/target/Pipeline preparada para revisión humana | PARCIAL; criterio general de PR pendiente |
 
-**Gate G0:** no comenzar descargas masivas ni entrenamiento real antes de aprobar D-01/D-02/D-04. Continuación T10/T11 autorizada conservando configuración real PENDIENTE y bloqueo de aprobación hasta resolver D-04/D-06. Solo resultados sintéticos TEST_ONLY aislados, nunca aprobación para entrenamiento. Los 24 Parquet siguen sin incorporación a manifiestos. No se aprueban ventanas ni límites reales. El usuario autorizó después publicar el proyecto en GitHub, con commit inicial sobre `main`; los estados «sin commits/remotos» de las tareas anteriores son evidencia histórica. T12 y siguientes requieren autorización. Ver [docs/decisions.md](docs/decisions.md).
+**Gate G0, decisiones:** D-01/D-02/D-04 aprobadas; excepción puntual de marzo aprobada posteriormente. T15 verificada técnicamente: mediana congelada 12,983333 min de 41.119.495 etiquetas train 2024; 11.163.264 predicciones enero–marzo 2025. MAE 7,741890 min y RMSE 11,912962 min. [evaluación real auditada](reports/quality/t15_baseline_validation.md). Marzo aceptado por excepción humana solo para su hash/reporte; FAIL original y exclusiones conservados, sin cambiar D-04 global. T14 integral sigue pendiente; test/replay sellados, T16 no ejecutada y sin registro/promoción. G2/G3 requieren sus condiciones y revisión propias.
+
+**Activación D-04 posterior aprobada:** la propuesta basada en 240.000 filas de 2024 fue aprobada; perfil real probado y enero completo ejecutado. [Política](docs/d04-quality-proposal.md), [activación](docs/d04-activation.md), [piloto](reports/quality/pilot_2024_01.md). Resultado: 2.964.624 raw, 2.961.753 elegibles, 2.871 exclusiones y 60 normalizaciones; WARN, sin entrenamiento. Suite del piloto inicial: 255 pruebas en desarrollo y wheel. Después se aprobaron D-01/D-02 y se amplió autorización académica a los 24 archivos, ratificando/congelando D-04; [protocolo](docs/d01-d02-protocol.md). G2 conserva revisión humana y no implica calidad aprobada de otros lotes.
 
 ## 2. Mapa de dependencias y sprints
 
@@ -110,7 +112,7 @@ Evidencia técnica G1 disponible en [verificación T04/T05](docs/t04-t05-verific
 - **Aceptación/prueba:** segunda ejecución `SKIPPED`, hash consistente, conflicto explícito ante contenido distinto.
 - **Política aprobada:** archivo local sin manifiesto bloquea salvo `--register-local`; ese registro conserva bytes y deja fuente/fecha de descarga desconocidas, sin aprobación de calidad. Se implementa/prueba con fixtures, sin aplicarlo a los 24 Parquet.
 - **Estados:** manifiesto persistente DOWNLOADED o LOCAL_UNVERIFIED; ejecución SKIPPED no cambia procedencia. Conflictos/fallos conservan evidencia en log por lote y no permiten sobrescritura.
-- **Estado T07:** verificación técnica PASS: SHA-256, esquema/volumen, SKIPPED sin red, registro local, divergencias, concurrencia y fallo intermedio probados con fixtures. Los 24 Parquet reales siguen sin manifiestos de ingesta nuevos. Revisión humana pendiente; G2 no cerrado.
+- **Estado T07:** verificación técnica PASS: SHA-256, esquema/volumen, SKIPPED sin red, registro local, divergencias, concurrencia y fallo intermedio probados con fixtures. Estado inicial sin manifiestos; tras aprobar D-04 se registró solo enero 2024, con origen/fecha desconocidos conservados. Revisión humana G2 pendiente.
 - **Evidencia:** [T06/T07](docs/t06-t07-ingestion.md).
 
 ### T08 — Contrato y validación de esquema
@@ -127,15 +129,15 @@ Evidencia técnica G1 disponible en [verificación T04/T05](docs/t04-t05-verific
 - **Entregables:** `src/validation/rules.py`, reporte PASS/WARN/FAIL con observación y umbral.
 - **Aceptación/prueba:** un gate crítico impide salida aprobada; anomalías toleradas se contabilizan; casos limítrofes de cambio de mes probados.
 - **Excepción de alcance aprobada por el usuario:** implementar/probar el motor con políticas sintéticas sin resolver D-04; configuración real PENDIENTE, catálogo/políticas explícitos, sin eliminar duplicados ni aprobar lotes reales.
-- **Estado T09:** motor verificado técnicamente; SIN CIERRE OPERATIVO hasta aprobar D-04 y semántica histórica D-06. Reportes PASS/WARN/FAIL probados; approved_for_training siempre false hasta la integración/decisiones posteriores. [Evidencia y límites](docs/t08-t09-validation.md).
+- **Estado T09 actual:** perfil real D-04 provisional implementado, UTC alineado con D-06 y piloto enero 2024 completo aprobado con WARN. Revisión humana G2 pendiente; approved_for_training siempre false. [Evidencia inicial](docs/t08-t09-validation.md) y [activación actual](docs/d04-activation.md).
 
 ### T10 — Pipeline raw → validated
 - **Depende de:** T07–T09.
 - **Trabajo:** CLI `python -m src.validation.run --year YYYY --month MM`; persistir datos validados y reportes por lote con escritura segura.
 - **Entregables:** `src/validation/run.py`, `data/validated/` (ignorado en Git), `reports/quality/`.
 - **Aceptación/prueba:** ejecución con fixture válida, fallo controlado con fixture inválida, trazabilidad al manifiesto raw.
-- **Alcance actual:** CLI verifica integridad y exhaustividad, reutiliza exclusiones T09, persiste reportes por intento y salidas sintéticas aisladas con marcador final, sin reemplazos. Modo normal bloqueado, approved_for_training=false; configuración real sin cambios.
-- **Estado T10:** verificación técnica PASS con fixtures, revisión humana pendiente y SIN CIERRE OPERATIVO hasta resolver D-04/D-06. [Evidencia T10/T11](docs/t10-t11-data-pipeline.md).
+- **Alcance actual:** CLI verifica integridad/exhaustividad y autorización; persiste reportes y salidas REAL o TEST_ONLY con marcador final, sin reemplazos. Perfil real APPROVED_REAL, data_quality_approved separado de approved_for_training=false.
+- **Estado T10 actual:** fixtures y perfil real verificados; enero 2024 publicado VALIDATED_REAL bajo D-04 aprobada. Revisión humana pendiente; no habilita entrenamiento ni otros meses. [Evidencia inicial](docs/t10-t11-data-pipeline.md), [activación](docs/d04-activation.md).
 
 ### T11 — Pruebas de integración de datos
 - **Depende de:** T10.
@@ -146,40 +148,46 @@ Evidencia técnica G1 disponible en [verificación T04/T05](docs/t04-t05-verific
 
 **Gate G2:** ingesta idempotente, calidad auditable y bloqueo de datos no aprobados.
 
-Evidencia técnica offline disponible en T06–T11. G2 no se marca cerrado operativamente: D-04/D-06 siguen pendientes, no se han aprobado ni validado filas de los 24 lotes reales y falta revisión humana.
+Evidencia offline y piloto real enero 2024 disponibles. D-04 provisional y semántica temporal resueltas; G2 conserva revisión humana. El piloto aprueba calidad de un lote, no de los 24, y no habilita entrenamiento.
 
 ## 5. Sprint 3 — Features, modelado, MLflow
 
 ### T12 — Target y selección anti-leakage
 - **Depende de:** T10, D-06 para aprobar las features de destino.
-- **Trabajo:** derivar duración solo para entrenamiento; whitelist de origen/destino/calendario; prohibir dropoff, tarifas, propinas, pagos, taxímetro y target como predictores.
+- **Trabajo aprobado:** derivar target histórico en minutos UTC; whitelist origen/calendario/pasajeros opcionales. Destino deshabilitado; prohibir llegada, importes, pagos, taxímetro y target como predictores. Contexto temporal de etiquetas separado de X.
 - **Entregables:** `src/features/target.py`, `src/features/schema.py`.
 - **Aceptación/prueba:** test automatizado comprueba columnas permitidas y que ninguna variable post-viaje llega al estimador.
+- **Estado T12:** verificación técnica PASS con fixtures; whitelist/causalidad v1 y política temporal aprobadas tras revisar el diccionario TLC. Revisión humana final pendiente. [Evidencia](docs/t12-t13-features.md).
 
 ### T13 — Transformaciones reutilizables
 - **Depende de:** T12, D-06.
 - **Trabajo:** features de hora/día/mes en America/New_York; tratamiento explícito de pasajero opcional; serializar preprocesador junto al estimador.
 - **Entregables:** `src/features/build.py`, pipeline sklearn y pruebas de DST/zonas horarias.
 - **Aceptación/prueba:** mismo payload produce mismas features en train/serving; timestamps sin offset rechazados según contrato.
+- **Estado T13:** verificación técnica PASS: Pipeline serializable, fit de categorías solo sobre entradas train de pruebas, pasajeros ausentes explícitos, DST y CLI sobre lote validado identificado. Sin fit al construir archivos de features. Suite inicial de 227 pruebas (65 nuevas). Tras D-04, lector REAL probado con fixtures; enero validado sin extraer features ni entrenar; suite actual 255. [Evidencia](docs/t12-t13-features.md).
 
-### T14 — Particiones temporales y muestreo
+### T14 — Particiones temporales y lectura completa por bloques
 - **Depende de:** T10, T13, D-01/D-02.
-- **Trabajo:** cortes cronológicos configurables, muestreo determinista por partición, separación estricta de train/val/test.
+- **Trabajo aprobado en D-01/D-02:** cortes cronológicos 2024/train, ene–mar 2025/val, abr–jun/test, jul–dic/replay; todas las filas elegibles, sin submuestreo. Lectura/escritura por bloques, linaje y separación estricta de particiones. La implementación fue autorizada por el usuario y probada con fixtures; aún no hay ejecución de las particiones reales.
 - **Entregables:** `src/training/split.py`, `configs/model.yaml`.
-- **Aceptación/prueba:** `max(train.time) < min(val.time)` y `max(val.time) < min(test.time)`; sin solapamiento de filas; misma semilla reproduce muestras.
+- **Aceptación/prueba:** `max(train.time) < min(val.time)` y `max(val.time) < min(test.time)`; sin solapamiento, cobertura completa de elegibles y exclusiones causales auditadas; repetición reproduce hashes/conteos/orden. No se concatena el histórico completo en una matriz densa.
 - **Aceptación temporal adicional:** verificar etiquetas disponibles al corte; probar viajes que empiezan antes y terminan después del corte, excluyéndolos del entrenamiento simulado en ese instante. Documentar replay retrospectivo frente a disponibilidad real de publicación de lotes, conforme a la política aprobada D-01/D-06; no inferir disponibilidad por el solo mes del archivo.
 
+- **Estado T14:** registro completo de los 24 meses; 15 versiones previas con features aceptadas. Validación completa de abril–diciembre de 2025: nueve rechazos por D-04, sin features publicadas ni nuevas excepciones. Particionado de los 24 meses y auditoría final pendientes de resolver esos rechazos; cualquier excepción nueva requiere aprobación. [Contrato](docs/t14-full-preparation.md) y [resultados por mes](reports/quality/t14_full_preparation.md).
+
 ### T15 — Baseline
-- **Depende de:** T14.
-- **Trabajo:** mediana global o por ruta/franja calculada solo con train; predicción de validación.
+- **Depende de:** lector temporal de T14 y datos aprobados train/validation. La continuación autorizada separa ajuste/evaluación de la preparación integral de test/replay; no cierra T14.
+- **Trabajo aprobado:** mediana global exacta solo de train 2024; evaluación de enero–marzo 2025, reutilizando el ajuste congelado y la excepción puntual autorizada.
 - **Entregables:** `src/training/baseline.py` y artefacto de resultados.
 - **Aceptación/prueba:** predicciones finitas y positivas; baseline reproducible; no utilizar test para elegir modelos.
 
+- **Estado T15 actual:** CIERRE TÉCNICO PASS. T15 verificada técnicamente: mediana congelada 12,983333 min de 41.119.495 etiquetas train 2024; 11.163.264 predicciones enero–marzo 2025. MAE 7,741890 min y RMSE 11,912962 min. [evaluación real auditada](reports/quality/t15_baseline_validation.md). Marzo aceptado por excepción humana solo para su hash/reporte; FAIL original y exclusiones conservados, sin cambiar D-04 global. T14 integral sigue pendiente; test/replay sellados, T16 no ejecutada y sin registro/promoción. 380 pruebas en desarrollo y wheel; revisión humana de resultados pendiente.
+
 ### T16 — Dos modelos candidatos
 - **Depende de:** T14, T15.
-- **Trabajo:** HistGradientBoostingRegressor y RandomForestRegressor o GradientBoostingRegressor; controlar memoria, semillas y preprocesamiento compatible.
+- **Trabajo aprobado en D-02:** SGDRegressor y MLPRegressor pequeño con partial_fit sobre todos los bloques train; preprocesador ajustado únicamente en train, congelado y serializado junto al estimador. Cuatro hilos, un candidato a la vez, 8 GiB y dos horas/candidato; preflight de 12 GiB RAM/50 GiB disco libres. Instrumentar y probar límites antes de entrenar; al exceder detener sin reducir datos. Arquitectura, épocas y parámetros concretos se revisan en esta tarea.
 - **Entregables:** `src/training/train.py`, configuraciones de hiperparámetros.
-- **Aceptación/prueba:** entrenamiento en fixture/muestra acotada, inferencia válida y métricas registrables para ambos.
+- **Aceptación/prueba:** fixtures verifican aprendizaje por bloques, coherencia train/serving y límites de RAM/tiempo/disco. Ejecución real posterior usa todos los elegibles, sin muestreo silencioso; registra pasadas, cobertura y recursos de ambos candidatos. La viabilidad completa no está demostrada por la prueba sintética.
 
 ### T17 — Evaluación temporal y segmentos
 - **Depende de:** T15, T16.
@@ -330,7 +338,7 @@ Evidencia técnica offline disponible en T06–T11. G2 no se marca cerrado opera
 
 ## 9. Comandos de referencia y orden de arranque
 
-> **Importante:** ingesta y validación ya ofrecen CLI; el modo normal de validación rechaza mientras la política real siga pendiente. Los demás son comandos objetivo y solo funcionarán al implementar su tarea y aprobar sus dependencias.
+> **Importante:** ingesta/validación/features/particionado/baseline ya tienen CLI. Hay 24 meses registrados y 15 con features REAL: 14 pasan calidad y marzo se acepta solo mediante la excepción explícita autorizada. Abril–diciembre de 2025 están rechazados por D-04, sin features ni excepciones nuevas. T15 completó ajuste y validación; T14 integral sigue pendiente. La ejecución normal sin --quality-exception sigue rechazando marzo. Candidatos, monitoreo y Docker son tareas posteriores; [alcance de la excepción](docs/t15-march-exception.md). El [historial de commits](docs/commit-history.md) documenta las dos entregas autorizadas.
 
 ```powershell
 # Desde la raíz del repositorio en PowerShell
@@ -347,7 +355,7 @@ docker compose up -d mlflow
 # Pipeline (una vez implementados los módulos y aprobados los meses)
 python -m src.ingestion.download --year 2025 --month 01
 python -m src.validation.run --year 2025 --month 01
-python -m src.features.build --year 2025 --month 01
+python -m src.features.build --help
 python -m src.training.train --config configs/model.yaml
 
 # SOLO después de aprobar y registrar un champion
@@ -356,7 +364,7 @@ Invoke-RestMethod http://localhost:8000/health
 Invoke-RestMethod http://localhost:8000/model-info
 
 # Monitoreo y evaluación de trigger
-python -m src.monitoring.run --year 2026 --month 01
+python -m src.monitoring.run --year 2025 --month 07
 python -m src.retraining.evaluate --config configs/monitoring.yaml
 ```
 
@@ -405,7 +413,7 @@ Prepara un guion reproducible para la demostración de la plataforma local. Usa 
 
 ## 12. Checklist de control (estado inicial)
 
-- [ ] G0 Decisiones críticas registradas y aprobadas para descargas masivas y entrenamiento real (el registro documental de T01 no cierra este gate).
+- [x] G0 Decisiones D-01/D-02/D-04 registradas y aprobadas para el protocolo local existente, sin descargas masivas. No acredita controles implementados ni autoriza entrenamiento/T14 por sí solo; G2/G3 siguen independientes.
 - [ ] G1 Arquitectura, entorno y fixtures reproducibles.
 - [ ] G2 Ingesta y DQ auditables.
 - [ ] G3 Modelado temporal, MLflow y champion.

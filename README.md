@@ -4,11 +4,11 @@ Proyecto de maestría de Universidad CENFOTEC para estimar la duración de un vi
 
 ## Estado actual
 
-T01/T02 fueron cerradas por el usuario y las continuaciones hasta T10/T11 se autorizaron progresivamente. Hay esquema, motor de calidad y CLI de validación con integración offline. T10/T11 están verificadas técnicamente con fixtures para revisión humana; el flujo real permanece bloqueado por D-04/D-06. T12 y siguientes, periodos y umbrales reales requieren autorización.
+**T15 terminó su ajuste y evaluación reales, con cierre técnico auditado.** T15 verificada técnicamente: mediana congelada 12,983333 min de 41.119.495 etiquetas train 2024; 11.163.264 predicciones enero–marzo 2025. MAE 7,741890 min y RMSE 11,912962 min. [evaluación real auditada](reports/quality/t15_baseline_validation.md). Marzo aceptado por excepción humana solo para su hash/reporte; FAIL original y exclusiones conservados, sin cambiar D-04 global. T14 integral sigue pendiente; test/replay sellados, T16 no ejecutada y sin registro/promoción. Revisión humana del resultado independiente del cierre técnico.
 
-Hay CLI de ingesta/validación, manifiestos, esquema raw, reportes de calidad y pruebas de empaquetado, fixtures y perfilado. La integración raw → validated solo publica fixtures TEST_ONLY aisladas, sin aprobación para entrenamiento. Políticas reales, features, modelos, API, Dockerfile, Compose y workflows siguen pendientes. Se usan herramientas T03 y PyArrow, sin dependencias nuevas.
+Hay CLI de ingesta, validación, features, particionado, ajuste y evaluación del baseline congelado. Hay 15 fuentes aprobadas para uso, 14 por calidad medida y marzo por excepción puntual. No hay T14 integral ni champion; API, MLflow, Docker y workflows pendientes. Sin dependencias nuevas.
 
-Repositorio GitHub: [ModoJorgeBT/nyc-yellow-taxi-mlops](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops), rama `main`. El usuario autorizó el primer commit y la publicación del estado hasta T10/T11. Las evidencias anteriores que indican «sin commits/remotos/publicación» describen las verificaciones previas a esta autorización. La publicación no resuelve decisiones pendientes ni habilita datos reales para entrenamiento; GitHub Actions sigue sin implementar.
+Repositorio GitHub: [ModoJorgeBT/nyc-yellow-taxi-mlops](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops), rama `main`. El primer commit `164bf9e` contiene T01–T11; el segundo incorpora features T12/T13, D-01/D-02/D-04, el baseline T15 y el estado pendiente de T14. El [historial documentado de ambas entregas](docs/commit-history.md) detalla alcance, pruebas y resultados. Las menciones históricas a «sin nuevo commit/push» corresponden al momento de esas mediciones. GitHub Actions sigue sin implementar.
 
 Documentos rectores: [intent.md](intent.md), [spec.md](spec.md) y [plan.md](plan.md). Consultar [decisiones y riesgos](docs/decisions.md), [arquitectura](docs/architecture.md), [ADR local](docs/adr/0001-arquitectura-local.md) y [verificación T02](docs/t02-verification.md).
 
@@ -22,15 +22,20 @@ Calidad actual: [contrato y evidencia T08/T09](docs/t08-t09-validation.md), [con
 
 Pipeline actual: [contrato y evidencia T10/T11](docs/t10-t11-data-pipeline.md) y [pruebas de integración](tests/integration/test_data_pipeline.py).
 
+Features actuales: [contrato y evidencia T12/T13](docs/t12-t13-features.md), [whitelist](src/features/schema.py), [transformaciones](src/features/build.py).
+
+D-04 ratificada/congelada con [excepción puntual de marzo](docs/t15-march-exception.md). Los límites globales permanecen: se conserva FAIL original, se excluyen las 23.886 filas inválidas y se aceptan por decisión humana 4.121.371 elegibles. La excepción exige mes/hash/reporte exactos y no cubre otros fallos. [evaluación real auditada](reports/quality/t15_baseline_validation.md). Suite: 380 pruebas en desarrollo y wheel.
+
 ## Estructura preparada
 
 | Ruta | Finalidad |
 |---|---|
 | `src/` | Paquete raíz para comandos y módulos del proyecto. |
 | `src/ingestion` | Descarga mensual, manifiestos, idempotencia y registro local explícito. |
-| `src/validation` | Esquema, reglas y CLI con reportes; solo publicación sintética aislada mientras la configuración real siga PENDIENTE. |
-| `src/features` | Transformaciones futuras. |
-| `src/training`, `src/evaluation` | Entrenamiento y evaluación futuros. |
+| `src/validation` | Esquema, reglas REAL/TEST_ONLY, autorización y CLI con reportes; calidad separada de entrenamiento. |
+| `src/features` | Target UTC, whitelist, transformación compartida, Pipeline y lector de lotes REAL/TEST_ONLY aprobados. |
+| `src/training` | T14: particiones completas por bloques y supervisión de recursos; entrenamiento pendiente. |
+| `src/evaluation` | Evaluación de modelos futura. |
 | `src/api`, `src/monitoring`, `src/retraining` | Serving, observación y retraining futuros. |
 | `tests/unit`, `tests/fixtures` | Pruebas de empaquetado, casos sintéticos y perfilador; no requieren datos reales. |
 | `tests/integration`, `tests/api` | Integración de datos offline; API pendiente. |
@@ -52,7 +57,7 @@ El ejemplo no aprueba los periodos de entrenamiento. Conservar los archivos orig
 
 Los 24 archivos aportados ya están organizados así, de enero a diciembre de 2024 y 2025. Suman 1.418 GiB y 89,892,322 filas declaradas en footers. Se verificó que sus hashes no cambiaron durante el movimiento. Los esquemas tienen 19 columnas en 2024 y 20 en 2025 por `cbd_congestion_fee`; no se escanearon todas las filas ni se aprobaron Quality Gates.
 
-La carpeta raw no certifica procedencia ni calidad. T05 perfila solo 2024 mediante la muestra posicional aprobada de 2.048 filas por row group; 2025 permanece sin perfilado de filas. Manifiestos/gates siguen pendientes y los metadatos de procedencia ausentes no se inventan. No colocar archivos manualmente en validated o processed como si hubieran sido aprobados.
+La carpeta raw no certifica procedencia ni calidad. Los 24 archivos están registrados como LOCAL_UNVERIFIED, con fuente/fecha nulas y bytes/hash conservados. Hay 15 versiones con features: catorce lotes pasaron calidad y marzo 2025 fue aceptado por excepción explícita, conservando el FAIL medido y excluyendo filas inválidas. Abril–diciembre de 2025 fueron escaneados completos y rechazados por D-04; no generan features ni permiten completar el particionado de 24 meses. [Preparación integral pendiente](reports/quality/t14_full_preparation.md) y [evaluación real de T15](reports/quality/t15_baseline_validation.md).
 
 Los Parquet reales están excluidos de Git. La excepción `tests/fixtures/*.parquet` contiene diez archivos sintéticos pequeños de T04 (103.906 bytes en total); no copiar datos TLC reales allí.
 
@@ -65,11 +70,13 @@ Las fixtures siguen siendo necesarias aunque existan datos reales: permiten repe
 .\.venv\Scripts\python.exe -m scripts.profile_sample --rows-per-group 2048
 ```
 
-La muestra de 90.112 filas de 2024 es sesgada por posición y no representa todo el año. Se observaron 35 duraciones no positivas, 155 recogidas fuera del mes y 4.096 pasajeros nulos; son conteos de muestra. D-02 dispone de mediciones del host y del perfilado, pero límites Docker y presupuesto de entrenamiento siguen pendientes. D-04 contiene propuestas sin umbrales de lote aprobados.
+La muestra T05 de 90.112 filas de 2024 es sesgada por posición y no representa todo el año. Se observaron 35 duraciones no positivas, 155 recogidas fuera del mes y 4.096 pasajeros nulos; son conteos de esa muestra. D-04 se resolvió posteriormente con otra muestra aleatoria, aprobación explícita y piloto completo. D-02 tiene presupuesto incremental aprobado; sus controles, mediciones de entrenamiento y límites efectivos Docker aún deben implementarse/verificarse en sus tareas.
 
 El perfilador guarda `reports/eda_schema.md` y un JSON detallado local excluido de Git. No modifica raw ni genera datos aprobados. Las pruebas usan fixtures y temporales propios; los reportes de EDA utilizan únicamente los Parquet reales de la muestra autorizada.
 
 ## Entorno Python de T03
+
+T13 amplía este entorno aprobado con scikit-learn 1.9.1 y tzdata 2026.6; el lock actual incluye 23 paquetes con hashes, manteniendo las 15 versiones anteriores. La instalación del lock siguiente incluye el extra de features y sus transitivas. Detalle y límites en [T12/T13](docs/t12-t13-features.md).
 
 Versión aprobada: Python 3.14.7 de 64 bits, registrada en [.python-version](.python-version). El lock se generó y probó en Windows con CPython 3.14; la compatibilidad de Docker/Linux y del stack MLOps completo aún no está probada.
 
@@ -95,15 +102,15 @@ No se necesita activar el entorno ni modificar la política de ejecución de Pow
 
 El CLI admite año/mes, timeout, reintentos, directorio raw y hash esperado. Para un lote ausente descarga desde la URL canónica TLC; para un lote con manifiesto verifica hash/esquema/volumen y devuelve SKIPPED sin red. Los conflictos bloquean, sin reemplazar datos.
 
-Los 24 archivos aportados todavía no tienen manifiestos de ingesta. El comando normal los bloquea hasta una acción explícita: `--register-local` conserva bytes y crea un registro LOCAL_UNVERIFIED con fuente/fecha de descarga desconocidas. Esa política se aprobó y probó con fixtures, sin aplicarla a los archivos reales. No convierte un archivo raw en datos aprobados para entrenamiento. Consultar la guía T06/T07 antes de usar los comandos sobre raw.
+Hay 15 manifiestos raw creados por registro local explícito autorizado (2024 y enero–marzo de 2025). Solo 14 lotes superaron calidad y tienen features; marzo de 2025 sigue rechazado. Los nueve meses restantes no se incorporaron en este intento. --register-local conserva bytes y no concede calidad ni entrenamiento. La autorización cubre los 24 hashes/meses actuales, no archivos nuevos/modificados. [decisión y contraste oficial](docs/t14-t15-quality-blocker.md).
 
 ## Esquema y calidad de T08/T09
 
-`configs/data.yaml` contiene el esquema aprobado y una política real PENDIENTE. Su sintaxis es JSON compatible con YAML; no se instaló PyYAML. El motor recibe bloques Arrow y devuelve reportes con reglas, conteos/tasas, umbrales y evidencia. Distingue exclusiones de filas del rechazo completo del lote, mide duplicados entre bloques y permite viajes cuya llegada cruza de mes.
+`configs/data.yaml` contiene el esquema aprobado y la política provisional APPROVED_REAL. Su sintaxis es JSON compatible con YAML; no se instaló PyYAML. El motor recibe bloques Arrow y devuelve reportes con reglas, conteos/tasas, umbrales y evidencia. Distingue exclusiones de filas del rechazo completo del lote, mide duplicados exactos entre bloques y permite viajes cuya llegada cruza de mes. Históricos localizados en Nueva York, duración UTC y cuarentena DST; pasajeros fuera de 0–6 pasan a null con auditoría.
 
-La entrega T08/T09 alcanzó 129 pruebas; T10/T11 amplían la suite a 162. Solo perfiles completos TEST_ONLY y fixtures marcadas pueden superar calidad en estas pruebas. Un gate crítico o cualquier decisión pendiente bloquea. La integración T10 comprueba manifiestos, exhaustividad y escritura segura de fixtures, manteniendo `approved_for_training=false`; no se validaron filas reales de 2025 ni se adoptaron límites del EDA como definitivos.
+Las entregas iniciales T08/T09 y T10/T11 alcanzaron 129 y 162 pruebas con fixtures. D-04 añade el perfil real aprobado y probado, con 255 pruebas totales. Un fallo crítico bloquea publicación; exclusiones toleradas y controles informativos permanecen visibles como WARN. T10 comprueba autorización, manifiestos, exhaustividad y escritura segura, manteniendo `approved_for_training=false` incluso al aprobar calidad REAL.
 
-Detalles de API, semántica de tasas/exclusiones, costes temporales, DST pendiente y evidencia: [T08/T09](docs/t08-t09-validation.md).
+Contrato y evidencia históricos: [T08/T09](docs/t08-t09-validation.md). Política, semántica temporal y recursos actuales: [D-04](docs/d04-activation.md).
 
 ## Pipeline de T10/T11
 
@@ -112,9 +119,22 @@ Detalles de API, semántica de tasas/exclusiones, costes temporales, DST pendien
 .\.venv\Scripts\python.exe -m pytest -q tests/integration/test_data_pipeline.py --basetemp=.cache/pytest-t10-integration -o cache_dir=.cache/pytest-cache-t10-integration
 ```
 
-El modo normal exige manifiesto e integridad y guarda rechazo por política real pendiente, sin leer filas. `--test-only` exige configuración y fixture sintéticas y publica bajo `data/validated/_test_only/`, con reportes y marcador final `validation.json`. No registra automáticamente los Parquet aportados. Repetir crea un intento nuevo y conserva los anteriores; el CLI devuelve código 1 ante rechazo/error. Los detalles de linaje, publicación incompleta, rutas y límites están en [T10/T11](docs/t10-t11-data-pipeline.md).
+El modo normal exige manifiesto, integridad, política APPROVED_REAL y procedencia permitida; publica bajo `data/validated/YYYY/MM/id/` solo tras superar calidad. `--test-only` exige configuración y fixture sintéticas y usa `data/validated/_test_only/`. Ambos conservan reportes y marcador final `validation.json`. No se registran automáticamente los Parquet aportados. Repetir crea un intento nuevo y conserva los anteriores; el CLI devuelve código 1 ante rechazo/error. Detalle inicial en [T10/T11](docs/t10-t11-data-pipeline.md) y actualización en [D-04](docs/d04-activation.md).
 
-Estos resultados de prueba no habilitan entrenamiento. T12 deberá comprobar ámbito/aprobación y no consumir todos los Parquet de validated mediante un glob sin controles. D-04/D-06 siguen pendientes y G2 operativo permanece abierto.
+La calidad aprobada no habilita entrenamiento. El lector T12/T13 comprueba ámbito/aprobación y exige un lote explícito, sin glob de todos los Parquet. D-04 provisional resuelta; G2 conserva revisión humana. Catálogo operativo aprobado; contrato REST completo pendiente en D-06. D-01/D-02 aprobadas para el [protocolo local](docs/d01-d02-protocol.md); instrumentación y pruebas de recursos pendientes antes de modelado real.
+
+## Target y features de T12/T13
+
+El lector de features comprueba un lote validado explícito y sus hashes/estado REAL o TEST_ONLY antes de leer filas. REAL exige calidad aprobada, política temporal/autorización coherentes y ninguna exclusión adicional; rechaza raw, resultados incompletos, datos modificados y mezcla de modos. Extrae origen, calendario de Nueva York y pasajeros opcionales; destino y variables post-viaje quedan fuera de X. El target se calcula en UTC después de localizar timestamps históricos; horarios ambiguos/inexistentes se apartan con motivo. Esta es una convención aprobada del proyecto, no una garantía del diccionario TLC.
+
+El preprocesador compartido admite offset en inferencia, representa pasajeros ausentes con indicador y aprende categorías de origen únicamente durante fit. La construcción de archivos de features no hace fit: las particiones de T14 todavía no existen. El evento final de etiqueta se conserva como contexto separado y no acredita publicación del lote.
+
+```powershell
+.\.venv\Scripts\python.exe -m src.features.build --help
+.\.venv\Scripts\python.exe -m pytest -q tests/unit/test_features.py tests/integration/test_feature_pipeline.py --basetemp=.cache/pytest-feature-check -o cache_dir=.cache/pytest-cache-feature-check
+```
+
+La entrega T12/T13 tenía 227 pruebas, 65 nuevas; la suite actual tiene 255 tras D-04. El CLI requiere `--validated-batch`; `--test-only` selecciona el modo sintético. Produce features.parquet, target.parquet, context.parquet y marcador final bajo processed/YYYY/MM/id o processed/_test_only. Este soporte REAL se probó con fixtures; no se ejecutó sobre enero real. No concede aprobación para entrenamiento. Ver [contrato, serialización y límites](docs/t12-t13-features.md).
 
 ## Comprobaciones de estructura de T02
 
@@ -135,6 +155,20 @@ La consulta `python -m pytest --version` de T02 solo acreditaba disponibilidad. 
 
 [.env.example](.env.example) es una plantilla pública con rutas relativas y una URI de MLflow propuesta para el host. No contiene credenciales ni se carga automáticamente. No hay todavía servicio MLflow al que conectarse; la configuración entre contenedores se resolverá en su tarea.
 
-Python, MLflow, FastAPI y Docker Compose para ejecución local están confirmados. T03 fija Python, setuptools, pip/wheel, Ruff, Pytest, pip-tools y PyArrow. MLflow/FastAPI no se instalaron aún; Pandas, sklearn, Pydantic, Evidently y GitHub Actions mantienen su aprobación pendiente. Destino conocido, meses, recursos, umbrales, persistencia y criterio general de PR mantienen los estados de D-01…D-08. No introducir en inferencia llegada, duración/target, importes finales ni distancia real de taxímetro.
+Python, MLflow, FastAPI y Docker Compose para ejecución local están confirmados. T03 fija las herramientas de entorno y PyArrow; T13 añade scikit-learn/tzdata y transitivas con aprobación. MLflow/FastAPI no se instalaron aún; pandas, Pydantic, Evidently y GitHub Actions siguen pendientes. D-04 aprueba calidad provisional y catálogo operativo; D-06 resuelve whitelist/tiempo, con destino deshabilitado. D-01/D-02 fijan periodos y ejecución incremental con todos los elegibles: SGDRegressor/MLPRegressor pequeño, 4 hilos, 8 GiB, 2 h/candidato, preflight 12 GiB RAM/50 GiB disco libres. Contrato REST, controles/mediciones de entrenamiento, Docker, drift/promoción, persistencia y criterio general de PR mantienen sus pendientes. No introducir llegada, target, importes finales ni distancia real de taxímetro en inferencia.
 
-Los CLI de ingesta/validación y los módulos de esquema/calidad están implementados; los comandos de features/modelos/Docker incluidos en spec/plan siguen siendo contratos futuros. No subir `.env`, Parquet reales, modelos ni bases locales de MLflow a Git. Ver [.gitignore](.gitignore).
+Los CLI de ingesta/validación/features están implementados con las restricciones indicadas; modelos/API/Docker siguen siendo contratos futuros. No subir `.env`, Parquet reales, modelos ni bases locales de MLflow a Git. Ver [.gitignore](.gitignore).
+
+## Particiones temporales T14
+
+[Contrato y evidencia](docs/t14-temporal-splits.md), [configuración aprobada](configs/model.yaml). El CLI `python -m src.training.split --inputs CATALOGO_JSON` exige las 24 versiones explícitas de features y su validación; sin glob, submuestreo ni fit. Conserva features/target/context separados, aparta etiquetas no disponibles al corte y verifica cobertura. `--test-only` requiere fixtures y aísla salidas. Suite inicial T14: 287 pruebas; [demostración de 24 meses sintéticos](reports/quality/t14_temporal_splits.md).
+
+T14 integral sobre 24 meses permanece pendiente. T15 completó ajuste y evaluación usando el lector causal y todas las fuentes train/validation, con la separación autorizada. [evaluación real auditada](reports/quality/t15_baseline_validation.md). Los snapshots de validation de T15 no son una T14 integral completa.
+
+## Baseline T15
+
+[Contrato T15](docs/t15-baseline.md). El usuario aprobó mediana global exacta de todo train 2024, en disco, y predicción solo de validación ene–mar 2025. El CLI es `python -m src.training.baseline --split-batch RUTA_LOTE_T14`; no abre test/replay. Modelo JSON y predicciones alineadas, sin MLflow/serving/promoción. Suite actual: 356 pruebas en desarrollo y wheel.
+
+Preparación/evaluación usaron el perfil 4 GiB libres/2 GiB RSS/50 GiB disco; T16 conserva 12/8. Ajuste y evaluación T15 terminaron y fueron auditados, sin test/replay ni candidatos. [evaluación real auditada](reports/quality/t15_baseline_validation.md).
+
+Ajuste: `python -m src.training.baseline_fit --inputs configs/train-feature-batches.local.json`. Evaluación del ajuste congelado: `python -m src.training.baseline_evaluate --fit-batch RUTA_AJUSTE --inputs configs/validation-feature-batches.local.json`. [evaluación real auditada](reports/quality/t15_baseline_validation.md). No se modifica el ajuste original ni se reutiliza un dataset rechazado sin autorización.

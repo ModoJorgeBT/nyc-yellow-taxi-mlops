@@ -1,4 +1,4 @@
-"""CLI raw -> reporte; publicacion aislada de fixtures TEST_ONLY, nunca entrenamiento."""
+"""CLI raw -> calidad real aprobada o TEST_ONLY; no concede permiso de entrenamiento."""
 
 import argparse
 import hashlib
@@ -25,6 +25,8 @@ from src.ingestion.manifest import (
     source_url,
     utc_now,
 )
+from src.validation.exceptions import authorize_exception, bind_exception, load_exception
+from src.validation.real import authorize_source, validate_policy
 from src.validation.rules import evaluate_batches
 from src.validation.schema import check, fingerprint, load_config, validate_schema
 
@@ -55,12 +57,16 @@ def _sha256(path: Path) -> str:
 def _write_eligible(writer: pq.ParquetWriter, batch: pa.RecordBatch, mask: list[bool]) -> None:
     """Escribe tramos validos por slice, sin depender de PyArrow Compute."""
     start = None
+    pieces = []
     for index, keep in enumerate([*mask, False]):
         if keep and start is None:
             start = index
         elif not keep and start is not None:
-            writer.write_batch(batch.slice(start, index - start))
+            pieces.append(batch.slice(start, index - start))
             start = None
+    if pieces:
+        # Un grupo por bloque, evitando miles de grupos diminutos por las exclusiones.
+        writer.write_table(pa.Table.from_batches(pieces), row_group_size=65_536)
 
 
 def _scan(
@@ -72,17 +78,31 @@ def _scan(
     month: int,
     batch_size: int,
     validation_id: str,
+    resource_check=None,
 ) -> dict:
     with data.open("rb") as source, pq.ParquetFile(source) as parquet:
+        real = config["quality"].get("status") == "APPROVED_REAL"
         metadata = {
             **(parquet.schema_arrow.metadata or {}),
-            b"validation_scope": b"TEST_ONLY",
+            b"validation_scope": b"REAL" if real else b"TEST_ONLY",
             b"approved_for_training": b"false",
             b"validation_id": validation_id.encode(),
         }
         output_schema = parquet.schema_arrow.with_metadata(metadata)
+        if real and "passenger_count" in output_schema.names:
+            index = output_schema.get_field_index("passenger_count")
+            output_schema = output_schema.set(index, output_schema.field(index).with_nullable(True))
         with staged.open("xb") as stream:
             with pq.ParquetWriter(stream, output_schema, compression="snappy") as writer:
+
+                def checked_write(batch, mask):
+                    if resource_check is not None:
+                        try:
+                            resource_check()
+                        except RuntimeError as error:
+                            raise ValidationError(str(error)) from error
+                    _write_eligible(writer, batch, mask)
+
                 report = evaluate_batches(
                     parquet.schema_arrow,
                     parquet.iter_batches(batch_size=batch_size, use_threads=False),
@@ -90,7 +110,7 @@ def _scan(
                     month=month,
                     config=config,
                     scratch_dir=scratch,
-                    on_batch=lambda batch, mask: _write_eligible(writer, batch, mask),
+                    on_batch=checked_write,
                 )
             stream.flush()
             os.fsync(stream.fileno())
@@ -108,11 +128,13 @@ def validate(
     scratch_dir: Path = Path(".cache/validation"),
     batch_size: int = 65_536,
     test_only: bool = False,
+    resource_check=None,
+    exception_path: Path | None = None,
 ) -> dict:
     """Valida un lote sin red ni incorporacion automatica de archivos locales.
 
-    Cada intento conserva reporte propio. Solamente TEST_ONLY puede publicar datos
-    en _test_only y nunca obtiene approved_for_training. Un validation.json publicado
+    Cada intento conserva reporte propio. REAL aprobado publica calidad real;
+    TEST_ONLY usa _test_only. Ninguno obtiene approved_for_training. Un validation.json publicado
     al final es el marcador de un resultado completo; un Parquet aislado no lo es.
     """
     source_url(year, month)
@@ -146,6 +168,7 @@ def validate(
         "execution_status": "REJECTED",
         "quality_passed": False,
         "approved_for_training": False,
+        "data_quality_approved": False,
         "lineage_status": "NOT_VERIFIED",
         "scan_scope": "NOT_STARTED",
         "input": None,
@@ -182,7 +205,34 @@ def validate(
                 schema_fingerprint=structural["schema_fingerprint"],
             )
             report["checks"] = structural["checks"]
-            if not test_only:
+            real = not test_only and config["quality"].get("status") == "APPROVED_REAL"
+            if real:
+                validate_policy(config["quality"])
+                report["source_use_approval"] = authorize_source(manifest, config["quality"])
+                if exception_path is not None:
+                    bind_exception(report, load_exception(Path(exception_path)))
+                report["checks"].append(
+                    check(
+                        "provenance.authorized",
+                        "PASS",
+                        report["source_use_approval"],
+                        "Recorded download or explicit local authorization",
+                        manifest["provenance_status"],
+                    )
+                )
+                if manifest["origin"] == "local":
+                    report["checks"].append(
+                        check(
+                            "provenance.unverified",
+                            "WARN",
+                            manifest["provenance_status"],
+                            "Accepted for academic pilot only",
+                            {"source_url": None, "downloaded_at_utc": None},
+                        )
+                    )
+            if exception_path is not None and not real:
+                raise ValidationError("Las excepciones exigen calidad REAL, nunca TEST_ONLY")
+            if not test_only and not real:
                 report["checks"].append(
                     check(
                         "policy.ready",
@@ -193,7 +243,7 @@ def validate(
                     )
                 )
                 report["scan_scope"] = "PREFLIGHT_ONLY"
-            elif (
+            elif test_only and (
                 config["quality"].get("status") != "TEST_ONLY"
                 or (schema.metadata or {}).get(b"fixture_origin") != b"synthetic"
             ):
@@ -202,18 +252,49 @@ def validate(
                 )
             elif structural["status"] == "FAIL":
                 report["scan_scope"] = "PREFLIGHT_ONLY"
+            elif real and manifest["row_count"] < config["quality"]["volume"]["min_rows"]:
+                report["checks"].append(
+                    check(
+                        "volume.min_rows",
+                        "FAIL",
+                        manifest["row_count"],
+                        {"minimum": config["quality"]["volume"]["min_rows"]},
+                        "Footer preflight",
+                    )
+                )
+                report["scan_scope"] = "PREFLIGHT_ONLY"
             else:
-                output_parent = _under(validated, "_test_only", *period)
+                output_parts = (() if real else ("_test_only",)) + period
+                output_parent = _under(validated, *output_parts)
                 output_parent.mkdir(parents=True, exist_ok=True)
-                destination = _under(validated, "_test_only", *period, validation_id)
+                destination = _under(validated, *output_parts, validation_id)
                 # Staging en el mismo volumen que el destino, sin reemplazos.
                 with tempfile.TemporaryDirectory(prefix=".validation-", dir=output_parent) as owned:
                     staged = Path(owned) / "data.parquet"
                     report["scan_scope"] = "FULL_PARQUET_ATTEMPT"
                     quality = _scan(
-                        data, staged, config, scratch, year, month, batch_size, validation_id
+                        data,
+                        staged,
+                        config,
+                        scratch,
+                        year,
+                        month,
+                        batch_size,
+                        validation_id,
+                        resource_check=resource_check,
                     )
+                    initial_checks = report["checks"]
                     report.update(quality)
+                    provenance = [
+                        entry for entry in initial_checks if entry["rule"].startswith("provenance.")
+                    ]
+                    report["checks"].extend(provenance)
+                    if (
+                        real
+                        and quality["status"] == "PASS"
+                        and any(entry["status"] == "WARN" for entry in provenance)
+                    ):
+                        report["status"] = "WARN"
                     report["report_version"] = 2
                     report["scan_scope"] = "FULL_PARQUET"
                     report["lineage_status"] = "VERIFIED_CONTENT"
@@ -230,7 +311,16 @@ def validate(
                     after = read_and_verify(manifest_path, data, year, month)
                     if after != manifest or _sha256(manifest_path) != manifest_hash:
                         raise ValidationError("El lote/manifiesto cambio durante el escaneo")
-                    if not quality["quality_passed"] or not exhaustive:
+                    accepted = quality["quality_passed"]
+                    if exception_path is not None:
+                        report["quality_exception"] = authorize_exception(
+                            report, Path(exception_path)
+                        )
+                        report.update(
+                            status="WARN", raw_quality_status="FAIL", quality_passed=False
+                        )
+                        accepted = True
+                    if not accepted or not exhaustive:
                         report.update(status="FAIL", quality_passed=False)
                     else:
                         description = describe_parquet(staged)
@@ -238,14 +328,22 @@ def validate(
                             raise ValidationError("La salida no coincide con las filas elegibles")
                         destination.mkdir(exist_ok=False)
                         final_data = _under(destination, "data.parquet")
+                        execution = (
+                            "VALIDATED_REAL_EXCEPTION"
+                            if exception_path is not None
+                            else "VALIDATED_REAL"
+                            if real
+                            else "VALIDATED_TEST_ONLY"
+                        )
                         report["output"] = {
-                            "status": "VALIDATED_TEST_ONLY",
+                            "status": execution,
                             "relative_path": "/".join(
-                                ("_test_only", *period, validation_id, "data.parquet")
+                                (*output_parts, validation_id, "data.parquet")
                             ),
                             **description,
                         }
-                        report["execution_status"] = "VALIDATED_TEST_ONLY"
+                        report["execution_status"] = execution
+                        report["data_quality_approved"] = real
                         report["finished_at_utc"] = utc_now()
                         publish_file(staged, final_data)
                         # Marcador ultimo: un Parquet huerfano nunca es resultado completo.
@@ -259,7 +357,11 @@ def validate(
         pa.ArrowException,
     ) as error:
         report.update(
-            status="FAIL", execution_status="REJECTED", quality_passed=False, error=str(error)
+            status="FAIL",
+            execution_status="REJECTED",
+            quality_passed=False,
+            data_quality_approved=False,
+            error=str(error),
         )
         report["lineage_status"] = "FAILED_OR_INCOMPLETE"
         if report["output"] is not None:
@@ -284,6 +386,7 @@ def main() -> None:
     parser.add_argument("--scratch-dir", type=Path, default=Path(".cache/validation"))
     parser.add_argument("--batch-size", type=int, default=65_536)
     parser.add_argument("--test-only", action="store_true")
+    parser.add_argument("--quality-exception", type=Path)
     args = parser.parse_args()
     try:
         report = validate(
@@ -296,6 +399,7 @@ def main() -> None:
             scratch_dir=args.scratch_dir,
             batch_size=args.batch_size,
             test_only=args.test_only,
+            exception_path=args.quality_exception,
         )
         print(json.dumps(report, allow_nan=False))
         if report["status"] == "FAIL":

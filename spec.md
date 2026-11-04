@@ -23,6 +23,8 @@
 
 **Publicación GitHub:** después el usuario autorizó subir el estado actual a [ModoJorgeBT/nyc-yellow-taxi-mlops](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops), incluido commit inicial y remoto sobre `main`. Sustituye la restricción histórica de no publicar; no autoriza más tareas, CI ni aprobación de políticas/datos reales. Se mantienen las exclusiones de datos y secretos.
 
+**Acuerdo T12/T13:** el usuario solicitó ambas tareas y, tras revisión del diccionario oficial, aprobó origen/calendario/pasajeros opcionales, destino deshabilitado y convención temporal America/New_York con cuarentena DST y duración UTC. Aprobó scikit-learn, tzdata y sus dependencias con hashes. [Contrato y evidencia](docs/t12-t13-features.md). En esa entrega D-04 seguía abierta y las salidas eran TEST_ONLY. Posteriormente el usuario aprobó D-04 provisional y el piloto académico solo de enero 2024; [activación](docs/d04-activation.md). Calidad REAL aprobada con WARN, entrenamiento false y T14 sin autorización.
+
 ## 1. Propósito y límites
 
 **[BASE]** Implementar un sistema MLOps reproducible para predecir la duración, en **minutos**, de un viaje de taxi amarillo de Nueva York al comenzar el recorrido. El sistema debe cubrir ingesta mensual, validación, transformación, entrenamiento, evaluación temporal, seguimiento de experimentos, registro de modelos, inferencia REST, contenerización, CI, monitoreo y reentrenamiento controlado.
@@ -96,9 +98,11 @@ Docker Compose: API + MLflow + almacenamiento persistente local
 
 ### 4.2 Ventanas temporales
 
-**[BASE: recomendación académica, aún por confirmar]** entrenamiento: enero–septiembre de 2025; validación: octubre de 2025; prueba: noviembre–diciembre de 2025; simulación de lotes productivos: meses disponibles de 2026.
+**[DECISIÓN D-01]** Entrenamiento: todo 2024. Validación/selección: enero–marzo 2025. Test final reservado: abril–junio 2025. Monitoreo por replay retrospectivo: julio–diciembre 2025. Esta aprobación sustituye la recomendación académica inicial de train 2025/monitoreo 2026; no requiere nuevas descargas. [Protocolo aprobado](docs/d01-d02-protocol.md).
 
-**[PENDIENTE]** Aprobar meses concretos, límite de filas/muestreo y recursos locales. Si se utiliza muestreo, debe ser reproducible, documentado y respetar las fronteras temporales. Nunca se realiza split aleatorio entre entrenamiento y prueba como protocolo principal.
+**[DECISIÓN D-02]** Usar todas las filas elegibles de cada partición, sin submuestreo de modelado. Intervalos de recogida [inicio, fin) en America/New_York, disponibilidad de etiqueta por evento anterior al corte y exclusión auditada de viajes que lo atraviesan. Nunca split aleatorio entre train/validación/test. El replay no acredita disponibilidad histórica de publicación de archivos.
+
+**Estado T14/T15:** T15 verificada técnicamente: mediana congelada 12,983333 min de 41.119.495 etiquetas train 2024; 11.163.264 predicciones enero–marzo 2025. MAE 7,741890 min y RMSE 11,912962 min. [evaluación real auditada](reports/quality/t15_baseline_validation.md). El cierre técnico de T15 usa el lector T14 y train/validation aprobados, separado de preparar test/replay. Marzo aceptado por excepción humana solo para su hash/reporte; FAIL original y exclusiones conservados, sin cambiar D-04 global. T14 integral sigue pendiente; test/replay sellados, T16 no ejecutada y sin registro/promoción. 380 pruebas en desarrollo y wheel; revisión humana independiente.
 
 **Aceptación temporal de T14:** además de separar por recogida, comprobar la disponibilidad de etiquetas al corte del entrenamiento. Un viaje que termina después del corte no aporta una etiqueta disponible en ese instante. Documentar si se realiza replay retrospectivo o una simulación con disponibilidad real de publicación de lotes; la política concreta debe aprobarse con D-01/D-06. No atribuir disponibilidad histórica de datos sin evidencia.
 
@@ -119,26 +123,27 @@ Docker Compose: API + MLflow + almacenamiento persistente local
 **Target histórico:**
 
 ```python
+# Despues de localizar ambos eventos historicos sin ambiguedad:
 trip_duration_minutes = (
-    tpep_dropoff_datetime - tpep_pickup_datetime
+    dropoff_datetime.astimezone(UTC) - pickup_datetime.astimezone(UTC)
 ).total_seconds() / 60.0
 ```
 
 **[BASE]** El target se calcula únicamente para entrenamiento/evaluación; `tpep_dropoff_datetime` nunca es una entrada de inferencia.
 
-**Features admisibles al inicio:** `PULocationID`, `DOLocationID`, hora/semana/mes derivados de `tpep_pickup_datetime`, `passenger_count` si está disponible, `RatecodeID` solo tras validar su disponibilidad operativa y agregados históricos calculados con datos anteriores al instante de predicción.
+**[DECISIÓN T12/T13] Features v1:** origen, hora/día de semana/mes de recogida en America/New_York y pasajeros opcionales bajo la hipótesis de conteo conocido al abordar. Pasajero ausente: relleno constante 0 más indicador de ausencia. Destino, RatecodeID y agregados históricos deshabilitados; no se seleccionan por su mera presencia en raw.
 
 **Features prohibidas en MVP:** `tpep_dropoff_datetime`, `trip_duration_minutes`, `fare_amount`, `total_amount`, `tip_amount`, `payment_type`, `tolls_amount`, cargos finales y `trip_distance` medida por taxímetro. Tampoco utilizar campos indirectamente derivados del resultado del viaje.
 
-**[PROPUESTA]** Para simplificar el primer modelo, iniciar con origen, destino y calendario de recogida. `passenger_count` será opcional con tratamiento explícito de ausencias; `RatecodeID` y agregados históricos quedan deshabilitados hasta verificar su disponibilidad y causalidad. El contrato API no exigirá información que el usuario no pueda conocer al inicio.
+**[DECISIÓN T12/T13] Tiempo:** históricos naive interpretados en America/New_York; horarios ambiguos/inexistentes apartados con motivo. Target = diferencia en minutos entre instantes UTC localizados. Inferencia exige offset y convierte a Nueva York para calendario. Es una convención del proyecto, no una garantía explícita del diccionario. El contexto de evento final de etiqueta no acredita publicación del lote.
 
-**[PENDIENTE: D-06]** Aprobar la hipótesis de destino declarado al inicio y el uso del destino histórico observado como aproximación. La lista anterior de features admisibles no autoriza todavía el uso de `DOLocationID`. Resolver antes de T12/T13 y de cerrar el contrato REST; no cambiar el target para resolver esta incertidumbre.
+**[PARCIAL: D-06]** Whitelist, convención temporal y catálogo operativo aprobados; contrato REST completo pendiente. Reintroducir destino requiere nueva aprobación causal. El perfil real D-04 ya aplica duración UTC coherente con T12; T09 conserva además la política sintética anterior para pruebas aisladas.
 
 **Regla de consistencia:** serializar un único pipeline de preprocesamiento + estimador; reutilizarlo en inferencia, sin reconstruir transformaciones ad hoc. Los agregados de ruta, si se incorporan, se calculan mediante ventanas históricas sin mirar al futuro y deben poder resolverse en serving.
 
 ## 6. Data Quality Gates
 
-**[BASE]** Comprobar esquema, volumen, fechas, duración, duplicados, nulos de zonas, categorías, rangos, cambios de esquema y trazabilidad. Cada gate genera resultado `PASS`, `WARN` o `FAIL`, con regla, valor observado, umbral, severidad y evidencia. Un fallo crítico detiene el pipeline y no genera un dataset aprobado.
+**[BASE]** Comprobar esquema, volumen, fechas, duración, duplicados, nulos de zonas, categorías, rangos, cambios de esquema y trazabilidad. Cada gate genera resultado `PASS`, `WARN` o `FAIL`, con regla, valor observado, umbral, severidad y evidencia. Por defecto, un fallo crítico detiene el pipeline y no genera un dataset aprobado. La excepción humana puntual de marzo, descrita abajo, conserva el FAIL medido y excluye las filas inválidas antes de aceptar el lote.
 
 Los reportes de lotes rechazados también alimentan la observación de calidad. Los datos rechazados no pasan al entrenamiento ni se presentan como lotes aprobados para evaluación de desempeño. El monitoreo de drift requiere una referencia aprobada e identificable, aún pendiente de definición en D-05.
 
@@ -153,25 +158,27 @@ Los reportes de lotes rechazados también alimentan la observación de calidad. 
 | Duplicados | tasa observada y umbral configurable |
 | Zonas | tasa de nulos y códigos fuera de catálogo, con tolerancias configurables |
 | Categorías y pasajeros | conjuntos/rangos admisibles definidos tras EDA y diccionario |
-| Integridad | URL, hash, año/mes y timestamp obligatorios |
+| Integridad | hash, año/mes y fecha de registro obligatorios; URL/fecha de descarga registradas o nulas bajo autorización LOCAL_UNVERIFIED explícita |
 
 **Precisión importante:** distinguir la **tasa de registros inválidos** del **fallo del lote completo**. **[PROPUESTA]** Una fracción tolerable de filas inválidas puede excluirse con reporte; fallos estructurales, ausencia de columnas esenciales o tasas superiores a límites aprobados bloquean el lote. No asumir que cualquier fila de duración inválida debe abortar automáticamente millones de registros.
 
-**[PENDIENTE]** Aprobar umbrales cuantitativos definitivos tras EDA.
+**[APROBADO PROVISIONAL: D-04]** Umbrales versionados tras perfilado 2024 y aprobación explícita; cualquier revisión posterior requiere nueva decisión, sin calibrar sobre test.
 
-**[IMPLEMENTADO T08/T09, alcance aprobado]** `configs/data.yaml` usa sintaxis JSON compatible con YAML, sin parser adicional. Esenciales: pickup/dropoff `timestamp[us]` sin zona y zonas enteras con signo de 32/64 bits; otros campos históricos opcionales, comprobados si existen. Se conserva `Airport_fee`; `cbd_congestion_fee` es conocido opcional. El motor devuelve reportes en memoria con tasas/conteos y versiones; configuración real PENDIENTE y controles no evaluados explícitos. Un perfil TEST_ONLY completo solo puede superar calidad con fixtures marcadas; `approved_for_training=false` y linaje no comprobado hasta T10. La semántica de reloj local usada en pruebas no resuelve DST de D-06. Ningún límite sintético se adopta para TLC; T09 no tiene cierre operativo mientras D-04 siga abierta.
+**[D-04 APROBADA E IMPLEMENTADA]** D-04 v1 conserva sus tasas, reglas, mínimos, catálogo y normalizaciones. Se autoriza únicamente la [excepción explícita de marzo 2025](docs/t15-march-exception.md), por hash/configuración/reporte, para el FAIL de duración no positiva. Se conservan raw_quality_status=FAIL, checks FAIL y quality_passed=false; aceptación efectiva VALIDATED_REAL_EXCEPTION/WARN/data_quality_approved=true. Cualquier otro fallo bloquea. Las 23.886 filas inválidas siguen excluidas; no cambia procedencia ni se concede promoción.
 
-**[IMPLEMENTADO T10/T11, alcance de prueba]** El CLI verifica manifiesto/hash antes y después de escanear y contrasta filas leídas con el footer; reutiliza elegibilidad T09 para escribir por bloques. Modo normal: rechazo por política real pendiente, sin lectura de filas ni dataset. `--test-only`: exige perfil y fixture de prueba, publica bajo `data/validated/_test_only/YYYY/MM/<id>/` y conserva `approved_for_training=false`. Reportes JSON por intento en `reports/quality/`, con configuración y linaje; `validation.json` interno es marcador final. Fallos no habilitan datos; no existe transacción conjunta de todos los archivos. Los 24 Parquet siguen sin incorporación automática ni validación de filas.
+**[EVIDENCIA HISTÓRICA T08/T09; actualizada por D-04 arriba]** `configs/data.yaml` usa sintaxis JSON compatible con YAML, sin parser adicional. Esenciales: pickup/dropoff `timestamp[us]` sin zona y zonas enteras con signo de 32/64 bits; otros campos históricos opcionales, comprobados si existen. Se conserva `Airport_fee`; `cbd_congestion_fee` es conocido opcional. El motor devuelve reportes en memoria con tasas/conteos y versiones; configuración real PENDIENTE y controles no evaluados explícitos. Un perfil TEST_ONLY completo solo puede superar calidad con fixtures marcadas; `approved_for_training=false` y linaje no comprobado hasta T10. La semántica de reloj local usada en pruebas no resuelve DST de D-06. Ningún límite sintético se adopta para TLC; T09 no tiene cierre operativo mientras D-04 siga abierta.
+
+**[EVIDENCIA HISTÓRICA T10/T11; actualizada por D-04 arriba]** El CLI verifica manifiesto/hash antes y después de escanear y contrasta filas leídas con el footer; reutiliza elegibilidad T09 para escribir por bloques. Modo normal: rechazo por política real pendiente, sin lectura de filas ni dataset. `--test-only`: exige perfil y fixture de prueba, publica bajo `data/validated/_test_only/YYYY/MM/<id>/` y conserva `approved_for_training=false`. Reportes JSON por intento en `reports/quality/`, con configuración y linaje; `validation.json` interno es marcador final. Fallos no habilitan datos; no existe transacción conjunta de todos los archivos. Los 24 Parquet siguen sin incorporación automática ni validación de filas.
 
 ## 7. Modelado y evaluación
 
-**[BASE]** Baseline de mediana global o por ruta/franja; dos modelos candidatos, por ejemplo `HistGradientBoostingRegressor` y `RandomForestRegressor`/`GradientBoostingRegressor`. Usar particiones cronológicas y registrar semillas, hiperparámetros, versión de datos y código.
+**[BASE]** Baseline y al menos dos candidatos. **[DECISIÓN T15]** Mediana global exacta de todas las etiquetas elegibles de train 2024, obtenida en disco, aplicada solo a validación; sin acceso a test/replay. [Contrato T15](docs/t15-baseline.md). **[DECISIÓN D-02]** Para usar todos los registros sin materializar la matriz completa en RAM, los candidatos aprobados son `SGDRegressor` y `MLPRegressor` pequeño con entrenamiento incremental por bloques. Sustituyen los ejemplos iniciales de boosting/bosque. Particiones cronológicas, semillas, parámetros, pasadas y versiones registrados; preprocesador ajustado solo con train y serializado junto al estimador.
 
 **Métricas:** MAE (principal, minutos), RMSE, MedAE y percentil 90 del error absoluto. Latencia p95 se mide por separado como métrica de servicio.
 
 **[PROPUESTA]** Entrenar primero un baseline global; luego al menos dos candidatos con el mismo protocolo temporal. La selección se basa en validación; el conjunto de prueba permanece reservado para evaluación final. Reportar resultados por mes, franja y zonas/rutas frecuentes cuando haya soporte estadístico suficiente. No afirmar mejora porcentual hasta medirla.
 
-**[PENDIENTE]** Determinar presupuesto de CPU/RAM y estrategia de muestreo/entrenamiento incremental si fuese necesaria.
+**[DECISIÓN D-02]** Todas las filas elegibles; cuatro hilos totales y un modelo a la vez; límite objetivo 8 GiB por proceso y dos horas por candidato. Iniciar solo con al menos 12 GiB de RAM libre y 50 GiB de disco libre. Calidad por bloques ≤65.536 y meses secuenciales. Exceder detiene el intento, sin reducir datos o ampliar límites automáticamente. Instrumentación y pruebas de estos controles obligatorias antes de un fit real; presupuesto aprobado no equivale a rendimiento medido. Perfil de preparación y baseline T14/T15 aprobado posteriormente: 4 GiB RAM libre, 2 GiB RSS y 50 GiB de disco libre; candidatos SGD/MLP conservan 12/8. Docker/Compose todavía sin verificar. [Detalle y evidencia del host](docs/d01-d02-protocol.md).
 
 ## 8. MLflow Tracking y Model Registry
 
@@ -185,7 +192,7 @@ Cada run debe incluir: nombre de experimento, versión de dataset, rango tempora
 
 **[BASE]** Endpoints `POST /predict`, `GET /health` y `GET /model-info`, validación Pydantic y respuesta con predicción, unidad, versión y timestamp.
 
-**[PROPUESTA: contrato v1]**
+**[PROPUESTA: contrato REST v1, alineado con las entradas aprobadas T12/T13]**
 
 `POST /predict`
 
@@ -193,12 +200,11 @@ Cada run debe incluir: nombre de experimento, versión de dataset, rango tempora
 {
   "pickup_datetime": "2026-03-12T08:30:00-04:00",
   "pickup_location_id": 161,
-  "dropoff_location_id": 236,
   "passenger_count": 1
 }
 ```
 
-`passenger_count` es opcional; los identificadores de zona deben ser enteros positivos y validados frente al catálogo aprobado. **La fecha/hora debe incluir zona horaria**: convertir a `America/New_York` para extraer las características y manejar correctamente DST. No aceptar timestamps ambiguos sin offset salvo decisión documentada.
+`passenger_count` es opcional; origen debe ser entero positivo. D-04 aprobó el catálogo operativo y normalización de pasajeros históricos fuera de 0–6 a null; T20/D-06 deben alinear el tratamiento REST antes de servir. Destino deshabilitado. **La fecha/hora debe incluir offset**: convertir a `America/New_York` para extraer calendario. El adaptador compartido ya rechaza timestamps de inferencia sin offset; el servicio REST/Pydantic sigue sin implementar.
 
 Respuesta `200` de ejemplo **ilustrativo, no una predicción real**:
 
@@ -306,14 +312,14 @@ nyc-yellow-taxi-mlops/
 
 ## 14. Interfaces CLI propuestas
 
-Ingesta y validación ya ofrecen CLI; validación real permanece bloqueada por política pendiente. Los comandos de features/modelado/monitoreo/Docker siguientes son **contratos objetivo**, no componentes ya implementados:
+Ingesta, validación, features, particionado y baseline ya ofrecen CLI. Hay 14 lotes de calidad/features REAL y marzo 2025 rechazado. El ajuste separado T15 terminó solo con train 2024; no hay evaluación ni T14 completa. Los comandos siguientes de modelado/monitoreo/Docker son **contratos objetivo**, no componentes ya implementados; el CLI de features ya existe:
 
 ```bash
 python -m src.ingestion.download --year 2025 --month 01
 python -m src.validation.run --year 2025 --month 01
-python -m src.features.build --year 2025 --month 01
+python -m src.features.build --help
 python -m src.training.train --config configs/model.yaml
-python -m src.monitoring.run --year 2026 --month 01
+python -m src.monitoring.run --year 2025 --month 07
 python -m src.retraining.evaluate --config configs/monitoring.yaml
 pytest
 
@@ -352,14 +358,14 @@ docker compose build
 
 | ID | Decisión | Propuesta inicial | Responsable |
 |---|---|---|---|
-| D-01 | Meses y volumen | histórico 2025 y lotes disponibles 2026 | equipo |
-| D-02 | Límites de hardware | host y muestra T05 medidos; presupuesto de entrenamiento/muestreo y límites Docker pendientes | equipo |
-| D-03 | Herramientas | T03: Python 3.14.7, setuptools/Ruff/Pytest/pip-tools y PyArrow aprobados y fijados; MLflow/FastAPI/Compose confirmados sin instalar; resto pendiente | equipo/docente |
-| D-04 | Umbrales DQ | esquema T08 aprobado; motor T09 probado con políticas sintéticas; configuración real PENDIENTE y tasas, duración, volumen/catálogos pendientes | equipo |
+| D-01 | Meses y volumen | APROBADA: train 2024; validación ene–mar 2025; test abr–jun; replay jul–dic 2025, con cortes causales | equipo |
+| D-02 | Límites de hardware | APROBADA: todos los elegibles; SGD/MLP incrementales; 4 hilos, 8 GiB, 2 h/candidato, preflight 12 GiB RAM/50 GiB disco libres. Controles y Docker por verificar antes de su ejecución | equipo |
+| D-03 | Herramientas | T03 y T13: herramientas/PyArrow/scikit-learn/tzdata fijados; lock de 23 paquetes. MLflow/FastAPI/Compose confirmados sin instalar; pandas/Pydantic/Evidently/Actions pendientes | equipo/docente |
+| D-04 | Umbrales DQ | V1 congelada; excepción humana exacta solo marzo 2025. 14 lotes pasan calidad, uno aceptado excepcionalmente; ningún umbral o regla de fila alterado | equipo |
 | D-05 | Drift/retraining | evaluar 115 %, PSI 0.20 y 2 % como hipótesis | equipo |
-| D-06 | Contrato API | aprobar payload v1, zonas horarias e hipótesis de destino conocido | equipo |
+| D-06 | Contrato API | whitelist origen/calendario/pasajeros, convención temporal y catálogo operativo aprobados; destino deshabilitado. Contrato REST completo pendiente | equipo |
 | D-07 | Persistencia MLflow | SQLite + artefactos en volumen local | equipo |
-| D-08 | Criterio de terminado | T10/T11 autorizadas y verificadas técnicamente con fixtures para revisión humana; flujo real sin cierre operativo, criterio general de PR pendiente | equipo |
+| D-08 | Criterio de terminado | T12/T13 autorizadas y verificadas técnicamente con fixtures para revisión humana; flujo real sin cierre operativo, criterio general de PR pendiente | equipo |
 
 ## 18. Instrucciones para Codex / agente
 
@@ -388,3 +394,5 @@ docker compose build
 T01 contrastó el texto completo de las 14 páginas del [PDF académico local](Proyecto_Maestria_MLOps_NYC_Taxi_Estructura.pdf). La matriz detallada y sus límites están en [docs/decisions.md](docs/decisions.md); la comprobación documental no demuestra implementación.
 
 **Estado:** documento técnico propuesto, pendiente de aprobación del equipo. Su adopción no implica que las pruebas o los componentes estén implementados.
+
+**Evidencia histórica del ajuste T15 anterior a la excepción:** Ajuste exacto train 2024 completo y auditado: 41.119.495 etiquetas, mediana 12,983333 minutos; 561 filas apartadas por corte de etiqueta entre 41.120.056 elegibles DQ. Evaluación y cierre de T14/T15 pendientes de marzo 2025; D-04 permanece congelada. [ajuste real auditado](reports/quality/t15_train_fit.md). Las referencias previas a ausencia de fit describen el estado anterior a aprobar la separación; el bloqueo de evaluación por D-04 continúa. No cambian objetivo, periodos, reglas ni candidatos.

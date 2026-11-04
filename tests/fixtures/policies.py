@@ -21,3 +21,39 @@ def synthetic_policy(config: dict) -> dict:
     }
     config["quality"]["max_rates"]["passenger_null"] = 1
     return config
+
+
+def pending_policy(config: dict) -> dict:
+    """Perfil pendiente explicito, independiente del perfil real activo."""
+    config = synthetic_policy(config)
+    config["quality"]["status"] = "PENDIENTE"
+    for key in (
+        "timestamp_policy",
+        "min_rows",
+        "min_eligible_rows",
+        "duration_max_minutes",
+        "zone_catalog",
+        "duplicate_action",
+        "passenger_range",
+        "passenger_action",
+        "category_values",
+        "category_action",
+    ):
+        config["quality"][key] = None
+    config["quality"]["max_rates"] = dict.fromkeys(METRICS, None)
+    return config
+
+
+def real_fixture_policy(config: dict) -> dict:
+    """Motor real con volumen/tolerancias SOLO para oraculos sinteticos."""
+    policy = config["quality"]
+    policy["policy_version"] = "real-engine-fixtures-v1"
+    policy["fail_rates"] = dict.fromkeys(policy["fail_rates"], 1.0)
+    policy["volume"] = {
+        "min_rows": 1,
+        "min_eligible_rows": 1,
+        "warn_ratio": [0.5, 2.0],
+        "reference_2024": {f"{m:02}": 12 for m in range(1, 13)},
+    }
+    policy["local_authorizations"] = []
+    return config

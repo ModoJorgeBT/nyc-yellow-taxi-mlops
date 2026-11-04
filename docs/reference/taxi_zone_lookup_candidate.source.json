@@ -1,0 +1,11 @@
+{
+  "url": "https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv",
+  "recorded_at_utc": "2026-11-03T20:46:07.737661+00:00",
+  "sha256": "1a99e105092230f8620f301edcca7f80d3080642ff404d28ed957d3fa222c8ed",
+  "size_bytes": 12331,
+  "row_count": 265,
+  "status": "APPROVED_OPERATIONAL_REFERENCE",
+  "approval_recorded_at_utc": "2026-11-03T21:16:59.020901+00:00",
+  "policy_version": "d04-real-v1-2026-11-03",
+  "historical_effectiveness_not_independently_proven": true
+}

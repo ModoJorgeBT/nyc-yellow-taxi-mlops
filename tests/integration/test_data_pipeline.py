@@ -14,7 +14,7 @@ from src.ingestion import download
 from src.validation import run
 from src.validation.schema import load_config
 from tests.fixtures.factory import make_table
-from tests.fixtures.policies import synthetic_policy
+from tests.fixtures.policies import pending_policy, synthetic_policy
 
 CONFIG = Path(__file__).resolve().parents[2] / "configs/data.yaml"
 
@@ -154,7 +154,7 @@ def test_normal_mode_blocked_without_reading_rows(options, monkeypatch, normal_t
     ingest(options, monkeypatch)
     options["test_only"] = False
     if not normal_test_config:
-        options["config_path"] = CONFIG
+        options["config_path"].write_text(json.dumps(pending_policy(load_config(CONFIG))))
 
     def forbidden(*args, **kwargs):
         pytest.fail("D-04 pendiente: no escanear filas")
@@ -170,7 +170,7 @@ def test_normal_mode_blocked_without_reading_rows(options, monkeypatch, normal_t
 def test_test_only_cannot_bypass_policy_or_origin_marker(options, monkeypatch, failure):
     ingest(options, monkeypatch, unmarked=failure == "unmarked")
     if failure == "pending_config":
-        options["config_path"] = CONFIG
+        options["config_path"].write_text(json.dumps(pending_policy(load_config(CONFIG))))
     report = validate(options)
     assert report["status"] == "FAIL" and "--test-only" in report["error"]
     assert_no_dataset(options)

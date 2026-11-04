@@ -1,0 +1,372 @@
+{
+  "proposal_id": "d04-real-v1-2026-11-03",
+  "status": "APPROVED_FROZEN_V1_IMPLEMENTED",
+  "runtime_configuration_changed": true,
+  "scope": "Full monthly Yellow Taxi lots; calibration evidence from 2024 only",
+  "temporal_policy": "nyc-local-unambiguous-utc-elapsed-v1",
+  "row_eligibility": {
+    "duration_minutes": {
+      "exclusive_minimum": 0,
+      "inclusive_maximum": 180
+    },
+    "timestamps": "Both present, interpretable and unambiguous in America/New_York",
+    "pickup_month": "Must match the nominal lot month; dropoff may cross month/year",
+    "origin": "Member of the candidate catalog; retain IDs 264 and 265 as distinct special categories",
+    "destination": "Measure values only; do not exclude rows based on this unused predictor",
+    "passengers": "Keep null and zero; normalize negative or above 6 to null with audit reason",
+    "other_categories": "Measure only; not predictors",
+    "duplicates": "Count exact repetitions across complete lot; retain rows"
+  },
+  "lot_fail_when_rate_exceeds": {
+    "timestamp_null_or_uninterpretable": 0.001,
+    "timestamp_ambiguous_or_nonexistent": 0.01,
+    "duration_nonpositive": 0.005,
+    "duration_above_180": 0.01,
+    "pickup_outside_month": 0.001,
+    "origin_null_or_outside_catalog": 0.001,
+    "union_invalid_rows": 0.01
+  },
+  "lot_warn_when_rate_exceeds": {
+    "union_invalid_rows": 0.005,
+    "passenger_null_after_normalization": 0.2,
+    "passenger_normalized": 0.001,
+    "origin_special_264_or_265": 0.01,
+    "duplicate_exact": 0.0,
+    "destination_null_or_outside_catalog": 0.0,
+    "optional_categories_null_or_outside_dictionary": 0.0
+  },
+  "all_exclusions_and_normalizations_reported_even_below_warn_threshold": true,
+  "rates_denominator": "All raw rows scanned, before exclusions and normalization",
+  "rate_comparison": "Strictly greater; equality allowed",
+  "structural_fail_tolerance": {
+    "required_missing_columns": 0,
+    "incompatible_types": 0,
+    "duplicate_column_names": 0,
+    "hash_or_manifest_conflicts": 0,
+    "incomplete_scan_or_output": 0
+  },
+  "volume": {
+    "minimum_raw_rows": 1000000,
+    "minimum_eligible_rows": 990000,
+    "warn_if_ratio_to_same_month_2024_outside": [
+      0.5,
+      2.0
+    ],
+    "maximum_raw_rows": null,
+    "meaning": "Monthly completeness guard; not a training sample size or resource budget"
+  },
+  "catalog": {
+    "path": "docs/reference/taxi_zone_lookup_candidate.csv",
+    "source": "https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv",
+    "sha256": "1a99e105092230f8620f301edcca7f80d3080642ff404d28ed957d3fa222c8ed",
+    "snapshot_date": "2026-11-03",
+    "row_count": 265,
+    "historical_effectiveness_not_independently_proven": true
+  },
+  "local_file_provenance": {
+    "automatic_registration": false,
+    "proposed_academic_use": "Requires explicit owner approval for LOCAL_UNVERIFIED; keep source/download date null",
+    "approval_recorded": true,
+    "raw_bytes_preserved": true,
+    "approved_local_files": [
+      {
+        "year": 2024,
+        "month": 1,
+        "sha256": "c4d59da7bbc8abaeeeb1727947ee93d9891a71acb42854bd80db1571b2030510",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:16:59.020901+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2024,
+        "month": 2,
+        "sha256": "c76c43c18c6c6664080dd920baab4928988d5786a6b65980792ca7cd796f9f20",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2024,
+        "month": 3,
+        "sha256": "2d4cdc8fb96726cdd3803b13b02d2e61e71d45720aff0ebc693a8bdd1f249823",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2024,
+        "month": 4,
+        "sha256": "ce37f736c7cf9e92164c850ef2b502a8f7bb590fc1804b6edbcb80293da01b89",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2024,
+        "month": 5,
+        "sha256": "1974230be2b5a3ea92e47b5eb77f32dbf1de896d81ad8df4ab6faba52749ad23",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2024,
+        "month": 6,
+        "sha256": "677cf14c8347f745b583f012fbdba072334c6c4efa17bfd6a64369f2ba30329c",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2024,
+        "month": 7,
+        "sha256": "af12d6b04daeb78550799ae99933d495b27d715b6dbb0fad9bb750a4537d3070",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2024,
+        "month": 8,
+        "sha256": "7315643dd16bafc03e27d9903edbfd35404c2550a695d0da0a3e73852d940cfb",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2024,
+        "month": 9,
+        "sha256": "2f42e4a383a6635de803001462848d0aee2b47f6ce899126805d2d05361fb843",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2024,
+        "month": 10,
+        "sha256": "d19fe05aa0b259af24eb47051735293287f1e6dc263ba04030ec1ab4c6ec2650",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2024,
+        "month": 11,
+        "sha256": "5ef321876de5007a7c147a347389133fc94fd7ac28f82eb1d57d8f2cf05cfd3b",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2024,
+        "month": 12,
+        "sha256": "41ebf7db80bebde60c58e5143c14cdf38ad04a0f3e3ff44215b3e240d55f6c78",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2025,
+        "month": 1,
+        "sha256": "9af277e4c0d3f9deb30644da822981e1e7df6af58313170fd3aa8a474485488a",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2025,
+        "month": 2,
+        "sha256": "037cba555a73663f3a51a2c27816e40e3feb364769942bdf122b9da31e377bd3",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2025,
+        "month": 3,
+        "sha256": "20c4b77cce457b7cfdae77c5069ca7dc91c167f876a41467f4502ab69487a186",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2025,
+        "month": 4,
+        "sha256": "6f98938de9380a3f85600533816f0dc0e6d9b5b210e485d623952bac599bbe28",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2025,
+        "month": 5,
+        "sha256": "7ef46bcd0fceee7f8c0bb38a532be05bceefabb512d4bb0b32a7727dd862b15c",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2025,
+        "month": 6,
+        "sha256": "1bea7f5b09c744414451fa7fef09fbc5a393ffb1621c859be6ba0df23a14e1b6",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2025,
+        "month": 7,
+        "sha256": "1efa6a0458dc60341f7f81dcbb5015af731f42d1a109f4e0d594dd46970fd4ef",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2025,
+        "month": 8,
+        "sha256": "b982ace703e3564d92e94edae5ec93515f4f1fb07a5b95e7404c32464c1a6a89",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2025,
+        "month": 9,
+        "sha256": "cd39b9901f01d1fd752d45cbaec91ee5f68c4dddf9e261e938c1dbab404644c7",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2025,
+        "month": 10,
+        "sha256": "e1f63caf331bc6230d9c6f757cb88e55fdc2bddde185fb414d2c947abdc773c3",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2025,
+        "month": 11,
+        "sha256": "2cf2f3127f96d4d5dea30f8afe05119cf8e4ba57bd9e60b789d3f296fc8459ab",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      },
+      {
+        "year": 2025,
+        "month": 12,
+        "sha256": "eaba7ff61ebb6453fc6f673fda43d621380307f869b768b124992e8486c785e1",
+        "academic_use_approved": true,
+        "recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+        "source_url": null,
+        "downloaded_at_utc": null
+      }
+    ],
+    "scope_extension_recorded_at_utc": "2026-11-03T21:41:23.370913+00:00",
+    "approved_file_count": 24
+  },
+  "activation": {
+    "requires_user_approval": true,
+    "requires_implementation_of_real_profile": true,
+    "first_pilot_proposed": "2024-01 full lot, by bounded batches",
+    "pilot_training": false,
+    "training_still_requires": [
+      "D-01",
+      "D-02"
+    ],
+    "user_approved": true,
+    "implementation_complete": true,
+    "first_pilot_executed": "2024-01",
+    "validation_id": "eb3c22ba4da94a2fb647fa4ffe1c6a0f",
+    "runtime_configuration": "configs/data.yaml",
+    "evidence": "docs/d04-activation.md",
+    "expanded_authorization_does_not_execute_registration_or_validation": true,
+    "registered_local_lots": [
+      "2024-01",
+      "2024-02",
+      "2024-03",
+      "2024-04",
+      "2024-05",
+      "2024-06",
+      "2024-07",
+      "2024-08",
+      "2024-09",
+      "2024-10",
+      "2024-11",
+      "2024-12",
+      "2025-01",
+      "2025-02",
+      "2025-03"
+    ],
+    "quality_approved_real_lots": [
+      "2024-01",
+      "2024-02",
+      "2024-03",
+      "2024-04",
+      "2024-05",
+      "2024-06",
+      "2024-07",
+      "2024-08",
+      "2024-09",
+      "2024-10",
+      "2024-11",
+      "2024-12",
+      "2025-01",
+      "2025-02",
+      "2025-03"
+    ],
+    "user_decision": "EXPLICIT_EXACT_MARCH_EXCEPTION_KEEP_GLOBAL_THRESHOLDS",
+    "preparation_evidence": "reports/quality/t14_t15_preparation.md",
+    "quality_passed_real_lots": [
+      "2024-01",
+      "2024-02",
+      "2024-03",
+      "2024-04",
+      "2024-05",
+      "2024-06",
+      "2024-07",
+      "2024-08",
+      "2024-09",
+      "2024-10",
+      "2024-11",
+      "2024-12",
+      "2025-01",
+      "2025-02"
+    ],
+    "exception_accepted_real_lots": [
+      "2025-03"
+    ],
+    "exception_file": "configs/quality-exception-2025-03.json",
+    "current_evidence": "reports/quality/t15_baseline_validation.md",
+    "originally_rejected_real_lots": [
+      "2025-03"
+    ],
+    "measured_failed_real_lots": [
+      "2025-03"
+    ]
+  }
+}

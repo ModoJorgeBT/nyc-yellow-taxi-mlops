@@ -20,6 +20,7 @@ dev = [
     "wheel==0.48.0",
 ]
 data = ["pyarrow==26.0.1"]
+features = ["scikit-learn==1.9.1", "tzdata==2026.6"]
 
 [tool.setuptools.packages.find]
 where = ["."]

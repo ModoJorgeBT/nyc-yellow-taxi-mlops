@@ -148,6 +148,18 @@ def evaluate_batches(
     superar todos los gates y verificar linaje/exhaustividad.
     """
     source_url(year, month)  # Valida el periodo sin acceder a la red.
+    if config.get("quality", {}).get("status") == "APPROVED_REAL":
+        from src.validation.real import evaluate_real
+
+        return evaluate_real(
+            schema,
+            batches,
+            year=year,
+            month=month,
+            config=config,
+            scratch_dir=scratch_dir,
+            on_batch=on_batch,
+        )
     month_start_us = (datetime(year, month, 1) - datetime(1970, 1, 1)).days * 86_400_000_000
     month_end_us = month_start_us + calendar.monthrange(year, month)[1] * 86_400_000_000
     structural = validate_schema(schema, config)
@@ -331,6 +343,7 @@ def evaluate_batches(
         "status": status,
         "quality_passed": status != "FAIL" and policy_ok,
         "approved_for_training": False,
+        "data_quality_approved": False,
         "lineage_status": "NOT_CHECKED_T10",
         "rows_scanned": total,
         "eligible_rows": eligible,

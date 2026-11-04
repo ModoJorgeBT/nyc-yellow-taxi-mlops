@@ -1,0 +1,88 @@
+{
+  "format_version": 1,
+  "approval_status": "APPROVED",
+  "protocol_version": "local-full-data-v1-2026-11-03",
+  "protocol_mode": "RETROSPECTIVE_EVENT_TIME_REPLAY_NOT_HISTORICAL_PUBLICATION_SIMULATION",
+  "timezone": "America/New_York",
+  "temporal_policy": "nyc-local-unambiguous-utc-elapsed-v1",
+  "feature_version": "pickup-calendar-passengers-v1",
+  "data_scope": "ALL_ELIGIBLE_NO_SUBSAMPLING",
+  "label_before_partition_end": true,
+  "partitions": {
+    "train": {
+      "start": "2024-01-01T00:00:00-05:00",
+      "end": "2025-01-01T00:00:00-05:00"
+    },
+    "validation": {
+      "start": "2025-01-01T00:00:00-05:00",
+      "end": "2025-04-01T00:00:00-04:00"
+    },
+    "test": {
+      "start": "2025-04-01T00:00:00-04:00",
+      "end": "2025-07-01T00:00:00-04:00"
+    },
+    "monitoring_replay": {
+      "start": "2025-07-01T00:00:00-04:00",
+      "end": "2026-01-01T00:00:00-05:00"
+    }
+  },
+  "resources": {
+    "strategy": "incremental_full_data",
+    "candidates": [
+      "SGDRegressor",
+      "MLPRegressor_small"
+    ],
+    "threads_total": 4,
+    "parallel_models": 1,
+    "process_rss_limit_gib": 8,
+    "candidate_timeout_seconds": 7200,
+    "preflight_min_free_ram_gib": 12,
+    "preflight_min_free_disk_gib": 50,
+    "quality_batch_rows_max": 65536,
+    "monthly_quality_concurrency": 1,
+    "overflow_action": "stop_and_report_never_silently_sample_or_expand_budget",
+    "initial_small_mlp_architecture_and_epochs": "To be specified and tested in T16 within approved resource budget"
+  },
+  "quality_rules_sha256": "1478d970eaff516dbdb8ad9683b97b64e59ec8bcb5bc18f3d9c7bdd5e6bd4e65",
+  "fit_scope": "train_only",
+  "selection_scope": "validation_only",
+  "test_usage": "final_evaluation_only",
+  "candidate_hyperparameters": "PENDING_T16_NO_TRAINING_IN_T14",
+  "preparation_resources": {
+    "strategy": "incremental_full_data",
+    "candidates": [
+      "SGDRegressor",
+      "MLPRegressor_small"
+    ],
+    "threads_total": 4,
+    "parallel_models": 1,
+    "process_rss_limit_gib": 2,
+    "candidate_timeout_seconds": 7200,
+    "preflight_min_free_ram_gib": 4,
+    "preflight_min_free_disk_gib": 50,
+    "quality_batch_rows_max": 65536,
+    "monthly_quality_concurrency": 1,
+    "overflow_action": "stop_and_report_never_silently_sample_or_expand_budget",
+    "initial_small_mlp_architecture_and_epochs": "To be specified and tested in T16 within approved resource budget",
+    "approval_status": "APPROVED",
+    "scope": "T14_PREPARATION_AND_T15_EXACT_MEDIAN",
+    "recorded_at_utc": "2026-11-03T22:11:41.982905+00:00"
+  },
+  "baseline_fit_only": {
+    "approval_status": "APPROVED",
+    "fit_partition": "train",
+    "requires_complete_train_coverage": true,
+    "allow_before_complete_t14": true,
+    "evaluation_status": "PENDING_VALIDATION",
+    "closes_t14_or_t15": false,
+    "source_quality_override": false
+  },
+  "baseline": {
+    "approval_status": "APPROVED",
+    "kind": "exact_global_train_median",
+    "fit_partition": "train",
+    "prediction_partition": "validation",
+    "quantile_interpolation": "midpoint_for_even_count",
+    "test_usage": "sealed_no_baseline_fit_or_selection"
+  }
+}

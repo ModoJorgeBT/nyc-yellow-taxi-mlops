@@ -16,7 +16,12 @@ import json
 distribution = importlib.metadata.distribution("nyc-yellow-taxi-mlops")
 packages = ["src", "src.ingestion", "src.validation", "src.features", "src.training",
             "src.evaluation", "src.api", "src.monitoring", "src.retraining",
-            "src.validation.schema", "src.validation.rules", "src.validation.run"]
+            "src.validation.schema", "src.validation.rules", "src.validation.run",
+            "src.features.schema", "src.features.target", "src.features.build",
+            "src.features.artifacts", "src.validation.real", "src.training.split",
+            "src.training.resources", "src.training.baseline", "src.features.vectorized",
+            "src.training.baseline_fit", "src.training.baseline_evaluate",
+            "src.validation.exceptions"]
 for package in packages:
     importlib.import_module(package)
 print(json.dumps({"version": distribution.version, "packages": packages}))
@@ -32,4 +37,4 @@ print(json.dumps({"version": distribution.version, "packages": packages}))
     assert result.returncode == 0, result.stderr
     observed = json.loads(result.stdout)
     assert observed["version"] == "0.1.0"
-    assert len(observed["packages"]) == 12
+    assert len(observed["packages"]) == 24

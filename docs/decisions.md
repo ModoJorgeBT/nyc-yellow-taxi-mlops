@@ -1,6 +1,6 @@
 # T01 — Requisitos, decisiones y riesgos
 
-Fecha: 2026-11-03, America/Costa_Rica. Estado: T10/T11 autorizadas y verificadas técnicamente con fixtures para revisión humana; flujo real sin cierre operativo por D-04/D-06. Registro local con procedencia pendiente implementado/probado sin aplicarlo aún a los 24 Parquet. Publicación GitHub del estado actual autorizada posteriormente en `main`; no se autorizaron descargas masivas, entrenamiento ni T12/posteriores.
+Fecha: 2026-11-03, America/Costa_Rica. **T15 verificada técnicamente: ajuste y validación reales auditados.** T15 verificada técnicamente: mediana congelada 12,983333 min de 41.119.495 etiquetas train 2024; 11.163.264 predicciones enero–marzo 2025. MAE 7,741890 min y RMSE 11,912962 min. [Reporte](../reports/quality/t15_baseline_validation.md). Marzo aceptado por excepción humana solo para su hash/reporte; FAIL original y exclusiones conservados, sin cambiar D-04 global. T14 integral sigue pendiente; test/replay sellados, T16 no ejecutada y sin registro/promoción. Las secciones siguientes son cronológicas; revisión humana de resultados independiente.
 
 ## 1. Fuentes y evidencia de aprobación
 
@@ -28,6 +28,14 @@ Después solicitó subir el proyecto a [ModoJorgeBT/nyc-yellow-taxi-mlops](https
 
 El PDF es un diseño inicial sujeto a refinamiento (p. 14), no evidencia de que el sistema exista. Se verificó su texto; no se validó visualmente la figura rasterizada de p. 5. El diagrama de arquitectura de T01 se deriva del flujo textual de §§5–6 y de spec §2.
 
+Al solicitar T12/T13 el usuario pidió revisar el diccionario oficial TLC antes de decidir. Se leyó su página completa (18 de marzo de 2025); no establece destino declarado ni semántica de zona/DST. Después aprobó origen/calendario/pasajeros opcionales bajo conteo conocido al abordar, destino deshabilitado, históricos America/New_York con cuarentena de horas ambiguas/inexistentes y duración UTC; inferencia con offset. También aprobó scikit-learn/tzdata y transitivas, fijadas con hashes. [Contrato y evidencia T12/T13](t12-t13-features.md). D-04 y ventanas/recursos permanecen pendientes; no se cambia raw ni se habilita entrenamiento real.
+
+Posteriormente solicitó preparar D-04 con perfilado acotado de 2024 y presentar umbrales antes de aplicarlos. Se analizaron 240.000 filas con muestreo aleatorio estratificado; por el formato Parquet se decodificaron 41.169.471 filas en bloques, con pico RSS 169,17 MiB en la repetición. No se abrieron archivos de 2025. [Propuesta D-04](d04-quality-proposal.md) y [evidencia](../reports/d04_profile_2024.md) presentadas antes de aplicar límites. Después el usuario aprobó la política completa y, separadamente, el registro/uso académico únicamente de enero de 2024. [Activación y límites](d04-activation.md): APPROVED_REAL, piloto completo WARN/VALIDATED_REAL, calidad true y entrenamiento false. Fuente/fecha de descarga siguen nulas; los otros 23 archivos no están incorporados.
+
+Posteriormente se completaron el registro de los 24 archivos y la validación de abril–diciembre de 2025 bajo D-04 congelada: nueve rechazos, sin nuevas excepciones ni features para esos lotes. Quedan 15 versiones de features aceptadas; T14 integral no se cierra. [Resultados por mes](../reports/quality/t14_full_preparation.md).
+
+El usuario solicitó expresamente crear el segundo commit y hacer push a GitHub, documentando ambas entregas. Esta autorización permite publicar los cambios acumulados de código, pruebas, configuración pública y evidencia documental. No concede nuevas excepciones de calidad, cierre de T14 ni promoción. El [historial de commits](commit-history.md) distingue el primer commit T01–T11 del segundo, con features, D-01/D-02/D-04 y baseline T15; los datos y artefactos locales permanecen excluidos.
+
 ## 2. Invariantes
 
 El único target es duración en minutos, calculada históricamente con llegada menos recogida. Solo puede inferirse con información disponible al inicio. No son predictores llegada, duración/target, tarifas, propinas, pagos, peajes, cargos finales ni distancia medida por taxímetro. No se cambia el caso de uso para acomodar datos disponibles.
@@ -38,14 +46,14 @@ El éxito es el ciclo MLOps auditable y reproducible, incluyendo baseline y dos 
 
 | ID | Estado y decisión | Responsable de resolver | Antes de / evidencia necesaria |
 |---|---|---|---|
-| D-01 | PENDIENTE. Ventanas del PDF sin aprobar; inventario local disponible: 24 meses 2024/2025. No hay archivos 2026 en raw observado; no se cambia el protocolo por disponibilidad. | Equipo | Antes de descarga masiva y T14: periodos explícitos y disponibilidad de lotes. |
-| D-02 | PARCIAL. Host observado: 12 CPU lógicas, 33.970.917.376 bytes RAM; muestra T05 autorizada de 90.112 filas, pico RSS 129.622.016 bytes. Presupuesto de entrenamiento/muestreo y límites Docker pendientes; no extrapolar esta lectura. | Equipo | Antes de descarga masiva/T14/T16: presupuesto y protocolo aprobados. |
-| D-03 | PARCIAL. Python 3.14.7, setuptools 84.2.1, Ruff 0.17.3, Pytest 9.2.0, pip-tools 7.6.2 y PyArrow 26.0.1 aprobados y fijados en T03; pip 26.2.1/wheel 0.48.0 fijados como herramientas de instalación/build. MLflow/FastAPI/Compose confirmados, sin instalar. Pandas, scikit-learn, Pydantic, Evidently y GitHub Actions siguen pendientes. | Equipo; docente para aceptación académica cuando corresponda | Compatibilidad probada solo para entorno T03 en Windows/CPython 3.14; validar dependencias futuras antes de T20/T26/T29. |
-| D-04 | PARCIAL. Contrato estructural T08 aprobado; motor T09 probado con políticas sintéticas. Tolerancias, máximo de duración, volumen, catálogo/códigos especiales, pasajeros/categorías y política de duplicados reales pendientes. | Equipo | Antes del cierre operativo T09 y aprobación de datos reales; configuración permanece PENDIENTE, sin adoptar límites del EDA sesgado. |
+| D-01 | APROBADA. Train 2024; validación ene–mar 2025; test final abr–jun 2025; replay jul–dic 2025. Sustituye propuesta inicial del PDF. | Equipo | [Protocolo](d01-d02-protocol.md): particiones por recogida, etiquetas anteriores al corte y replay por evento; no presume publicación histórica. T14 implementada/autorizada, ejecución real detenida por calidad. |
+| D-02 | APROBADA. Todos los elegibles, sin submuestreo. Preparación/T15: 4 GiB libres/2 GiB RSS/50 GiB disco, supervisión probada. SGD/MLP T16 conserva 4 hilos, un candidato, 8 GiB RSS, 2 h y preflight 12 GiB RAM/50 GiB disco libres. | Equipo | [Presupuesto y host](d01-d02-protocol.md): controles de candidatos pendientes de T16; no ampliar ni reducir datos silenciosamente. Ajuste y evaluación T15 verificados; Docker y candidatos sin ejecutar. |
+| D-03 | PARCIAL. Entorno T03 y extra features T13 aprobados/fijados: scikit-learn 1.9.1, tzdata 2026.6 y transitivas; lock actual de 23 paquetes. MLflow/FastAPI/Compose confirmados sin instalar. Pandas/Pydantic/Evidently/Actions pendientes. | Equipo; docente cuando corresponda | Compatibilidad local Windows/CPython 3.14 probada con fixtures; Docker y stack futuro sin certificar. |
+| D-04 | V1 congelada y excepción humana puntual de marzo/hash/reporte aprobada e implementada. | Equipo | 14 lotes pasan calidad, uno aceptado por excepción; FAIL y exclusiones conservados. [Contrato](t15-march-exception.md). Otros meses/fallos bloqueados; sin promoción automática. |
 | D-05 | PENDIENTE. 115 % en dos ventanas, PSI 0.20, mejora 2 % o no inferioridad son propuestas del PDF pp. 8–9. | Equipo | T32/T34: referencia, ventanas, volumen mínimo, bins/categorías, margen de no inferioridad y tolerancias por segmento aprobados. |
-| D-06 | PENDIENTE. Payload v1, semántica temporal, catálogo y destino conocido. No autorizar `DOLocationID` por su mera presencia histórica. | Equipo | Antes de T12/T13/T20: hipótesis causal explícita, contrato y casos de ausencia/cambio del destino. |
+| D-06 | PARCIAL. Aprobados origen/calendario/pasajeros opcionales y convención America/New_York/UTC con cuarentena DST; destino deshabilitado. Catálogo operativo aprobado en D-04; contrato REST completo pendiente. | Equipo | T12/T13 probadas y calidad real alineada con UTC; cerrar contrato REST y tratamiento de entradas en T20. |
 | D-07 | PENDIENTE. SQLite persistente, directorio de artefactos y alias champion son propuesta; versiones y acceso host/contenedores sin probar. | Equipo | Antes de T18: elección aprobada y prueba local acotada; integración completa en T24/T25. |
-| D-08 | PARCIAL. Continuación T10/T11 solicitada; CLI e integración offline verificados para revisión humana. Criterio general de PR sin cerrar. | Equipo / integrante revisor por designar | Revisar T10/T11; no declarar cierre operativo sin D-04/D-06. G0/G2 abiertos. |
+| D-08 | T15 cierre técnico PASS, resultados disponibles para revisión humana. T14 integral y criterio general de PR pendientes. | Equipo | 380 pruebas en ambos entornos y auditoría real; no cierre automático de gates generales. |
 
 La arquitectura local está confirmada en el [ADR 0001](adr/0001-arquitectura-local.md). Las propuestas técnicas de persistencia, modelos y librerías no se consideran aprobadas por ese ADR.
 
@@ -117,7 +125,7 @@ T01 no depende de otras tareas. El PDF ya está disponible, por lo que su compar
 
 Orden técnico propuesto: contrato causal/temporal → datos y calidad → recursos/modelado → registro persistente → champion aprobado y serving → monitoreo → comparación/promoción/rollback. Dependencias T04/T03, T12/D-06 y T34/T25 corregidas con aprobación; H-07 y orquestación H-08 continúan como precondiciones pendientes de tareas futuras.
 
-G0 operativo permanece pendiente de D-01/D-02/D-04. La documentación puede registrar decisiones abiertas; el siguiente trabajo exige aprobación de la tarea y sus dependencias. G1 requiere además entorno, fixtures y prueba ejecutada: no se declara por T01.
+Las decisiones D-01/D-02/D-04 de G0 quedaron aprobadas posteriormente para el protocolo local con todos los elegibles. No equivale a controles operativos implementados ni a entrenamiento autorizado/ejecutado. La documentación puede registrar decisiones abiertas; el siguiente trabajo exige aprobación de la tarea y sus dependencias. G1 requiere además entorno, fixtures y prueba ejecutada: no se declara por T01.
 
 ## 8. Aceptación y evidencia T01
 
@@ -158,3 +166,27 @@ No se ejecutó EDA de todas las filas, no se aprobaron Quality Gates ni se asign
 El registro local no inventa `source_url` ni `downloaded_at_utc`: quedan nulos. `expected_source_url` es una referencia canónica, no prueba de origen; `recorded_at_utc` sí registra la acción real. El manifiesto queda LOCAL_UNVERIFIED aunque luego la ejecución se salte por idempotencia. Esta política no relaja T08/T09 ni aprueba procedencia o calidad para entrenamiento.
 
 [Contrato y evidencia](t06-t07-ingestion.md). No hay opción de reemplazo destructivo; se bloquean divergencias. El `SKIPPED` verifica el estado local, sin afirmar que el publicador remoto no haya revisado el archivo. Las escrituras de datos/manifiesto se publican por separado sin reemplazar destinos; fallos intermedios requieren revisión explícita. El estado DOWNLOADED solo acredita adquisición registrada por el pipeline, no Quality Gates ni escaneo de todas las páginas.
+
+## 12. Cierre documental D-01/D-02 y ratificación D-04
+
+El usuario aprobó train 2024, validación ene–mar 2025, test abr–jun y replay jul–dic. Rechazó submuestreo de modelado y aprobó después SGDRegressor/MLPRegressor pequeño incrementales con todos los elegibles y presupuesto 4 hilos/8 GiB/2 h por candidato, preflight 12 GiB RAM/50 GiB disco libres. Ratificó D-04 y autorizó uso académico de los 24 hashes existentes. [Protocolo completo](d01-d02-protocol.md) y [registro estructurado](d01-d02-execution-protocol.json). Solo enero sigue incorporado y validado; esta revisión no registra ni procesa los otros 23, no entrena ni implementa T14. Las evidencias anteriores describen su fecha y alcance originales.
+
+## 13. Continuación T14
+
+El usuario autorizó trabajar en T14. Se implementaron configuración de periodos/recursos, CLI de particionado completo por bloques y pruebas offline, sin resolver decisiones nuevas de modelado. [Contrato, verificación y límites](t14-temporal-splits.md). T14 no hace fit ni incorpora automáticamente los otros 23 archivos. Solo enero permanece registrado/validado; no hay features reales preparados. D-02 tiene preflight y supervisión cooperativa para particionado, pero temporizador/controles de candidatos y medición de entrenamiento corresponden a T16. T15 y siguientes requieren autorización.
+
+## 14. Autorización de cierre real T14/T15
+
+El usuario solicitó terminar ambas tareas y aprobó explícitamente: (1) mediana global exacta de todas las etiquetas elegibles train 2024, predicción solo en validación; (2) perfil específico de preparación/mediana con preflight 4 GiB RAM/50 GiB disco libres y máximo RSS 2 GiB, secuencial por bloques, sin reducir datos al fallar. El perfil de candidatos SGD/MLP conserva 12 GiB libres/8 GiB RSS. La incorporación/validación/features de los 24 archivos autorizados se ejecuta como prerrequisito del cierre real; no hay descargas ni promoción. [Contrato](t15-baseline.md). Resultados reales pendientes de verificación al terminar el flujo.
+
+## 15. Rechazo real y decisión de conservar D-04
+
+15 meses registrados LOCAL_UNVERIFIED; 14 completaron calidad/features REAL (2024 completo y enero–febrero de 2025). Marzo de 2025 rechazado: 22.280 duraciones no positivas/4.145.257 filas (0,537482 %), máximo 0,50 %. El usuario decidió mantener D-04. No hay particiones reales ni baseline real publicados. [Reporte](../reports/quality/t14_t15_preparation.md). El usuario eligió mantener D-04 y revisar la fuente: el tamaño y ETag multipart coinciden con el objeto oficial actual; no se encontró indicio de versión corregida en esa URL. Procedencia histórica y SHA-256 remoto sin verificar. [Diagnóstico y decisión](t14-t15-quality-blocker.md). Ninguna excepción ni cambio global aprobados. Las opciones previas de ejecución en curso ya no describen un trabajo activo.
+
+## 16. Separación y ajuste independiente T15 aprobados
+
+El usuario aprobó ajustar todo train 2024 disponible al corte dejando evaluación pendiente, sin consumir marzo/test/replay ni cerrar T14/T15. Ajuste exacto train 2024 completo y auditado: 41.119.495 etiquetas, mediana 12,983333 minutos; 561 filas apartadas por corte de etiqueta entre 41.120.056 elegibles DQ. Evaluación y cierre de T14/T15 pendientes de marzo 2025; D-04 permanece congelada. [Reporte](../reports/quality/t15_train_fit.md). 356 pruebas en desarrollo y wheel. Modelo provisional, sin registro, promoción ni candidatos T16. La aprobación modifica únicamente la dependencia del ajuste; el flujo completo conserva T14 completa como precondición.
+
+## 17. Excepción puntual y cierre técnico de T15
+
+El usuario autorizó «Hagamos una excepción y no rechacemos el lote solo sobre este mes y asi podemos cerrar T15». Se conserva la política global y se limita el override al mes/hash/reporte y único FAIL de duración no positiva. [Contrato](t15-march-exception.md). La evaluación del modelo congelado completa la separación de fases sin preparar test/replay ni declarar T14 integral completa. T15 verificada técnicamente: mediana congelada 12,983333 min de 41.119.495 etiquetas train 2024; 11.163.264 predicciones enero–marzo 2025. MAE 7,741890 min y RMSE 11,912962 min. [Evidencia](../reports/quality/t15_baseline_validation.md).

@@ -18,6 +18,7 @@ dist/
 # Configuracion local y secretos; conservar la plantilla publica
 .env
 .env.*
+configs/*.local.json
 !.env.example
 .aws/
 secrets/
