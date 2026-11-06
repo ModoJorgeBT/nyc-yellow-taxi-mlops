@@ -1,4 +1,4 @@
-"""Conversion equivalente por bloques para REAL 2024/2025 ya validado D-04."""
+"""Conversión por bloques para años autorizados y datos ya validados D-04."""
 
 from datetime import datetime, timedelta
 from functools import lru_cache
@@ -12,11 +12,12 @@ from src.features.target import localize_historical
 EPOCH = datetime(1970, 1, 1)
 HOUR_US = 3_600_000_000
 DAY_US = 24 * HOUR_US
+SUPPORTED_REAL_YEARS = frozenset((2024, 2025, 2026))
 
 
 @lru_cache(maxsize=8192)
 def _hour_offset(hour: int) -> int:
-    # En America/New_York 2024/2025 los cambios son en fronteras de hora.
+    # En los años admitidos de Nueva York los cambios son en fronteras de hora.
     # Las horas ambiguas/inexistentes ya se apartaron en D-04; no se adivinan.
     try:
         wall = EPOCH + timedelta(hours=hour, minutes=30)
@@ -34,8 +35,8 @@ def _utc(values):
 def real_tables(
     batch: pa.RecordBatch, *, year: int, month: int, start_index: int, schemas: dict
 ) -> dict[str, pa.Table]:
-    if year not in (2024, 2025):
-        raise FeatureError("Motor vectorial limitado al protocolo 2024/2025")
+    if year not in SUPPORTED_REAL_YEARS:
+        raise FeatureError("Año fuera del dominio temporal verificado")
     names = batch.schema.names
     arrays = {}
     for name in ("tpep_pickup_datetime", "tpep_dropoff_datetime", "PULocationID"):

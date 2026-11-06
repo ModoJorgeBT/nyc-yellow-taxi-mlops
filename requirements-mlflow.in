@@ -1,0 +1,12 @@
+# Entorno T18 aislado; no cambia el lock historico de entrenamiento/evaluacion.
+mlflow==3.16.1
+pyarrow==25.0.0
+numpy==2.5.4
+scipy==1.18.1
+scikit-learn==1.9.1
+joblib==1.6.0
+threadpoolctl==3.7.0
+lightgbm==4.7.0
+tzdata==2026.6
+# Verificacion reproducible del adaptador y tracking en el mismo entorno.
+pytest==9.2.0

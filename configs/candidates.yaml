@@ -1,0 +1,46 @@
+{
+  "format_version": 1,
+  "approval_status": "APPROVED",
+  "protocol_version": "incremental-candidates-v1-2026-11-05",
+  "fit_scope": "train_only",
+  "selection_scope": "validation_only",
+  "epochs": 1,
+  "batch_size": 4096,
+  "random_state": 42,
+  "prediction_bounds_minutes": [0.016666666666666666, 180.0],
+  "preprocessing": "train_vocabulary_then_streaming_standard_scaler_no_centering",
+  "resources": {
+    "approval_status": "APPROVED",
+    "profile_id": "d02-incremental-8-4-2026-11-05",
+    "threads_total": 4,
+    "parallel_models": 1,
+    "process_rss_limit_gib": 4,
+    "candidate_timeout_seconds": 7200,
+    "preflight_min_free_ram_gib": 8,
+    "preflight_min_free_disk_gib": 50
+  },
+  "candidates": {
+    "sgd": {
+      "loss": "huber", "epsilon": 1.35, "penalty": "l2", "alpha": 0.0001,
+      "learning_rate": "invscaling", "eta0": 0.001, "power_t": 0.25,
+      "average": true, "shuffle": true, "random_state": 42
+    },
+    "mlp": {
+      "hidden_layer_sizes": [16], "activation": "relu", "solver": "adam",
+      "loss": "squared_error", "alpha": 0.0001, "learning_rate_init": 0.001,
+      "batch_size": 256, "shuffle": true, "random_state": 42,
+      "early_stopping": false
+    }
+  },
+  "evaluation": {
+    "quantile_method": "linear_exact",
+    "hour_band_width": 6,
+    "route_count": 20,
+    "route_min_validation_rows": 1000,
+    "route_scope": "validation_frequency_only",
+    "destination_usage": "segmentation_only_not_predictor",
+    "tie_preference": ["baseline", "sgd", "mlp"],
+    "test_usage": "once_after_frozen_validation_selection",
+    "monitoring_replay_usage": "not_accessed"
+  }
+}

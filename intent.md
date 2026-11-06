@@ -53,11 +53,12 @@ Construir una plataforma MLOps modular y reproducible que ingiera datos mensuale
 - Acuerdo T03 (2026-11-03): Python 3.14.7, entorno `.venv`, setuptools, Ruff, Pytest y pip-tools con versiones fijadas y hashes; PyArrow aprobado para la revisión de metadatos/esquemas locales. No implica compatibilidad ya probada del stack MLOps completo.
 - Acuerdo T12/T13: scikit-learn, tzdata y dependencias necesarias aprobadas, fijadas y probadas con fixtures. Origen, calendario y pasajeros opcionales aprobados bajo conteo conocido al abordar; destino deshabilitado. Convención histórica America/New_York, apartando horarios ambiguos/inexistentes y calculando duración en UTC. [Contrato y evidencia](docs/t12-t13-features.md).
 - D-01 aprobada: entrenamiento 2024 completo, validación enero–marzo 2025, test final abril–junio 2025 y replay de monitoreo julio–diciembre 2025. Sustituye la propuesta académica inicial; no exige descargar 2026. [Protocolo y controles temporales](docs/d01-d02-protocol.md).
-- Aprobación de herramientas adicionales no incluidas en el acuerdo T03, incluida Evidently, pendiente. GitHub Actions permanece en el alcance de CI; la aprobación de herramientas se registra por separado.
+- Las herramientas adicionales aún no autorizadas, incluida Evidently, permanecen pendientes. D-07 aprobó e implementó MLflow y sus dependencias exclusivamente en el entorno separado T18. GitHub Actions permanece en el alcance de CI; la aprobación de herramientas se registra por separado.
 - Destino deshabilitado en la versión actual por aprobación T12/T13; reintroducirlo requiere una nueva decisión causal explícita.
-- D-02 aprobada: todas las filas elegibles, sin submuestreo de modelado; SGDRegressor y MLPRegressor pequeño incrementales, cuatro hilos, un candidato a la vez, 8 GiB y dos horas por candidato; preflight 12 GiB RAM libre/50 GiB disco libre. Controles por implementar antes de entrenar. Drift/promoción y criterio general de PR pendientes.
+- D-02 vigente T16/T17: todos los elegibles, SGD/MLP incrementales, cuatro hilos, un candidato, 4 GiB RSS y dos horas por candidato; preflight 8 GiB RAM/50 GiB disco libres. El usuario aprobó [la revisión 8/4](docs/d02-t16-resource-review.md) tras fallar el mínimo inicial 12/8. Controles probados con fixtures y respetados en el ajuste real de SGD/MLP y su evaluación. Preparación T14/T15 conserva su perfil histórico 4/2. Drift/promoción y criterio general de PR pendientes.
 - D-04 ratificada/congelada para v1: [política](docs/d04-quality-proposal.md), perfil real implementado y piloto enero 2024 aprobado con WARN. Autorización académica ampliada a los 24 archivos actuales por mes/hash, conservando LOCAL_UNVERIFIED; no implica su incorporación automática. [Activación y resultados](docs/d04-activation.md).
-- Estados y riesgos: [registro de decisiones](docs/decisions.md). T15 verificada técnicamente: mediana congelada 12,983333 min de 41.119.495 etiquetas train 2024; 11.163.264 predicciones enero–marzo 2025. MAE 7,741890 min y RMSE 11,912962 min. [evaluación real auditada](reports/quality/t15_baseline_validation.md). Marzo aceptado por excepción humana solo para su hash/reporte; FAIL original y exclusiones conservados, sin cambiar D-04 global. T14 integral sigue pendiente; test/replay sellados, T16 no ejecutada y sin registro/promoción. No se aprende de 2025; solo se evalúa validation. Calidad medida y aceptación humana se distinguen; procedencia desconocida conservada.
+- Estados y riesgos: [registro](docs/decisions.md). T15 tiene ajuste/evaluación auditados y congelados: mediana 12,983333 min, MAE 7,741890 min y RMSE 11,912962 min en validation. T14 integral terminó técnicamente y confirmó el mismo train/validation, con cuatro particiones y 24 meses auditados. [Evidencia](reports/quality/t14_completion.md). La primera comparación T16/T17 está ejecutada y auditada, con SGD elegido antes de abrir test; replay sigue sin métricas predictivas. No hay registro ni promoción. Procedencia desconocida y excepciones de calidad explícitas conservadas.
+- Continuación 2026-11-05: los incumplimientos D-04 se presentan para aceptación humana antes de consumirlos. Las nueve excepciones exactas de abril–diciembre están aprobadas y aplicadas, con 543.725 exclusiones y FAIL originales intactos. T14 integral terminó su auditoría sobre 24 meses; T16/T17 se ejecutaron después según [protocolo aprobado](docs/t16-t17-execution-proposal.md) y D-02, sin nuevas excepciones automáticas ni promoción.
 
 ## 9. Instrucciones para el agente de desarrollo
 1. Leer `intent.md`, `spec.md` y `plan.md` antes de modificar código, cuando estén disponibles.
@@ -69,3 +70,42 @@ Construir una plataforma MLOps modular y reproducible que ingiera datos mensuale
 
 ## 10. Fuente de referencia
 Documento base: «Diseño de una Plataforma MLOps para Predicción de Duración de Viajes de NYC Yellow Taxi», estructura propuesta y revisión técnica, versión 1.0, septiembre de 2026.
+
+
+**Resultados T16/T17, 2026-11-05:** SGD Huber y MLP16 se ajustaron con las 41.119.495 filas train, una pasada por candidato. SGD fue elegido con validation antes de abrir test: MAE 6,876910 frente a 7,741890 del baseline. En test obtuvo MAE 7,965068 frente a 9,032999. MLP fue peor que el baseline; SGD empeoró ligeramente P90 en validation. Sin reajustes después de test ni promoción.
+[Informe auditado](reports/evaluation/t17_model_comparison.md). El usuario solicitó y aprobó [LightGBM como tercer candidato](docs/t16-lightgbm-extension-proposal.md), con evaluación solo en validation y una nueva evaluación final independiente pendiente. El presupuesto vigente y la prohibición de usar destino como predictor se conservan.
+
+**Extensión LightGBM ejecutada — 2026-11-05:** LightGBM 4.7.0 fue entrenado con las 41.119.495 filas train y 100 árboles. En las 11.163.264 filas validation: MAE 6.496404, RMSE 9.847425, MedAE 4.631360 y P90 13.478764 minutos. Ajuste y evaluación auditados; 447 pruebas por entorno. Solo validation: una nueva evaluación final independiente sigue pendiente. La selección SGD y el test de la primera comparación permanecen intactos; no hay promoción. [Evidencia](reports/evaluation/lightgbm_validation.md).
+
+
+**Evaluación final independiente completada y auditada — 2026-11-05:**
+enero–marzo de 2026, 10.937.087 viajes; MAE LightGBM **7,742891 min**, SGD
+**8,352735** y baseline **9,141254**. Se excluyeron 139.305 filas DQ mediante
+tres excepciones humanas exactas y 814 por corte de etiqueta; los 27 raw,
+modelos y selección de 2025 permanecen intactos. Reinicio de recursos aprobado
+6 GiB libres/2 GiB RSS solo para inferencia final; entrenamiento 8/4 y preparación
+4/2 sin cambios. 474 pruebas por entorno y auditoría completa. Sin promoción.
+[Reporte final y trazabilidad](reports/evaluation/lightgbm_final_evaluation.md). Las referencias anteriores a evaluación
+final pendiente describen la entrega histórica previa a esta aprobación. T18
+requiere D-07 y dependencias; no hay Registry ni champion todavía.
+
+
+**T18 verificada — 2026-11-05:** D-07 aprobada e implementada con MLflow 3.16.1
+en entorno separado, SQLite y artefactos persistentes. Cuatro candidatos:
+baseline v1, SGD v2, MLP v3 y LightGBM v4, sin alias. Reinicio real, carga,
+idempotencia y auditoría independiente PASS; 488 pruebas nativas más una omisión
+explícita y 489 sobre wheel MLflow. Los modelos y evaluaciones anteriores no
+cambian. Champion/T19 y G3 permanecen pendientes de aprobación.
+[Registro y evidencia](reports/tracking/t18_completion.md). Las referencias previas a D-07 o Registry
+pendientes describen la cronología anterior a esta aprobación y ejecución.
+
+
+**T19 verificada — 2026-11-05:** el usuario aprobó LightGBM v4 como champion
+inicial, después de conocer las limitaciones por rutas, y descartó optimización
+de hiperparámetros. Alias `champion` aplicado a la versión fija 4, run
+`be28c76c84c44efa8914c5950a2959bf`; paquete, aprobación y resolución auditados.
+501 pruebas nativas PASS y dos omisiones explícitas; 503 PASS sobre wheel MLflow.
+G3 cumple sus condiciones de Sprint 3. D-05 conserva pendientes sus reglas
+automáticas de drift y promociones futuras; no se aprueban nuevos umbrales.
+[Decisión, pruebas y evidencia](reports/model_selection.md). Las menciones anteriores a champion
+pendiente son históricas; API y despliegue siguen en sus tareas posteriores.

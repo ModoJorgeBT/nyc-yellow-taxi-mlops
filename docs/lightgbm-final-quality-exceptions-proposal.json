@@ -1,0 +1,205 @@
+{
+  "format_version": 1,
+  "approval_status": "APPROVED_BY_USER",
+  "scope": "Only these three original 2026-Q1 failures; no predictions evaluated",
+  "preserve_invalid_row_exclusions": true,
+  "allow_other_lots": false,
+  "allow_other_failures": false,
+  "global_d04_unchanged": true,
+  "lots": [
+    {
+      "year": 2026,
+      "month": 1,
+      "raw_sha256": "8b3933fe6f0d7b6d8826613c0dd724edc680ff7c49e2bd4c7635c05102728637",
+      "raw_rows": 3724889,
+      "excluded_rows": 46832,
+      "eligible_rows_before_cutoff": 3678057,
+      "config_sha256": "555f4b943b12884639369caeae348a37d97b7efb2918e72818fa8f1cd9a5dc48",
+      "policy_version": "d04-real-v1-2026-11-03",
+      "rejected_report": {
+        "path": "reports/quality/2026/01/a84833a346dd45569d12c2901edef6ef.json",
+        "sha256": "e6913d4ae80016bb060edac52b60e08bdb96eb6be7152d5e49ac0e45f8d0823e"
+      },
+      "allowed_failures_if_approved": [
+        {
+          "rule": "rows.duration_nonpositive",
+          "status": "FAIL",
+          "severity": "critical",
+          "observed": {
+            "count": 45070,
+            "rate": 0.012099689413563734
+          },
+          "threshold": {
+            "fail_above": 0.005,
+            "warn_above": null,
+            "denominator": "all_raw_rows"
+          },
+          "evidence": {
+            "first_raw_row_indexes": [
+              16,
+              126,
+              251,
+              252,
+              253
+            ],
+            "index_base": 0
+          }
+        },
+        {
+          "rule": "rows.union_invalid_rows",
+          "status": "FAIL",
+          "severity": "critical",
+          "observed": {
+            "count": 46832,
+            "rate": 0.01257272364357703
+          },
+          "threshold": {
+            "fail_above": 0.01,
+            "warn_above": 0.005,
+            "denominator": "all_raw_rows"
+          },
+          "evidence": {
+            "first_raw_row_indexes": [
+              16,
+              126,
+              251,
+              252,
+              253
+            ],
+            "index_base": 0
+          }
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 2,
+      "raw_sha256": "5352ca800f29c40a221ed5b0c6392c451fde7fcd236a73651bd5aea74713a26c",
+      "raw_rows": 3399866,
+      "excluded_rows": 42141,
+      "eligible_rows_before_cutoff": 3357725,
+      "config_sha256": "555f4b943b12884639369caeae348a37d97b7efb2918e72818fa8f1cd9a5dc48",
+      "policy_version": "d04-real-v1-2026-11-03",
+      "rejected_report": {
+        "path": "reports/quality/2026/02/45c4caec5d0c473484a1f6239552d060.json",
+        "sha256": "b59562082c7d27d2278b51f07623dba92d88812b4513746298199d59b7777fb9"
+      },
+      "allowed_failures_if_approved": [
+        {
+          "rule": "rows.duration_nonpositive",
+          "status": "FAIL",
+          "severity": "critical",
+          "observed": {
+            "count": 40598,
+            "rate": 0.01194105885349599
+          },
+          "threshold": {
+            "fail_above": 0.005,
+            "warn_above": null,
+            "denominator": "all_raw_rows"
+          },
+          "evidence": {
+            "first_raw_row_indexes": [
+              0,
+              1,
+              11,
+              110,
+              174
+            ],
+            "index_base": 0
+          }
+        },
+        {
+          "rule": "rows.union_invalid_rows",
+          "status": "FAIL",
+          "severity": "critical",
+          "observed": {
+            "count": 42141,
+            "rate": 0.012394900269598861
+          },
+          "threshold": {
+            "fail_above": 0.01,
+            "warn_above": 0.005,
+            "denominator": "all_raw_rows"
+          },
+          "evidence": {
+            "first_raw_row_indexes": [
+              0,
+              1,
+              11,
+              110,
+              174
+            ],
+            "index_base": 0
+          }
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 3,
+      "raw_sha256": "d7af794a7ac06cbbb5afb4d1df9e86d84f2e878584de708ff2ffca4bd7d234d9",
+      "raw_rows": 3952451,
+      "excluded_rows": 50332,
+      "eligible_rows_before_cutoff": 3902119,
+      "config_sha256": "555f4b943b12884639369caeae348a37d97b7efb2918e72818fa8f1cd9a5dc48",
+      "policy_version": "d04-real-v1-2026-11-03",
+      "rejected_report": {
+        "path": "reports/quality/2026/03/8a25b414358242d7ae4b772c364e54fb.json",
+        "sha256": "8dc40ee78a639510572dc16dd02b439e20570ae80756640e072ddf6665a484ee"
+      },
+      "allowed_failures_if_approved": [
+        {
+          "rule": "rows.duration_nonpositive",
+          "status": "FAIL",
+          "severity": "critical",
+          "observed": {
+            "count": 49133,
+            "rate": 0.01243102065022438
+          },
+          "threshold": {
+            "fail_above": 0.005,
+            "warn_above": null,
+            "denominator": "all_raw_rows"
+          },
+          "evidence": {
+            "first_raw_row_indexes": [
+              13,
+              14,
+              29,
+              93,
+              94
+            ],
+            "index_base": 0
+          }
+        },
+        {
+          "rule": "rows.union_invalid_rows",
+          "status": "FAIL",
+          "severity": "critical",
+          "observed": {
+            "count": 50332,
+            "rate": 0.012734376719660788
+          },
+          "threshold": {
+            "fail_above": 0.01,
+            "warn_above": 0.005,
+            "denominator": "all_raw_rows"
+          },
+          "evidence": {
+            "first_raw_row_indexes": [
+              6,
+              13,
+              14,
+              27,
+              29
+            ],
+            "index_base": 0
+          }
+        }
+      ]
+    }
+  ],
+  "user_instruction": "Sí, aprobar las tres excepciones exactas con exclusiones y trazabilidad",
+  "proposal_sha256_before_approval": "538b4c4bb3d2ed1a137b29369a59f93e48f868088d6e8ba1552ab595fd384f38"
+}

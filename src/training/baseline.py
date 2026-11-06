@@ -23,8 +23,10 @@ from src.training.split import (
     SCHEMAS,
     SplitError,
     _read_object,
+    boundaries,
     preparation_budget,
     read_model_config,
+    required_months,
     verify_features,
 )
 from src.validation.run import _sha256, _under
@@ -41,8 +43,29 @@ BASELINE_POLICY = {
 }
 
 
-def verify_split(directory: Path, *, config: dict, data_config: dict, test_only: bool) -> dict:
-    """Verifica solo train/validation; nunca abre artefactos ni fuentes de test/replay."""
+def verify_split(
+    directory: Path,
+    *,
+    config: dict,
+    data_config: dict,
+    test_only: bool,
+    partitions: tuple[str, ...] = ("train", "validation"),
+) -> dict:
+    """Verifica solo ambitos explicitos; el baseline conserva train/validation por defecto."""
+    if (
+        not partitions
+        or len(set(partitions)) != len(partitions)
+        or any(part not in config["partitions"] for part in partitions)
+    ):
+        raise SplitError("Ambito de verificacion incompatible")
+    expected_months = set()
+    for part in partitions:
+        start, end = boundaries(config, part)
+        expected_months.update(
+            period
+            for period in required_months(config)
+            if (start.year, start.month) <= period < (end.year, end.month)
+        )
     directory = directory.resolve()
     marker = _under(directory, "split_manifest.json")
     marker_hash = _sha256(marker)
@@ -67,7 +90,7 @@ def verify_split(directory: Path, *, config: dict, data_config: dict, test_only:
     months = set()
     for entry in report["inputs"]:
         year, month = entry["year"], entry["month"]
-        if year != 2024 and not (year == 2025 and month <= 3):
+        if (year, month) not in expected_months:
             continue
         if (year, month) in months:
             raise SplitError("Mes de train/validacion repetido")
@@ -81,11 +104,9 @@ def verify_split(directory: Path, *, config: dict, data_config: dict, test_only:
         )
         if actual != entry["verified"]:
             raise SplitError("Linaje de entrada alterado desde T14")
-    if not test_only and months != {(2024, m) for m in range(1, 13)} | {
-        (2025, m) for m in (1, 2, 3)
-    }:
+    if not test_only and months != expected_months:
         raise SplitError("Faltan meses de train/validacion")
-    for partition in ("train", "validation"):
+    for partition in partitions:
         info = report["partitions"][partition]
         if type(info["rows"]) is not int or info["rows"] < 1:
             raise SplitError("Particion vacia")

@@ -1,0 +1,72 @@
+{
+  "format_version": 2,
+  "exception_id": "d04-2026-03-final-exact-v2",
+  "approval_status": "APPROVED",
+  "approved_by": "USER_EXPLICIT_IN_CONVERSATION",
+  "approval_recorded_on": "2026-11-05",
+  "approval_timezone": "America/Costa_Rica",
+  "user_instruction": "Sí, aprobar las tres excepciones exactas con exclusiones y trazabilidad",
+  "proposal_sha256_before_approval": "538b4c4bb3d2ed1a137b29369a59f93e48f868088d6e8ba1552ab595fd384f38",
+  "year": 2026,
+  "month": 3,
+  "raw_sha256": "d7af794a7ac06cbbb5afb4d1df9e86d84f2e878584de708ff2ffca4bd7d234d9",
+  "config_sha256": "555f4b943b12884639369caeae348a37d97b7efb2918e72818fa8f1cd9a5dc48",
+  "policy_version": "d04-real-v1-2026-11-03",
+  "preserve_invalid_row_exclusions": true,
+  "allow_other_failures": false,
+  "allow_other_lots": false,
+  "rejected_report": {
+    "relative_path": "../reports/quality/2026/03/8a25b414358242d7ae4b772c364e54fb.json",
+    "sha256": "8dc40ee78a639510572dc16dd02b439e20570ae80756640e072ddf6665a484ee"
+  },
+  "allowed_failures": [
+    {
+      "rule": "rows.duration_nonpositive",
+      "status": "FAIL",
+      "severity": "critical",
+      "observed": {
+        "count": 49133,
+        "rate": 0.01243102065022438
+      },
+      "threshold": {
+        "fail_above": 0.005,
+        "warn_above": null,
+        "denominator": "all_raw_rows"
+      },
+      "evidence": {
+        "first_raw_row_indexes": [
+          13,
+          14,
+          29,
+          93,
+          94
+        ],
+        "index_base": 0
+      }
+    },
+    {
+      "rule": "rows.union_invalid_rows",
+      "status": "FAIL",
+      "severity": "critical",
+      "observed": {
+        "count": 50332,
+        "rate": 0.012734376719660788
+      },
+      "threshold": {
+        "fail_above": 0.01,
+        "warn_above": 0.005,
+        "denominator": "all_raw_rows"
+      },
+      "evidence": {
+        "first_raw_row_indexes": [
+          6,
+          13,
+          14,
+          27,
+          29
+        ],
+        "index_base": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,223 @@
+{
+  "format_version": 1,
+  "approval_status": "APPROVED",
+  "protocol_version": "lightgbm-independent-final-2026-q1-v1",
+  "approval": {
+    "user_approved": true,
+    "recorded_at_utc": "2026-11-05T20:50:58.409424+00:00",
+    "period_and_protocol": "Sí, aprobar periodo y protocolo propuestos",
+    "download": "Sí, autorizar esas tres descargas limitadas"
+  },
+  "evaluation_only": true,
+  "fit_forbidden": true,
+  "model_selection_forbidden": true,
+  "retrospective_holdout": true,
+  "historical_deployment_claim": false,
+  "period": {
+    "year": 2026,
+    "months": [
+      1,
+      2,
+      3
+    ],
+    "pickup_start": "2026-01-01T00:00:00-05:00",
+    "pickup_end": "2026-04-01T00:00:00-04:00",
+    "label_cutoff_utc": "2026-04-01T04:00:00+00:00"
+  },
+  "downloads": {
+    "source": "official_tlc_only",
+    "max_file_bytes": 536870912,
+    "max_total_bytes": 1073741824,
+    "timeout_seconds": 30,
+    "retries": 2
+  },
+  "feature_version": "pickup-calendar-passengers-v1",
+  "prediction_bounds_minutes": [
+    0.016666666666666666,
+    180.0
+  ],
+  "quality_config": "configs/data.yaml",
+  "quality_config_sha256": "555f4b943b12884639369caeae348a37d97b7efb2918e72818fa8f1cd9a5dc48",
+  "quality_rules_sha256": "1478d970eaff516dbdb8ad9683b97b64e59ec8bcb5bc18f3d9c7bdd5e6bd4e65",
+  "automatic_quality_exceptions": false,
+  "models": {
+    "lightgbm": {
+      "path": "models/lightgbm/a36932872f8e49989a52bb76186ca88a/lightgbm.joblib",
+      "sha256": "8bd17196b3a5c1974036c11456f61083d2a5f601236d55d56f884802b477cff6"
+    },
+    "sgd": {
+      "path": "models/candidates/faf8ab304ffb447f8bff8c1372715352/sgd.joblib",
+      "sha256": "bfe284f297e7eb8d67261242ab1d4d35dc9639d181760dc923da128e52082541"
+    },
+    "baseline": {
+      "path": "data/processed/baselines/f44a7df0171b484788f059b0b1b10328/model.json",
+      "sha256": "7d6e3eefd040f04f46e7a8f6ef6068fd65dcf86c56bb0e97cde5ecb8f0c8abf9"
+    }
+  },
+  "original_lightgbm_training_id": "a36932872f8e49989a52bb76186ca88a",
+  "original_lightgbm_training_manifest_sha256": "95c132ccdbd034370dd20268a1fce10bfa30796fc0442715a7fdbf56ef3e77a6",
+  "original_evaluation_directory": "data/processed/evaluations/0834219fa03e4eae965c67db282e0bb7",
+  "original_evaluation_manifest_sha256": "e1df7547dbb9cd7d766dd12a462b61c6c2753a71566e5cda796cd45e6ac3f943",
+  "original_selection_sha256": "e863c7c74c93a6a7478bd0b831b8b29848e42c7fc16bff04762a35c3df94c61d",
+  "route_catalog": {
+    "selection_scope": "validation_frequency_only",
+    "minimum_rows": 1000,
+    "maximum_routes": 20,
+    "routes": [
+      {
+        "code": 237236,
+        "origin": 237,
+        "destination": 236,
+        "validation_rows": 71372
+      },
+      {
+        "code": 236237,
+        "origin": 236,
+        "destination": 237,
+        "validation_rows": 62100
+      },
+      {
+        "code": 236236,
+        "origin": 236,
+        "destination": 236,
+        "validation_rows": 50911
+      },
+      {
+        "code": 237237,
+        "origin": 237,
+        "destination": 237,
+        "validation_rows": 49425
+      },
+      {
+        "code": 161237,
+        "origin": 161,
+        "destination": 237,
+        "validation_rows": 33387
+      },
+      {
+        "code": 237161,
+        "origin": 237,
+        "destination": 161,
+        "validation_rows": 29630
+      },
+      {
+        "code": 161236,
+        "origin": 161,
+        "destination": 236,
+        "validation_rows": 28625
+      },
+      {
+        "code": 239238,
+        "origin": 239,
+        "destination": 238,
+        "validation_rows": 27789
+      },
+      {
+        "code": 142239,
+        "origin": 142,
+        "destination": 239,
+        "validation_rows": 26721
+      },
+      {
+        "code": 239142,
+        "origin": 239,
+        "destination": 142,
+        "validation_rows": 25950
+      },
+      {
+        "code": 141236,
+        "origin": 141,
+        "destination": 236,
+        "validation_rows": 25012
+      },
+      {
+        "code": 186230,
+        "origin": 186,
+        "destination": 230,
+        "validation_rows": 24870
+      },
+      {
+        "code": 237162,
+        "origin": 237,
+        "destination": 162,
+        "validation_rows": 23964
+      },
+      {
+        "code": 236161,
+        "origin": 236,
+        "destination": 161,
+        "validation_rows": 23625
+      },
+      {
+        "code": 236141,
+        "origin": 236,
+        "destination": 141,
+        "validation_rows": 23455
+      },
+      {
+        "code": 238239,
+        "origin": 238,
+        "destination": 239,
+        "validation_rows": 23055
+      },
+      {
+        "code": 237141,
+        "origin": 237,
+        "destination": 141,
+        "validation_rows": 22645
+      },
+      {
+        "code": 132132,
+        "origin": 132,
+        "destination": 132,
+        "validation_rows": 22166
+      },
+      {
+        "code": 236239,
+        "origin": 236,
+        "destination": 239,
+        "validation_rows": 21717
+      },
+      {
+        "code": 161161,
+        "origin": 161,
+        "destination": 161,
+        "validation_rows": 21666
+      }
+    ]
+  },
+  "evaluation": {
+    "metrics": [
+      "MAE",
+      "RMSE",
+      "MedAE",
+      "P90"
+    ],
+    "quantile_method": "linear_exact",
+    "month_year_from": "actual_pickup_new_york",
+    "hour_band_width": 6,
+    "route_scope": "frozen_2025_validation_frequency",
+    "destination_usage": "segmentation_only_not_predictor",
+    "batch_size": 4096,
+    "future_final_test_reuse_for_tuning": "forbidden"
+  },
+  "preparation_resources": {
+    "approval_status": "APPROVED",
+    "threads_total": 4,
+    "process_rss_limit_gib": 2,
+    "preflight_min_free_ram_gib": 4,
+    "preflight_min_free_disk_gib": 50,
+    "batch_size": 65536
+  },
+  "evaluation_resources": {
+    "approval_status": "APPROVED",
+    "threads_total": 4,
+    "parallel_models": 1,
+    "process_rss_limit_gib": 4,
+    "preflight_min_free_ram_gib": 8,
+    "preflight_min_free_disk_gib": 50,
+    "candidate_timeout_seconds": 7200
+  },
+  "model_registered": false,
+  "approved_for_serving": false
+}

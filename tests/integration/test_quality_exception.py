@@ -12,18 +12,25 @@ from src.validation.run import validate
 from tests.integration.test_real_data_quality import setup
 
 
-def exception_fixture(tmp_path):
+def exception_fixture(tmp_path, *, format_version=1, union_failure=False):
     options, _ = setup(tmp_path, case="nonpositive_duration")
     config = json.loads(options["config_path"].read_text())
     config["quality"]["fail_rates"]["duration_nonpositive"] = 0
+    if union_failure:
+        config["quality"]["fail_rates"]["union_invalid_rows"] = 0
+        config["quality"]["warn_rates"]["union_invalid_rows"] = 0
     options["config_path"].write_text(json.dumps(config))
     rejected = validate(2024, 1, **options)
     assert rejected["status"] == "FAIL", rejected.get("error")
     failures = [c for c in rejected["checks"] if c["status"] == "FAIL"]
-    assert len(failures) == 1 and failures[0]["rule"] == "rows.duration_nonpositive"
+    assert {c["rule"] for c in failures} == (
+        {"rows.duration_nonpositive", "rows.union_invalid_rows"}
+        if union_failure
+        else {"rows.duration_nonpositive"}
+    )
     original = Path(rejected["report_path"])
     document = {
-        "format_version": 1,
+        "format_version": format_version,
         "approval_status": "APPROVED",
         "approved_by": "USER_EXPLICIT_IN_CONVERSATION",
         "exception_id": "synthetic-only",
@@ -41,6 +48,9 @@ def exception_fixture(tmp_path):
             "sha256": hashlib.sha256(original.read_bytes()).hexdigest(),
         },
     }
+    if format_version == 2:
+        document.pop("allowed_failure")
+        document["allowed_failures"] = failures
     path = tmp_path / "exception.json"
     path.write_text(json.dumps(document))
     return options, rejected, path
@@ -127,3 +137,77 @@ def test_revocation_blocks_downstream_consumption(tmp_path):
     path.write_text(json.dumps(doc))
     with pytest.raises(ValueError, match="Excepcion"):
         verify_validated(folder, test_only=False)
+
+
+@pytest.mark.parametrize("union_failure", [False, True])
+def test_v2_exact_failure_set_preserves_exclusions_and_downstream_lineage(tmp_path, union_failure):
+    options, rejected, path = exception_fixture(
+        tmp_path, format_version=2, union_failure=union_failure
+    )
+    original = Path(rejected["report_path"]).read_bytes()
+    accepted = validate(2024, 1, exception_path=path, **options)
+    assert accepted["execution_status"] == "VALIDATED_REAL_EXCEPTION", accepted.get("error")
+    assert not accepted["quality_passed"] and accepted["data_quality_approved"]
+    assert accepted["excluded_rows"] == rejected["excluded_rows"] > 0
+    assert accepted["quality_exception"]["waived_rules"] == [
+        check["rule"] for check in json.loads(path.read_text())["allowed_failures"]
+    ]
+    directory = (options["validated_dir"] / accepted["output"]["relative_path"]).parent
+    features = build_validated_features(directory, processed_dir=tmp_path / "features")
+    assert features["rows_emitted"] == rejected["eligible_rows"]
+    assert features["source_quality_exception"] == accepted["quality_exception"]
+    assert Path(rejected["report_path"]).read_bytes() == original
+    document = json.loads(path.read_text())
+    document["approval_status"] = "REVOKED"
+    path.write_text(json.dumps(document))
+    with pytest.raises(ValueError, match="Excepcion"):
+        verify_validated(directory, test_only=False)
+
+
+@pytest.mark.parametrize(
+    "change",
+    ["subset", "additional", "duplicate", "unknown_version", "boolean_version", "pending", "mixed"],
+)
+def test_v2_incomplete_broad_or_pending_authorizations_block_before_scan(
+    tmp_path, monkeypatch, change
+):
+    options, _, path = exception_fixture(tmp_path, format_version=2, union_failure=True)
+    document = json.loads(path.read_text())
+    if change == "subset":
+        document["allowed_failures"].pop()
+    elif change == "additional":
+        document["allowed_failures"].append({"rule": "schema.columns", "status": "FAIL"})
+    elif change == "duplicate":
+        document["allowed_failures"].append(document["allowed_failures"][0])
+    elif change == "unknown_version":
+        document["format_version"] = 3
+    elif change == "boolean_version":
+        document["format_version"] = True
+    elif change == "pending":
+        document["approval_status"] = "PENDING_USER_APPROVAL"
+    else:
+        document["allowed_failure"] = document["allowed_failures"][0]
+    path.write_text(json.dumps(document))
+    monkeypatch.setattr("src.validation.run._scan", lambda *a, **k: pytest.fail("No escanear"))
+    result = validate(2024, 1, exception_path=path, **options)
+    assert result["status"] == "FAIL" and result["output"] is None
+
+
+@pytest.mark.parametrize("change", ["additional_failure", "changed_count"])
+def test_v2_new_failures_or_changed_measurements_are_not_waived(tmp_path, monkeypatch, change):
+    options, _, path = exception_fixture(tmp_path, format_version=2, union_failure=True)
+    from src.validation import run
+
+    original = run._scan
+
+    def changed(*args, **kwargs):
+        report = original(*args, **kwargs)
+        if change == "additional_failure":
+            report["checks"].append({"rule": "rows.origin_null", "status": "FAIL"})
+        else:
+            report["excluded_rows"] += 1
+        return report
+
+    monkeypatch.setattr(run, "_scan", changed)
+    result = validate(2024, 1, exception_path=path, **options)
+    assert result["status"] == "FAIL" and result["output"] is None

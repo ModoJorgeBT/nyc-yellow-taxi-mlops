@@ -1,0 +1,48 @@
+{
+  "format_version": 2,
+  "exception_id": "d04-2025-04-exact-failure-set-academic-v2",
+  "approval_status": "APPROVED",
+  "approved_by": "USER_EXPLICIT_IN_CONVERSATION",
+  "approval_recorded_on": "2026-11-05",
+  "approval_timezone": "America/Costa_Rica",
+  "user_instruction": "Sí, aprobar los nueve meses con esas exclusiones y trazabilidad",
+  "proposal_sha256_before_approval": "2274e848107f1bba35efdf61c93c2c9245d0ade256b57291389517ff41130f8d",
+  "year": 2025,
+  "month": 4,
+  "raw_sha256": "6f98938de9380a3f85600533816f0dc0e6d9b5b210e485d623952bac599bbe28",
+  "config_sha256": "555f4b943b12884639369caeae348a37d97b7efb2918e72818fa8f1cd9a5dc48",
+  "policy_version": "d04-real-v1-2026-11-03",
+  "preserve_invalid_row_exclusions": true,
+  "allow_other_failures": false,
+  "allow_other_lots": false,
+  "rejected_report": {
+    "relative_path": "../reports/quality/2025/04/f6db7d68beab46ca9aa951f62667e76f.json",
+    "sha256": "78f6b435ce53e436597f67d56b07c7862dcbe2aef43ffdb23a47e30ff777abdf"
+  },
+  "allowed_failures": [
+    {
+      "evidence": {
+        "first_raw_row_indexes": [
+          5,
+          46,
+          322,
+          343,
+          566
+        ],
+        "index_base": 0
+      },
+      "observed": {
+        "count": 34769,
+        "rate": 0.008756714744772328
+      },
+      "rule": "rows.duration_nonpositive",
+      "severity": "critical",
+      "status": "FAIL",
+      "threshold": {
+        "denominator": "all_raw_rows",
+        "fail_above": 0.005,
+        "warn_above": null
+      }
+    }
+  ]
+}

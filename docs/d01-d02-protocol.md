@@ -101,3 +101,8 @@ Ajuste exacto train 2024 completo y auditado: 41.119.495 etiquetas, mediana 12,9
 ## Excepción de marzo y evaluación T15 posteriores
 
 T15 verificada técnicamente: mediana congelada 12,983333 min de 41.119.495 etiquetas train 2024; 11.163.264 predicciones enero–marzo 2025. MAE 7,741890 min y RMSE 11,912962 min. [Reporte](../reports/quality/t15_baseline_validation.md). Marzo aceptado por excepción humana solo para su hash/reporte; FAIL original y exclusiones conservados, sin cambiar D-04 global. T14 integral sigue pendiente; test/replay sellados, T16 no ejecutada y sin registro/promoción. [Contrato y autorización](t15-march-exception.md). Las referencias anteriores a bloqueo de evaluación o ausencia de excepción son históricas.
+
+
+## Revisión posterior de entrenamiento — 2026-11-05
+
+T14 terminó con su contrato congelado. Después, el usuario aprobó para T16/T17 8 GiB RAM libre/4 GiB RSS, manteniendo4 hilos, un candidato,2h y50 GiB disco. Sustituye el perfil inicial12/8 exclusivamente en estas fases; la configuración de particiones y su hash permanecen históricos. [Registro](d02-t16-resource-review.md) y [candidates.yaml](../configs/candidates.yaml). Todos los elegibles, sin submuestreo.

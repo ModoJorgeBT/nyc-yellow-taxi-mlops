@@ -1,6 +1,6 @@
-# Historial de las dos entregas en Git
+# Historial de las tres entregas en Git
 
-Repositorio: [ModoJorgeBT/nyc-yellow-taxi-mlops](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops), rama `main`. El usuario autorizó el segundo commit y su push, junto con la documentación de ambas entregas. La publicación no cierra revisiones humanas ni aprueba nuevos lotes o excepciones.
+Repositorio: [ModoJorgeBT/nyc-yellow-taxi-mlops](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops), rama `main`. El usuario autorizó cada publicación, incluida «Favor subir el tercer commit a github». Cada entrega conserva el estado y las aprobaciones de su momento; publicar no autoriza tareas, lotes ni promociones futuras.
 
 ## Primer commit — Base del proyecto y pipeline hasta T11
 
@@ -16,7 +16,7 @@ La verificación previa a esa publicación aprobó **162 pruebas**, además de R
 
 - Mensaje: `Add T12-T15 features and baseline; document T14 quality blockers`.
 - Padre: `164bf9e3f08fe5ae528d36fc0a2fa06f33a74943`.
-- Identificación: es el commit que incorpora este archivo y los cambios siguientes. Su hash se consulta en Git; escribirlo dentro del propio commit cambiaría ese mismo hash.
+- Commit: [`27b09d2d0a0344b88bd9dbfefabb8154f81a99ec`](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commit/27b09d2d0a0344b88bd9dbfefabb8154f81a99ec).
 
 | Área | Contenido incorporado y evidencia |
 |---|---|
@@ -36,11 +36,35 @@ Control previo a publicación: 36 documentos Markdown y 311 referencias locales 
 
 T15 tiene cierre técnico; la revisión humana sigue siendo independiente. **T14 permanece pendiente por nueve lotes rechazados.** No se iniciaron candidatos T16, API, MLflow, Docker, CI, monitoreo, promoción ni rollback. No se añaden excepciones nuevas en esta publicación.
 
+## Tercer commit — Preparación integral, modelos, MLflow y champion inicial
+
+- Mensaje: `Complete T14-T19 modeling, MLflow tracking and LightGBM champion`.
+- Padre: `27b09d2d0a0344b88bd9dbfefabb8154f81a99ec`.
+- Identificación: es el commit que incorpora esta sección; su hash definitivo se consulta en Git. No se escribe dentro de su propio contenido porque lo modificaría.
+
+| Área | Cambios y evidencia |
+|---|---|
+| T14 | Cierre integral de los 24 meses de 2024/2025: registro, calidad, features, cuatro particiones completas y auditoría de identidades, valores, cobertura y cortes. Nueve excepciones exactas adicionales aprobadas para abril–diciembre de 2025, conservando FAIL y exclusiones. [Cierre T14](../reports/quality/t14_completion.md). |
+| T16 | SGD Huber y MLP16 incrementales ajustados con las 41.119.495 filas train; preprocesamiento train-only, una pasada y límites de recursos. LightGBM 4.7.0 con 100 árboles y el mismo train completo; discretización train-only. Supervisor del proceso nativo real y cancelación probados. [Entrenamiento](../reports/quality/t16_training.md), [extensión LightGBM](t16-lightgbm-extension-proposal.md). |
+| T17 | Comparación temporal con métricas y segmentos exactos; primera selección SGD congelada antes del test original. LightGBM comparado inicialmente solo en validation. [Comparación original](../reports/evaluation/t17_model_comparison.md), [validation LightGBM](../reports/evaluation/lightgbm_validation.md). |
+| Evaluación independiente | Tres descargas oficiales limitadas enero–marzo de 2026, manifiestos y hashes; tres excepciones D-04 expresas, 139.305 exclusiones de calidad y 814 temporales. Evaluación de los modelos congelados sobre 10.937.087 filas, sin reajustes ni reutilización del test/replay de 2025. Reinicio de recursos trazado y auditoría independiente. [Informe final](../reports/evaluation/lightgbm_final_evaluation.md). |
+| T18 / D-07 | MLflow 3.16.1 aislado del entorno de modelado, lock propio de 95 paquetes, SQLite/artefactos persistentes y servicio loopback. Cuatro candidatos registrados con parámetros, métricas, código, datos y dependencias trazables; carga, reinicio e idempotencia auditados. [Guía](t18-mlflow.md), [resultados](../reports/tracking/t18_completion.md). |
+| T19 | Elección humana LightGBM v4; alias `champion`, aprobación ligada a versión/run/paquete, eventos preparados/aplicados y resolución de versión fija. Pruebas de ausencia/divergencia de aprobación, integridad y recuperación de operación parcial. [Decisión](../reports/model_selection.md), [contrato público](../configs/champion.yaml). |
+| Documentación | README, intent, spec, plan, decisiones y arquitectura alineados; G3 satisface el alcance de Sprint 3. Se incorpora el PDF de avance aportado por el equipo, sin modificarlo. |
+
+Resultado final independiente, MAE en minutos: **LightGBM 7,742891**, SGD 8,352735 y baseline 9,141254. El usuario aprobó el champion inicial después de conocer las regresiones frente a SGD en 14/20 rutas; no se definieron tolerancias generales ni se optimizaron hiperparámetros. D-05 conserva pendientes las reglas automáticas de drift y promociones futuras.
+
+Verificación de la versión de código incluida: **501 pruebas aprobadas y dos integraciones MLflow omitidas** en el entorno histórico; **503 aprobadas** desde wheel instalado en el entorno MLflow, con copia sin `src` ni datos reales y 40 imports aislados. Ruff, formato y comprobación de dependencias aprobados. Wheel T19 SHA-256 `a605d7524611be4e72b7ebca66c6017d842a4191cd0a8642240d31b63abe821d`; código ejecutado SHA-256 `3875bfbd83f9db150eb66569e7147ce6583ff991514ef33a91554e98682f420c`. Las pruebas se ejecutaron antes de publicar y sus recibos locales se conservaron; esta publicación no repite entrenamiento ni evaluación del holdout.
+
+El PDF [Informe_Proyecto_MLOps_NYC_Taxi.pdf](../Informe_Proyecto_MLOps_NYC_Taxi.pdf) es una fotografía académica anterior a la evaluación independiente y a T18/T19: describe LightGBM solo en validation. Se conserva como documento de avance, sin presentar sus pendientes históricos como el estado actual. El estado vigente está en `plan.md` y los informes enlazados arriba.
+
+La publicación contiene código y evidencias públicas, no una copia de la instancia local de MLflow. Los pesos, SQLite, artefactos, aprobaciones aplicadas y recibos JSON permanecen locales conforme a las exclusiones del proyecto. El contrato versionado de champion expresa la aprobación y sus hashes; reconstruir el entorno requiere los artefactos y el linaje correspondientes. T20–T38, API, Docker/Compose, CI y monitoreo siguen pendientes.
+
 ## Contenido público y consulta del historial
 
-Se versionan código, pruebas, fixtures sintéticas pequeñas, configuración pública, referencias documentales y reportes Markdown. Permanecen locales los 24 Parquet reales y sus manifiestos generados, datasets procesados, modelos/predicciones, reportes JSON de ejecución, catálogos `*.local.json`, entornos, cachés y secretos. Los JSON de política/protocolo y la autorización excepcional son configuración pública; no contienen registros de viajes.
+Se versionan código, pruebas, fixtures sintéticas pequeñas, configuración pública, PDF de referencia/avance y reportes Markdown. Permanecen locales los 27 Parquet reales actuales y sus manifiestos generados, datasets procesados, modelos/predicciones, SQLite y artefactos MLflow, reportes JSON de ejecución, catálogos `*.local.json`, entornos, cachés y secretos. Los JSON de política/protocolo y las autorizaciones excepcionales son configuración pública; no contienen registros de viajes.
 
-Los reportes históricos que indican «sin nuevo commit/push» describen el momento de su medición, anterior a esta segunda publicación. Sus hashes, métricas y límites se conservan como evidencia; no son afirmaciones sobre el estado remoto posterior.
+Los reportes históricos que indican «sin nuevo commit/push» describen el momento de su medición, anterior a la publicación correspondiente. Sus hashes, métricas y límites se conservan como evidencia; no son afirmaciones sobre el estado remoto posterior.
 
 ```powershell
 git log --reverse --format="%h %s" main
@@ -48,4 +72,4 @@ git show --stat 164bf9e
 git show --stat main
 ```
 
-El [historial de main](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commits/main) permite consultar hashes y diferencias de ambas entregas. En esta publicación, `main` identifica el segundo commit; futuras entregas pueden avanzar esa referencia.
+El [historial de main](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commits/main) permite consultar hashes y diferencias de las tres entregas. En esta publicación, `main` identifica el tercer commit; futuras entregas pueden avanzar esa referencia.

@@ -1,0 +1,43 @@
+{
+  "format_version": 1,
+  "approval_status": "APPROVED",
+  "protocol_version": "lightgbm-validation-extension-v1-2026-11-05",
+  "fit_scope": "train_only",
+  "evaluation_scope": "validation_only",
+  "original_selection_unchanged": true,
+  "new_independent_final_evaluation": "PENDING",
+  "batch_size": 4096,
+  "feature_version": "pickup-calendar-passengers-v1",
+  "categorical_feature": ["pickup_location_id"],
+  "origin_vocabulary_scope": "all_train_only",
+  "unknown_origin_code": -1,
+  "prediction_bounds_minutes": [0.016666666666666666, 180.0],
+  "num_boost_round": 100,
+  "parameters": {
+    "boosting_type": "gbdt", "objective": "regression_l1", "metric": "l1",
+    "learning_rate": 0.05, "num_leaves": 31, "max_depth": -1,
+    "min_data_in_leaf": 1000, "max_bin": 63,
+    "num_threads": 4, "seed": 42, "data_random_seed": 42,
+    "feature_fraction_seed": 42, "bagging_seed": 42,
+    "deterministic": true, "force_col_wise": true,
+    "histogram_pool_size": 256, "bin_construct_sample_cnt": 200000,
+    "bagging_fraction": 1.0, "bagging_freq": 0, "feature_fraction": 1.0,
+    "feature_fraction_bynode": 1.0, "data_sample_strategy": "bagging",
+    "verbosity": -1
+  },
+  "resources": {
+    "approval_status": "APPROVED",
+    "profile_id": "d02-lightgbm-8-4-2026-11-05",
+    "threads_total": 4, "parallel_models": 1,
+    "process_rss_limit_gib": 4, "candidate_timeout_seconds": 7200,
+    "preflight_min_free_ram_gib": 8, "preflight_min_free_disk_gib": 50,
+    "native_process_poll_seconds": 0.1
+  },
+  "evaluation": {
+    "quantile_method": "linear_exact", "hour_band_width": 6,
+    "route_catalog": "frozen_original_validation_frequency_only",
+    "route_count": 20, "route_min_validation_rows": 1000,
+    "destination_usage": "segmentation_only_not_predictor",
+    "test_usage": "forbidden", "monitoring_replay_usage": "forbidden"
+  }
+}

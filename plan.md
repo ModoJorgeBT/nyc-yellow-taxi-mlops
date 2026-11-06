@@ -1,6 +1,6 @@
 # PLAN — Implementación incremental NYC Yellow Taxi MLOps
 
-**Versión:** 1.0 · **Estado:** T15 ajuste y validación reales completos/auditados, cierre técnico PASS para revisión humana. T14 integral pendiente; T16–T38 sin ejecutar · **Entorno:** Windows local, Docker sin verificar.
+**Versión:** 1.0 · **Estado:** T14, T15 y primera comparación T16/T17 con cierre técnico auditado; LightGBM con evaluación final independiente auditada; T18/T19 con cierre técnico auditado; LightGBM v4 champion inicial aprobado; T20–T38 pendientes · **Entorno:** Windows local, Docker sin verificar.
 **Fuentes de verdad:** `intent.md`, `spec.md`, y PDF académico *Proyecto_Maestria_MLOps_NYC_Taxi_Estructura*, septiembre 2026. En caso de contradicción, detenerse y pedir decisión; no cambiar el alcance silenciosamente.
 
 ## 0. Protocolo obligatorio para Codex
@@ -17,16 +17,16 @@
 
 | ID | Decisión | Valor de trabajo / criterio | Estado |
 |---|---|---|---|
-| D-01 | Periodos | Train 2024 completo; validación ene–mar 2025; test final abr–jun 2025; replay jul–dic 2025. Cortes por evento, sin afirmar disponibilidad histórica de publicación | APROBADA; sustituye propuesta inicial |
-| D-02 | Recursos | Todos los elegibles. Preparación/mediana T14/T15: 4 GiB RAM libres/2 GiB RSS/50 GiB disco. SGD/MLP T16 conserva cuatro hilos, 12 GiB libres/8 GiB RSS y dos horas por candidato | APROBADA; supervisión de preparación/baseline probada; candidatos/Docker no ejecutados |
-| D-03 | Herramientas | Entorno T03 y extra features T13 aprobados/fijados: scikit-learn/tzdata y transitivas, lock de 23 paquetes. MLflow/FastAPI/Compose sin instalar; pandas/Pydantic/Actions/Evidently pendientes | PARCIAL; no equivale a compatibilidad del stack completo |
-| D-04 | Umbrales DQ | D-04 v1 congelada; excepción humana ligada solo a marzo 2025/hash/reporte, sin cambiar tasas ni exclusiones | APROBADA E IMPLEMENTADA; 14 lotes pasan calidad, uno aceptado excepcionalmente |
-| D-05 | Drift y promoción | Evaluar propuestas PDF: MAE > 115 % dos ventanas, PSI > 0.20, mejora MAE ≥ 2 % o no inferioridad definida | PENDIENTE |
+| D-01 | Periodos | Train 2024 completo; validación ene–mar 2025; test original abr–jun 2025; replay jul–dic 2025. Extensión final independiente ene–mar 2026, sin reajustes | APROBADA y auditada; protocolo final separado, periodos originales intactos |
+| D-02 | Recursos | Todos los elegibles. Preparación: 4 GiB libres/2 GiB RSS. Entrenamiento: 8/4. Inferencia final 2026: 6/2; 4 hilos, un candidato, 2 h/candidato y 50 GiB disco | APROBADOS y verificados; reinicio final trazado, Docker sin verificar |
+| D-03 | Herramientas | Lock histórico de 24 paquetes intacto; MLflow 3.16.1 y 95 paquetes fijados en entorno T18 separado. pandas/Pydantic/FastAPI instalados solo como dependencias de MLflow; API del proyecto, Compose, Actions y Evidently pendientes | PARCIAL; T18 local verificada, sin acreditar Docker ni stack completo |
+| D-04 | Umbrales DQ | D-04 v1 congelada; diez excepciones exactas de 2025 y tres de ene–mar 2026, ligadas a mes/hash/reporte, inválidos excluidos | APROBADA E IMPLEMENTADA; 27 lotes incorporados: 14 pasan calidad y 13 aceptados excepcionalmente |
+| D-05 | Drift y promoción | Evaluar propuestas PDF: MAE > 115 % dos ventanas, PSI > 0.20, mejora MAE ≥ 2 % o no inferioridad definida | PENDIENTE para automatismos; elección inicial T19 aprobada |
 | D-06 | API | Origen/calendario/pasajeros opcionales y convención Nueva York/UTC aprobados; destino deshabilitado. Catálogo operativo aprobado en D-04; contrato REST completo pendiente | PARCIAL |
-| D-07 | MLflow | SQLite persistente y artefactos locales; registry y alias champion según versión compatible | PENDIENTE prueba |
-| D-08 | Definition of Done | T12/T13 solicitadas y decisiones aprobadas; evidencia de features/target/Pipeline preparada para revisión humana | PARCIAL; criterio general de PR pendiente |
+| D-07 | MLflow | MLflow 3.16.1 en entorno separado; SQLite persistente, artefactos locales, loopback y cuatro versiones; LightGBM v4 champion por T19 | APROBADA, IMPLEMENTADA Y VERIFICADA; registro/reinicio/carga/linaje auditados |
+| D-08 | Definition of Done | T14/T15/T16/T17, evaluación independiente y T18/T19 auditadas técnicamente; revisión humana de resultados independiente | PARCIAL; criterio general de PR pendiente; G3 verificado |
 
-**Gate G0, decisiones:** D-01/D-02/D-04 aprobadas; excepción puntual de marzo aprobada posteriormente. T15 verificada técnicamente: mediana congelada 12,983333 min de 41.119.495 etiquetas train 2024; 11.163.264 predicciones enero–marzo 2025. MAE 7,741890 min y RMSE 11,912962 min. [evaluación real auditada](reports/quality/t15_baseline_validation.md). Marzo aceptado por excepción humana solo para su hash/reporte; FAIL original y exclusiones conservados, sin cambiar D-04 global. T14 integral sigue pendiente; test/replay sellados, T16 no ejecutada y sin registro/promoción. G2/G3 requieren sus condiciones y revisión propias.
+**Gate G0, decisiones:** D-01/D-02/D-04 aprobadas; excepción puntual de marzo aprobada posteriormente. T15 verificada técnicamente: mediana congelada 12,983333 min de 41.119.495 etiquetas train 2024; 11.163.264 predicciones enero–marzo 2025. MAE 7,741890 min y RMSE 11,912962 min. [evaluación real auditada](reports/quality/t15_baseline_validation.md). Marzo aceptado por excepción humana solo para su hash/reporte; FAIL original y exclusiones conservados, sin cambiar D-04 global. T14 integral y primera comparación T16/T17 ya auditadas; test evaluado tras selección, replay sin métricas predictivas. Sin registro/promoción. G2/G3 requieren sus condiciones y revisión propias.
 
 **Activación D-04 posterior aprobada:** la propuesta basada en 240.000 filas de 2024 fue aprobada; perfil real probado y enero completo ejecutado. [Política](docs/d04-quality-proposal.md), [activación](docs/d04-activation.md), [piloto](reports/quality/pilot_2024_01.md). Resultado: 2.964.624 raw, 2.961.753 elegibles, 2.871 exclusiones y 60 normalizaciones; WARN, sin entrenamiento. Suite del piloto inicial: 255 pruebas en desarrollo y wheel. Después se aprobaron D-01/D-02 y se amplió autorización académica a los 24 archivos, ratificando/congelando D-04; [protocolo](docs/d01-d02-protocol.md). G2 conserva revisión humana y no implica calidad aprobada de otros lotes.
 
@@ -168,12 +168,12 @@ Evidencia offline y piloto real enero 2024 disponibles. D-04 provisional y semá
 
 ### T14 — Particiones temporales y lectura completa por bloques
 - **Depende de:** T10, T13, D-01/D-02.
-- **Trabajo aprobado en D-01/D-02:** cortes cronológicos 2024/train, ene–mar 2025/val, abr–jun/test, jul–dic/replay; todas las filas elegibles, sin submuestreo. Lectura/escritura por bloques, linaje y separación estricta de particiones. La implementación fue autorizada por el usuario y probada con fixtures; aún no hay ejecución de las particiones reales.
+- **Trabajo aprobado en D-01/D-02:** cortes cronológicos 2024/train, ene–mar 2025/val, abr–jun/test y jul–dic/replay; todos los elegibles sin submuestreo, por bloques y con linaje. Implementación y ejecución real de las cuatro particiones completadas y auditadas; [evidencia](reports/quality/t14_completion.md).
 - **Entregables:** `src/training/split.py`, `configs/model.yaml`.
 - **Aceptación/prueba:** `max(train.time) < min(val.time)` y `max(val.time) < min(test.time)`; sin solapamiento, cobertura completa de elegibles y exclusiones causales auditadas; repetición reproduce hashes/conteos/orden. No se concatena el histórico completo en una matriz densa.
 - **Aceptación temporal adicional:** verificar etiquetas disponibles al corte; probar viajes que empiezan antes y terminan después del corte, excluyéndolos del entrenamiento simulado en ese instante. Documentar replay retrospectivo frente a disponibilidad real de publicación de lotes, conforme a la política aprobada D-01/D-06; no inferir disponibilidad por el solo mes del archivo.
 
-- **Estado T14:** registro completo de los 24 meses; 15 versiones previas con features aceptadas. Validación completa de abril–diciembre de 2025: nueve rechazos por D-04, sin features publicadas ni nuevas excepciones. Particionado de los 24 meses y auditoría final pendientes de resolver esos rechazos; cualquier excepción nueva requiere aprobación. [Contrato](docs/t14-full-preparation.md) y [resultados por mes](reports/quality/t14_full_preparation.md).
+- **Estado T14:** T14 CIERRE TÉCNICO PASS: 24 meses registrados, validados/aceptados y con features; 89.892.322 raw, 627.221 exclusiones de calidad y 2.952 por disponibilidad de etiqueta. Particiones auditadas: train 41.119.495; validation 11.163.264; test 12.712.466; replay 24.266.924. Todas las identidades y valores publicados coinciden con las fuentes; train/validation coinciden con T15 congelada. D-04, 24 raw y diez FAIL originales intactos. Revisión humana de resultados independiente del cierre técnico. T16/T17 completadas y auditadas después de T14; ver sus resultados a continuación. [Evidencia integral](reports/quality/t14_completion.md). Split `e02156de2ac5477bafc4657774e31673`; 391 pruebas en ambos entornos. [Autorizaciones exactas](docs/t14-quality-exceptions-proposal.md) y [protocolo T16/T17 aprobado](docs/t16-t17-execution-proposal.md).
 
 ### T15 — Baseline
 - **Depende de:** lector temporal de T14 y datos aprobados train/validation. La continuación autorizada separa ajuste/evaluación de la preparación integral de test/replay; no cierra T14.
@@ -181,34 +181,43 @@ Evidencia offline y piloto real enero 2024 disponibles. D-04 provisional y semá
 - **Entregables:** `src/training/baseline.py` y artefacto de resultados.
 - **Aceptación/prueba:** predicciones finitas y positivas; baseline reproducible; no utilizar test para elegir modelos.
 
-- **Estado T15 actual:** CIERRE TÉCNICO PASS. T15 verificada técnicamente: mediana congelada 12,983333 min de 41.119.495 etiquetas train 2024; 11.163.264 predicciones enero–marzo 2025. MAE 7,741890 min y RMSE 11,912962 min. [evaluación real auditada](reports/quality/t15_baseline_validation.md). Marzo aceptado por excepción humana solo para su hash/reporte; FAIL original y exclusiones conservados, sin cambiar D-04 global. T14 integral sigue pendiente; test/replay sellados, T16 no ejecutada y sin registro/promoción. 380 pruebas en desarrollo y wheel; revisión humana de resultados pendiente.
+- **Estado T15 actual:** CIERRE TÉCNICO PASS; mediana 12,983333 min sobre 41.119.495 etiquetas train y 11.163.264 predicciones validation, MAE 7,741890/RMSE 11,912962 min. [Evidencia congelada](reports/quality/t15_baseline_validation.md). T14 integral terminó después y confirmó sus hashes/conteos sin reajustar el baseline. Revisión humana independiente; T16 añadió candidatos y T17 los evaluó, sin alterar este baseline ni promoverlos.
 
 ### T16 — Dos modelos candidatos
+
+Extensión adicional aprobada y completada: **LightGBM**, ajuste sobre todo train y evaluación solo en validation; [evidencia](reports/evaluation/lightgbm_validation.md). La evaluación final independiente posterior también terminó y está [auditada](reports/evaluation/lightgbm_final_evaluation.md).
+
 - **Depende de:** T14, T15.
-- **Trabajo aprobado en D-02:** SGDRegressor y MLPRegressor pequeño con partial_fit sobre todos los bloques train; preprocesador ajustado únicamente en train, congelado y serializado junto al estimador. Cuatro hilos, un candidato a la vez, 8 GiB y dos horas/candidato; preflight de 12 GiB RAM/50 GiB disco libres. Instrumentar y probar límites antes de entrenar; al exceder detener sin reducir datos. Arquitectura, épocas y parámetros concretos se revisan en esta tarea.
+- **Trabajo aprobado en D-02:** SGDRegressor Huber y MLP16 con partial_fit sobre todos los bloques train, una pasada y semilla 42; preprocesador train-only congelado y Pipeline serializable. Perfil revisado aprobado: cuatro hilos, un candidato, 4 GiB RSS, dos horas y preflight 8 GiB RAM/50 GiB disco libres. [Protocolo](docs/t16-t17-execution-proposal.md) y [revisión de recursos](docs/d02-t16-resource-review.md). Exceder detiene sin reducir datos.
 - **Entregables:** `src/training/train.py`, configuraciones de hiperparámetros.
-- **Aceptación/prueba:** fixtures verifican aprendizaje por bloques, coherencia train/serving y límites de RAM/tiempo/disco. Ejecución real posterior usa todos los elegibles, sin muestreo silencioso; registra pasadas, cobertura y recursos de ambos candidatos. La viabilidad completa no está demostrada por la prueba sintética.
+- **Protocolo concreto aprobado el 2026-11-05:** [perfil T16](docs/t16-t17-execution-proposal.md), condicionado al cierre auditado de T14: preprocesador train-only con escalado, SGD Huber y MLP16, una pasada completa por candidato, bloques de 4.096, semilla 42 y salida acotada con recortes registrados. La revisión posterior D-02 8/4 fue aprobada y aplicada. Entrenamiento completo y auditado.
+- **Aceptación/prueba:** fixtures verifican aprendizaje por bloques, coherencia train/serving y límites de RAM/tiempo/disco. La ejecución real auditada usó todos los elegibles y registró pasadas, cobertura y recursos. La extensión LightGBM verificó además la supervisión y cancelación del proceso nativo real.
 
 ### T17 — Evaluación temporal y segmentos
 - **Depende de:** T15, T16.
 - **Trabajo:** MAE, RMSE, MedAE, P90 error absoluto; análisis por mes/franja/rutas frecuentes; elegir con validación y reservar test para reporte final.
 - **Entregables:** `src/evaluation/metrics.py`, `reports/evaluation/`.
+- **Protocolo concreto aprobado el 2026-11-05:** [evaluación T17](docs/t16-t17-execution-proposal.md), después de T14/T16: métricas exactas, franjas de seis horas y top 20 rutas con soporte mínimo 1.000 definido solo por frecuencia en validation. Destino solo como segmento; selección congelada antes de test, sin reajuste ni promoción. Ejecución completa y auditada.
 - **Aceptación/prueba:** tests de métricas con valores conocidos; no ajustar hiperparámetros tras mirar test.
+
+- **Extensión final T17:** CIERRE TÉCNICO PASS; 10.937.087 viajes de enero–marzo 2026, 474 pruebas por entorno y auditoría completa. [Resultados y reinicio autorizado](reports/evaluation/lightgbm_final_evaluation.md). Sin promoción; revisión humana independiente.
 
 ### T18 — MLflow tracking y Registry
 - **Depende de:** T16, T17, D-07.
+- **Estado T18:** CIERRE TÉCNICO PASS; D-07 aprobada/implementada. Cuatro candidatos reales registrados sin alias; carga, métricas/linaje y persistencia tras reiniciar auditadas. 488 pruebas nativas y una omisión explícita, 489 sobre wheel MLflow. [Evidencia](reports/tracking/t18_completion.md), [guía](docs/t18-mlflow.md). Revisión humana independiente; sin promoción ni T19 implementada.
 - **Precondición por resolver en D-07:** acordar y probar el entorno local acotado de MLflow antes de esta tarea; Compose completo sigue en T24. No asumir infraestructura disponible por su aparición en el diagrama.
 - **Trabajo:** registrar parámetros, métricas, artefactos, hash de datos, commit, dependencias; registrar candidatos sin promoverlos automáticamente.
 - **Entregables:** `src/training/tracking.py`, configuración MLflow persistente.
 - **Aceptación/prueba:** reiniciar servicio sin perder runs; cada modelo tiene run y linaje; un registro candidato no altera champion.
 
 ### T19 — Selección y aprobación inicial del champion
+- **Estado T19:** CIERRE TÉCNICO PASS; elección humana LightGBM v4 aplicada y auditada. Alias, recibo, paquete y resolución exacta verificados; 501 pruebas nativas más dos omisiones explícitas, 503 sobre wheel MLflow. [Evidencia](reports/model_selection.md). Sin reajustes ni promoción automática futura.
 - **Depende de:** T18 y revisión humana.
 - **Trabajo:** documentar decisión de modelo inicial y asignar alias/estado aprobado, con versión fija y registro de auditoría.
 - **Entregables:** `reports/model_selection.md`, mecanismo de resolución del champion.
 - **Aceptación/prueba:** resolución de versión exacta, rechazo si no hay modelo aprobado; sin promoción automática por simple entrenamiento.
 
-**Gate G3:** baseline + 2 candidatos, validación cronológica, tracking trazable y champion aprobado explícitamente.
+**Gate G3: PASS para Sprint 3.** Baseline/candidatos, validación cronológica, tracking trazable y champion LightGBM v4 aprobado explícitamente/aplicado/auditado en T19. No acredita API, Docker ni gates posteriores. [Evidencia](reports/model_selection.md).
 
 ## 6. Sprint 4 — API y contenerización
 
@@ -338,13 +347,14 @@ Evidencia offline y piloto real enero 2024 disponibles. D-04 provisional y semá
 
 ## 9. Comandos de referencia y orden de arranque
 
-> **Importante:** ingesta/validación/features/particionado/baseline ya tienen CLI. Hay 24 meses registrados y 15 con features REAL: 14 pasan calidad y marzo se acepta solo mediante la excepción explícita autorizada. Abril–diciembre de 2025 están rechazados por D-04, sin features ni excepciones nuevas. T15 completó ajuste y validación; T14 integral sigue pendiente. La ejecución normal sin --quality-exception sigue rechazando marzo. Candidatos, monitoreo y Docker son tareas posteriores; [alcance de la excepción](docs/t15-march-exception.md). El [historial de commits](docs/commit-history.md) documenta las dos entregas autorizadas.
+> **Importante:** T14 integral tiene cierre técnico auditado sobre los 24 meses. T15 permanece congelada y coincide con train/validation publicados. Las diez aceptaciones excepcionales no alteran D-04 ni conservan filas inválidas; cualquier incumplimiento nuevo requiere aprobación. La primera comparación T16/T17 ya terminó con auditoría; LightGBM es una extensión aprobada pendiente, solo con validation. [Evidencia T14](reports/quality/t14_completion.md).
 
 ```powershell
 # Desde la raíz del repositorio en PowerShell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install -e ".[dev]"
+python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock
+python -m pip install --no-deps --no-build-isolation -e .
 python -m pytest -q
 ruff check .
 
@@ -356,7 +366,8 @@ docker compose up -d mlflow
 python -m src.ingestion.download --year 2025 --month 01
 python -m src.validation.run --year 2025 --month 01
 python -m src.features.build --help
-python -m src.training.train --config configs/model.yaml
+python -m src.training.train --help
+python -m src.evaluation.run --help
 
 # SOLO después de aprobar y registrar un champion
 docker compose up -d api
@@ -416,7 +427,7 @@ Prepara un guion reproducible para la demostración de la plataforma local. Usa 
 - [x] G0 Decisiones D-01/D-02/D-04 registradas y aprobadas para el protocolo local existente, sin descargas masivas. No acredita controles implementados ni autoriza entrenamiento/T14 por sí solo; G2/G3 siguen independientes.
 - [ ] G1 Arquitectura, entorno y fixtures reproducibles.
 - [ ] G2 Ingesta y DQ auditables.
-- [ ] G3 Modelado temporal, MLflow y champion.
+- [x] G3 Modelado temporal, MLflow y champion inicial aprobado/aplicado/auditado; alcance Sprint 3, no API/Docker.
 - [ ] G4 API y Docker Compose operativos.
 - [ ] G5 CI y observabilidad verificables.
 - [ ] G6 Retraining, rollback y demo reproducible.
@@ -426,3 +437,55 @@ Prepara un guion reproducible para la demostración de la plataforma local. Usa 
 **Aplicación a T01:** al ser exclusivamente documental, no requiere código ni tests de aplicación. Exige lectura cruzada, matriz de trazabilidad, validación de referencias/estados y revisión humana de los entregables. Los componentes de ejecución futura permanecen `NO VERIFICADOS`; T01 no se cierra hasta la revisión del equipo. El criterio general de D-08 sigue pendiente.
 
 **Nota de procedencia:** los seis sprints, entregables D1–D9, tecnologías, política anti-leakage, métricas y gates generales provienen del PDF y de `intent.md`/`spec.md`. Los IDs T01–T38, su granularidad, comandos de validación, fixtures, organización de prompts y gates G0–G6 son propuestas de ejecución de este plan, sujetas a aprobación del equipo.
+
+## Actualización de resultados T16/T17 — 2026-11-05
+
+SGD Huber y MLP16 se ajustaron con las 41.119.495 filas train, una pasada por candidato. SGD fue elegido con validation antes de abrir test: MAE 6,876910 frente a 7,741890 del baseline. En test obtuvo MAE 7,965068 frente a 9,032999. MLP fue peor que el baseline; SGD empeoró ligeramente P90 en validation. Sin reajustes después de test ni promoción.
+
+**T16: CIERRE TÉCNICO PASS.** Ambos candidatos cubren todo train, sin submuestreo, vocabulario/escalado train-only y Pipeline serializable. [Informe y recursos reales](reports/quality/t16_training.md).
+
+**T17: CIERRE TÉCNICO PASS de la primera comparación.** 11.163.264 filas validation, 12.712.466 test; métricas y 28 segmentos más el global por ventana/modelo auditados independientemente. [Resultados completos](reports/evaluation/t17_model_comparison.md). 423 pruebas por entorno; [evidencia](docs/t16-t17-validation.md).
+
+**Extensión T16/T17 aprobada:** [LightGBM](docs/t16-lightgbm-extension-proposal.md), todos los elegibles de train, 100 árboles y perfil 8/4. Evaluación únicamente con validation; nueva evaluación final independiente pendiente. No sustituye la selección ni el test originales. Estado de ejecución: CIERRE TÉCNICO PASS para ajuste y validation; nueva evaluación final independiente pendiente.
+
+Revisión humana de resultados independiente. G3 sigue abierto por T18/T19: falta tracking, registry y aprobación de champion. No se inician esos trabajos en esta continuación.
+
+## Extensión LightGBM — Resultado auditado
+
+LightGBM 4.7.0 fue entrenado con las 41.119.495 filas train y 100 árboles. En las 11.163.264 filas validation: MAE 6.496404, RMSE 9.847425, MedAE 4.631360 y P90 13.478764 minutos. Ajuste y evaluación auditados; 447 pruebas por entorno. Solo validation: una nueva evaluación final independiente sigue pendiente. La selección SGD y el test de la primera comparación permanecen intactos; no hay promoción.
+
+[Informe y segmentos](reports/evaluation/lightgbm_validation.md). Configuración aprobada separada en [lightgbm.yaml](configs/lightgbm.yaml); no modifica candidates.yaml, los modelos previos ni sus hashes. Los límites 8/4/cuatro hilos/dos horas se respetaron. G3 continúa pendiente de T18/T19 y revisión humana.
+
+
+**Evaluación final independiente completada y auditada — 2026-11-05:**
+enero–marzo de 2026, 10.937.087 viajes; MAE LightGBM **7,742891 min**, SGD
+**8,352735** y baseline **9,141254**. Se excluyeron 139.305 filas DQ mediante
+tres excepciones humanas exactas y 814 por corte de etiqueta; los 27 raw,
+modelos y selección de 2025 permanecen intactos. Reinicio de recursos aprobado
+6 GiB libres/2 GiB RSS solo para inferencia final; entrenamiento 8/4 y preparación
+4/2 sin cambios. 474 pruebas por entorno y auditoría completa. Sin promoción.
+[Evidencia final](reports/evaluation/lightgbm_final_evaluation.md). Las menciones
+previas a evaluación pendiente son históricas. Se solicita continuar T18; la
+[propuesta D-07](docs/d07-mlflow-proposal.md) requiere aprobación antes de instalar.
+
+
+**T18 verificada — 2026-11-05:** D-07 aprobada e implementada con MLflow 3.16.1
+en entorno separado, SQLite y artefactos persistentes. Cuatro candidatos:
+baseline v1, SGD v2, MLP v3 y LightGBM v4, sin alias. Reinicio real, carga,
+idempotencia y auditoría independiente PASS; 488 pruebas nativas más una omisión
+explícita y 489 sobre wheel MLflow. Los modelos y evaluaciones anteriores no
+cambian. Champion/T19 y G3 permanecen pendientes de aprobación.
+[Evidencia completa T18](reports/tracking/t18_completion.md). Las menciones
+previas a ausencia de tracking describen sus entregas históricas.
+
+
+**T19 verificada — 2026-11-05:** el usuario aprobó LightGBM v4 como champion
+inicial, después de conocer las limitaciones por rutas, y descartó optimización
+de hiperparámetros. Alias `champion` aplicado a la versión fija 4, run
+`be28c76c84c44efa8914c5950a2959bf`; paquete, aprobación y resolución auditados.
+501 pruebas nativas PASS y dos omisiones explícitas; 503 PASS sobre wheel MLflow.
+G3 cumple sus condiciones de Sprint 3. D-05 conserva pendientes sus reglas
+automáticas de drift y promociones futuras; no se aprueban nuevos umbrales.
+[Evidencia completa T19](reports/model_selection.md). T20 y tareas siguientes
+no se implementaron en esta continuación. Las entregas anteriores conservan
+sus estados históricos; T19 no reescribe métricas, pesos ni selección T17.

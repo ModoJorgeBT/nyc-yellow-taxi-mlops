@@ -1,0 +1,24 @@
+{
+  "format_version": 1,
+  "approval_status": "APPROVED",
+  "approved_by": "USER_EXPLICIT_IN_CONVERSATION",
+  "approval_recorded_at_utc": "2026-11-05T21:40:30.867752+00:00",
+  "user_instruction": "Sí, aprobar el perfil final 6 GiB libres/2 GiB RSS y el reinicio trazado",
+  "scope": "frozen_independent_final_inference_only",
+  "base_profile_sha256": "740eabe6aebbad1608dde981e022c57051c7617691039c64a599ab61ae59268a",
+  "holdout_manifest_sha256": "ba441be034bc0b4b8f33ec9876d6fc2cf6e02f51b2f62974ff95d28e6260b29b",
+  "failed_report_path": "reports/independent-final-evaluations/f913cf2217fb4c58b8da47895f42b463.json",
+  "failed_report_sha256": "9bf679476bd0eae423b4814302b94641f1f2e9a67e756183fb0008bc67dbd19f",
+  "training_unchanged": true,
+  "preparation_unchanged": true,
+  "resources": {
+    "approval_status": "APPROVED",
+    "profile_id": "d02-final-inference-6-2-2026-11-05",
+    "threads_total": 4,
+    "parallel_models": 1,
+    "process_rss_limit_gib": 2,
+    "preflight_min_free_ram_gib": 6,
+    "preflight_min_free_disk_gib": 50,
+    "candidate_timeout_seconds": 7200
+  }
+}

@@ -4,11 +4,24 @@ Proyecto de maestría de Universidad CENFOTEC para estimar la duración de un vi
 
 ## Estado actual
 
-**T15 terminó su ajuste y evaluación reales, con cierre técnico auditado.** T15 verificada técnicamente: mediana congelada 12,983333 min de 41.119.495 etiquetas train 2024; 11.163.264 predicciones enero–marzo 2025. MAE 7,741890 min y RMSE 11,912962 min. [evaluación real auditada](reports/quality/t15_baseline_validation.md). Marzo aceptado por excepción humana solo para su hash/reporte; FAIL original y exclusiones conservados, sin cambiar D-04 global. T14 integral sigue pendiente; test/replay sellados, T16 no ejecutada y sin registro/promoción. Revisión humana del resultado independiente del cierre técnico.
+Actualización del 2026-11-05: **T14 y la primera comparación T16/T17 tienen cierre técnico auditado; T15 permanece congelada.** Los 24 meses están preparados y las cuatro particiones auditadas: train 41.119.495, validation 11.163.264, test 12.712.466 y replay 24.266.924 filas. Se conservan los 24 raw, D-04 global, diez FAIL originales y todas las exclusiones autorizadas. [Auditoría T14](reports/quality/t14_completion.md).
 
-Hay CLI de ingesta, validación, features, particionado, ajuste y evaluación del baseline congelado. Hay 15 fuentes aprobadas para uso, 14 por calidad medida y marzo por excepción puntual. No hay T14 integral ni champion; API, MLflow, Docker y workflows pendientes. Sin dependencias nuevas.
+SGD Huber y MLP16 se ajustaron con todo train. SGD fue elegido usando validation antes de abrir test: MAE 6,876910 min frente a 7,741890 del baseline; en test 7,965068 frente a 9,032999. MLP fue peor que el baseline y SGD empeoró ligeramente su P90 en validation. [Comparación y segmentos T17](reports/evaluation/t17_model_comparison.md).
 
-Repositorio GitHub: [ModoJorgeBT/nyc-yellow-taxi-mlops](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops), rama `main`. El primer commit `164bf9e` contiene T01–T11; el segundo incorpora features T12/T13, D-01/D-02/D-04, el baseline T15 y el estado pendiente de T14. El [historial documentado de ambas entregas](docs/commit-history.md) detalla alcance, pruebas y resultados. Las menciones históricas a «sin nuevo commit/push» corresponden al momento de esas mediciones. GitHub Actions sigue sin implementar.
+LightGBM 4.7.0 fue entrenado con las 41.119.495 filas train y 100 árboles. En las 11.163.264 filas validation: MAE 6.496404, RMSE 9.847425, MedAE 4.631360 y P90 13.478764 minutos. Ajuste y evaluación auditados; 447 pruebas por entorno. La entrega inicial fue solo validation; la evaluación independiente posterior ya terminó y está auditada. La selección SGD y el test de la primera comparación permanecen intactos; en aquella fase no hubo promoción. [Reporte LightGBM](reports/evaluation/lightgbm_validation.md). Se añadió solo esa dependencia al lock; las 23 versiones previas no cambiaron. Ver [software y comandos](docs/t16-t17-validation.md).
+
+**Evaluación final independiente completada y auditada — 2026-11-05:**
+enero–marzo de 2026, 10.937.087 viajes; MAE LightGBM **7,742891 min**, SGD
+**8,352735** y baseline **9,141254**. Se excluyeron 139.305 filas DQ mediante
+tres excepciones humanas exactas y 814 por corte de etiqueta; los 27 raw,
+modelos y selección de 2025 permanecen intactos. Reinicio de recursos aprobado
+6 GiB libres/2 GiB RSS solo para inferencia final; entrenamiento 8/4 y preparación
+4/2 sin cambios. 474 pruebas por entorno y auditoría completa. Sin promoción en aquella fase.
+[Informe final](reports/evaluation/lightgbm_final_evaluation.md).
+
+T18 tiene cierre técnico auditado: MLflow 3.16.1 registra baseline v1, SGD v2, MLP v3 y LightGBM v4; reinicio sin pérdida ni duplicados. [Runs y evidencia](reports/tracking/t18_completion.md), [guía local](docs/t18-mlflow.md). Servidor activo al cierre: http://127.0.0.1:5000. **T19 completada:** LightGBM **v4 es el champion inicial**, aprobado por el usuario y verificado. El alias `champion` resuelve a `models:/nyc-yellow-taxi-duration/4`. [Decisión y evidencia](reports/model_selection.md). G3 cumple su alcance de Sprint 3; sigue T20. API, Docker, CI, monitoreo y retraining siguen pendientes en sus tareas. Revisión humana de resultados independiente del cierre técnico. La tercera entrega reúne código y documentación de T14–T19; el estado operativo de MLflow y los binarios permanecen locales.
+
+Repositorio GitHub: [ModoJorgeBT/nyc-yellow-taxi-mlops](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops), rama `main`. El primer commit `164bf9e` contiene T01–T11; el segundo `27b09d2` incorpora features T12/T13, D-01/D-02/D-04, baseline T15 y el bloqueo histórico de T14. El tercero completa T14–T19, evaluación independiente, tracking MLflow y champion LightGBM v4. El [historial de las tres entregas](docs/commit-history.md) detalla alcance, pruebas y límites; los datos, pesos y la instancia MLflow permanecen locales. Las menciones históricas a «sin nuevo commit/push» corresponden al momento de esas mediciones. GitHub Actions sigue sin implementar.
 
 Documentos rectores: [intent.md](intent.md), [spec.md](spec.md) y [plan.md](plan.md). Consultar [decisiones y riesgos](docs/decisions.md), [arquitectura](docs/architecture.md), [ADR local](docs/adr/0001-arquitectura-local.md) y [verificación T02](docs/t02-verification.md).
 
@@ -34,8 +47,8 @@ D-04 ratificada/congelada con [excepción puntual de marzo](docs/t15-march-excep
 | `src/ingestion` | Descarga mensual, manifiestos, idempotencia y registro local explícito. |
 | `src/validation` | Esquema, reglas REAL/TEST_ONLY, autorización y CLI con reportes; calidad separada de entrenamiento. |
 | `src/features` | Target UTC, whitelist, transformación compartida, Pipeline y lector de lotes REAL/TEST_ONLY aprobados. |
-| `src/training` | T14: particiones completas por bloques y supervisión de recursos; entrenamiento pendiente. |
-| `src/evaluation` | Evaluación de modelos futura. |
+| `src/training` | Particiones temporales, baseline y candidatos SGD/MLP completos por bloques; LightGBM completo sobre todo train. |
+| `src/evaluation` | Comparación auditada baseline/SGD/MLP, métricas exactas y segmentos; elección con validation antes de test. |
 | `src/api`, `src/monitoring`, `src/retraining` | Serving, observación y retraining futuros. |
 | `tests/unit`, `tests/fixtures` | Pruebas de empaquetado, casos sintéticos y perfilador; no requieren datos reales. |
 | `tests/integration`, `tests/api` | Integración de datos offline; API pendiente. |
@@ -57,7 +70,7 @@ El ejemplo no aprueba los periodos de entrenamiento. Conservar los archivos orig
 
 Los 24 archivos aportados ya están organizados así, de enero a diciembre de 2024 y 2025. Suman 1.418 GiB y 89,892,322 filas declaradas en footers. Se verificó que sus hashes no cambiaron durante el movimiento. Los esquemas tienen 19 columnas en 2024 y 20 en 2025 por `cbd_congestion_fee`; no se escanearon todas las filas ni se aprobaron Quality Gates.
 
-La carpeta raw no certifica procedencia ni calidad. Los 24 archivos están registrados como LOCAL_UNVERIFIED, con fuente/fecha nulas y bytes/hash conservados. Hay 15 versiones con features: catorce lotes pasaron calidad y marzo 2025 fue aceptado por excepción explícita, conservando el FAIL medido y excluyendo filas inválidas. Abril–diciembre de 2025 fueron escaneados completos y rechazados por D-04; no generan features ni permiten completar el particionado de 24 meses. [Preparación integral pendiente](reports/quality/t14_full_preparation.md) y [evaluación real de T15](reports/quality/t15_baseline_validation.md).
+La carpeta raw no certifica procedencia ni calidad. Los 24 archivos están registrados como LOCAL_UNVERIFIED, con fuente/fecha nulas y bytes/hash conservados. Hay 24 versiones con features: catorce lotes pasaron calidad y diez fueron aceptados mediante autorizaciones humanas exactas, conservando FAIL medidos y excluyendo todas las filas inválidas. [Continuación actual de T14](reports/quality/t14_completion.md), [rechazos originales](reports/quality/t14_full_preparation.md) y [evaluación congelada de T15](reports/quality/t15_baseline_validation.md).
 
 Los Parquet reales están excluidos de Git. La excepción `tests/fixtures/*.parquet` contiene diez archivos sintéticos pequeños de T04 (103.906 bytes en total); no copiar datos TLC reales allí.
 
@@ -76,7 +89,7 @@ El perfilador guarda `reports/eda_schema.md` y un JSON detallado local excluido 
 
 ## Entorno Python de T03
 
-T13 amplía este entorno aprobado con scikit-learn 1.9.1 y tzdata 2026.6; el lock actual incluye 23 paquetes con hashes, manteniendo las 15 versiones anteriores. La instalación del lock siguiente incluye el extra de features y sus transitivas. Detalle y límites en [T12/T13](docs/t12-t13-features.md).
+T13 amplía este entorno aprobado con scikit-learn 1.9.1 y tzdata 2026.6; el snapshot de T13 incluyó 23 paquetes con hashes. La extensión LightGBM lleva el lock vigente a 24 paquetes, sin cambiar las 23 versiones previas. La instalación del lock siguiente incluye el extra de features y sus transitivas. Detalle y límites en [T12/T13](docs/t12-t13-features.md).
 
 Versión aprobada: Python 3.14.7 de 64 bits, registrada en [.python-version](.python-version). El lock se generó y probó en Windows con CPython 3.14; la compatibilidad de Docker/Linux y del stack MLOps completo aún no está probada.
 
@@ -172,3 +185,11 @@ T14 integral sobre 24 meses permanece pendiente. T15 completó ajuste y evaluaci
 Preparación/evaluación usaron el perfil 4 GiB libres/2 GiB RSS/50 GiB disco; T16 conserva 12/8. Ajuste y evaluación T15 terminaron y fueron auditados, sin test/replay ni candidatos. [evaluación real auditada](reports/quality/t15_baseline_validation.md).
 
 Ajuste: `python -m src.training.baseline_fit --inputs configs/train-feature-batches.local.json`. Evaluación del ajuste congelado: `python -m src.training.baseline_evaluate --fit-batch RUTA_AJUSTE --inputs configs/validation-feature-batches.local.json`. [evaluación real auditada](reports/quality/t15_baseline_validation.md). No se modifica el ajuste original ni se reutiliza un dataset rechazado sin autorización.
+
+## Modelos y evaluación auditados
+
+SGD Huber y MLP16 se ajustaron con las 41.119.495 filas train, una pasada por candidato. SGD fue elegido con validation antes de abrir test: MAE 6,876910 frente a 7,741890 del baseline. En test obtuvo MAE 7,965068 frente a 9,032999. MLP fue peor que el baseline; SGD empeoró ligeramente P90 en validation. Sin reajustes después de test ni promoción.
+
+[Entrenamiento T16](reports/quality/t16_training.md), [comparación T17 y segmentos](reports/evaluation/t17_model_comparison.md) y [software/CLI verificados](docs/t16-t17-validation.md). 423 pruebas en desarrollo y 423 desde wheel instalado; límites reales 8 GiB libres/4 GiB RSS respetados.
+
+El usuario aprobó [añadir LightGBM](docs/t16-lightgbm-extension-proposal.md) con todos los elegibles, presupuesto vigente y evaluación solo con validation. El test de la primera comparación permanece congelado; una nueva evaluación final independiente de LightGBM queda pendiente. Ya está instalado, entrenado y auditado en el alcance de validation; [resultado](reports/evaluation/lightgbm_validation.md). Esta continuación sigue local, sin nuevo commit/push.

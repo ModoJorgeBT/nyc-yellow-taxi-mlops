@@ -1,6 +1,6 @@
 # T01 — Arquitectura lógica NYC Yellow Taxi MLOps
 
-Fecha: 2026-11-03. Estado: diseño lógico de T01; avances autorizados hasta T12/T13 en §8, sin despliegue completo. Fuentes: [intent](../intent.md), [spec](../spec.md), [plan](../plan.md) y [PDF académico](../Proyecto_Maestria_MLOps_NYC_Taxi_Estructura.pdf), especialmente pp. 2–9.
+Fecha inicial: 2026-11-03; actualización: 2026-11-05. Arquitectura local; T14/T15, T16/T17 y evaluación final independiente auditadas. [Evaluación 2026](../reports/evaluation/lightgbm_final_evaluation.md); [T14](../reports/quality/t14_completion.md). [Tracking/Registry persistente T18](../reports/tracking/t18_completion.md) y [champion inicial LightGBM v4 T19](../reports/model_selection.md) implementados y auditados. G3 cumple su alcance; API, Docker y despliegue completo pendientes. Fuentes: [intent](../intent.md), [spec](../spec.md), [plan](../plan.md) y [PDF académico](../Proyecto_Maestria_MLOps_NYC_Taxi_Estructura.pdf).
 
 ## 1. Objetivo y límites
 
@@ -19,7 +19,7 @@ flowchart TD
     FAIL -->|Solo reporte de calidad| MON
     DQ -->|Aprobado| VAL[Datos validados]
     VAL --> FEAT[Features y cortes temporales]
-    FEAT --> TRAIN[Baseline y dos candidatos]
+    FEAT --> TRAIN[Baseline y tres candidatos]
     TRAIN --> EVAL[Evaluación temporal]
     EVAL --> REG[MLflow Tracking y Registry]
     REG --> REVIEW[Comparación y aprobación humana]
@@ -103,3 +103,44 @@ Actualización T14/T15: [particionado por bloques](t14-temporal-splits.md) y [ba
 Actualización posterior T15 independiente: separación de ajuste/evaluación aprobada. Ajuste exacto train 2024 completo y auditado: 41.119.495 etiquetas, mediana 12,983333 minutos; 561 filas apartadas por corte de etiqueta entre 41.120.056 elegibles DQ. Evaluación y cierre de T14/T15 pendientes de marzo 2025; D-04 permanece congelada. [Evidencia](../reports/quality/t15_train_fit.md). El flujo completo conserva las dependencias de T14; el nuevo CLI no publica sus marcadores ni evade calidad. No se añade infraestructura ni dependencias.
 
 Actualización posterior: T15 completó ajuste y evaluación con el lector temporal compartido y datasets aprobados train/validation. Excepción humana solo para marzo/hash/reporte; calidad medida FAIL conservada. [Contrato](t15-march-exception.md), [resultado](../reports/quality/t15_baseline_validation.md). No se exige preparar test/replay para esta evaluación ni se declara T14 integral completa. Sin cambios de infraestructura/dependencias o promoción.
+
+## Actualización de modelado — 2026-11-05
+
+SGD Huber y MLP16 se ajustaron con las 41.119.495 filas train, una pasada por candidato. SGD fue elegido con validation antes de abrir test: MAE 6,876910 frente a 7,741890 del baseline. En test obtuvo MAE 7,965068 frente a 9,032999. MLP fue peor que el baseline; SGD empeoró ligeramente P90 en validation. Sin reajustes después de test ni promoción.
+
+[Resultados](../reports/evaluation/t17_model_comparison.md). LightGBM se incorpora como extensión aprobada con representación compacta y categoría nativa de origen, sin nuevas variables; su evaluación será solo con validation. Los artefactos originales no cambian. [Protocolo](t16-lightgbm-extension-proposal.md). No hay champion ni servicios desplegados.
+
+LightGBM 4.7.0 fue entrenado con las 41.119.495 filas train y 100 árboles. En las 11.163.264 filas validation: MAE 6.496404, RMSE 9.847425, MedAE 4.631360 y P90 13.478764 minutos. Ajuste y evaluación auditados; 447 pruebas por entorno. Solo validation: una nueva evaluación final independiente sigue pendiente. La selección SGD y el test de la primera comparación permanecen intactos; no hay promoción. [Evidencia](../reports/evaluation/lightgbm_validation.md). Entrenamiento nativo en proceso propio supervisado; conversión compacta de seis features y origen categórico train-only. Se conservan las entradas causales comunes; no se aplica el OHE/scaler de SGD/MLP a LightGBM.
+
+
+**Evaluación final independiente completada y auditada — 2026-11-05:**
+enero–marzo de 2026, 10.937.087 viajes; MAE LightGBM **7,742891 min**, SGD
+**8,352735** y baseline **9,141254**. Se excluyeron 139.305 filas DQ mediante
+tres excepciones humanas exactas y 814 por corte de etiqueta; los 27 raw,
+modelos y selección de 2025 permanecen intactos. Reinicio de recursos aprobado
+6 GiB libres/2 GiB RSS solo para inferencia final; entrenamiento 8/4 y preparación
+4/2 sin cambios. 474 pruebas por entorno y auditoría completa. Sin promoción.
+[Reporte final y trazabilidad](../reports/evaluation/lightgbm_final_evaluation.md). Las referencias anteriores a evaluación
+final pendiente describen la entrega histórica previa a esta aprobación. T18
+requiere D-07 y dependencias; no hay Registry ni champion todavía.
+
+
+**T18 verificada — 2026-11-05:** D-07 aprobada e implementada con MLflow 3.16.1
+en entorno separado, SQLite y artefactos persistentes. Cuatro candidatos:
+baseline v1, SGD v2, MLP v3 y LightGBM v4, sin alias. Reinicio real, carga,
+idempotencia y auditoría independiente PASS; 488 pruebas nativas más una omisión
+explícita y 489 sobre wheel MLflow. Los modelos y evaluaciones anteriores no
+cambian. Champion/T19 y G3 permanecen pendientes de aprobación.
+[Registro y evidencia](../reports/tracking/t18_completion.md). Las referencias previas a D-07 o Registry
+pendientes describen la cronología anterior a esta aprobación y ejecución.
+
+
+**T19 verificada — 2026-11-05:** el usuario aprobó LightGBM v4 como champion
+inicial, después de conocer las limitaciones por rutas, y descartó optimización
+de hiperparámetros. Alias `champion` aplicado a la versión fija 4, run
+`be28c76c84c44efa8914c5950a2959bf`; paquete, aprobación y resolución auditados.
+501 pruebas nativas PASS y dos omisiones explícitas; 503 PASS sobre wheel MLflow.
+G3 cumple sus condiciones de Sprint 3. D-05 conserva pendientes sus reglas
+automáticas de drift y promociones futuras; no se aprueban nuevos umbrales.
+[Decisión, pruebas y evidencia](../reports/model_selection.md). Las menciones anteriores a champion
+pendiente son históricas; API y despliegue siguen en sus tareas posteriores.

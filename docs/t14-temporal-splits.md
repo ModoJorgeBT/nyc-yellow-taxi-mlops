@@ -1,6 +1,6 @@
 # T14 — Particiones temporales completas por bloques
 
-Fecha: 2026-11-03, America/Costa_Rica. T14 conserva verificación de software; la preparación integral de 24 meses sigue pendiente. T15 completó ajuste/evaluación con el lector causal y fuentes train/validation, bajo la separación autorizada y excepción puntual de marzo. [Resultado](../reports/quality/t15_baseline_validation.md). Test/replay sin preparar ni consumir.
+Fecha inicial: 2026-11-03; actualización: 2026-11-05, America/Costa_Rica. T14 tiene cierre técnico auditado sobre los 24 meses y cuatro particiones. T15 permanece congelada y coincide con el nuevo train/validation. [Evidencia integral](../reports/quality/t14_completion.md). Test/replay se leyeron para calidad, preparación y auditoría; aún no se usaron para métricas predictivas.
 
 ## Contrato y decisiones
 

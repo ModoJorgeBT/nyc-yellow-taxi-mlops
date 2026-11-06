@@ -2,6 +2,8 @@
 
 Fecha: 2026-11-03, America/Costa_Rica. Estado técnico T03: VERIFICADO; el usuario autorizó después continuar con T04/T05. Este archivo conserva evidencia histórica de T03 (entorno y metadatos). La continuación está en [T04/T05](t04-t05-verification.md); no implica aprobación del stack completo ni de sprints posteriores.
 
+**Entorno vigente, 2026-11-05:** después se aprobaron scikit-learn/tzdata y LightGBM 4.7.0. El lock vigente tiene 24 paquetes; añadir LightGBM conservó las 23 versiones previas. La extensión pasó 447 pruebas en desarrollo y 447 desde wheel instalado, con 35 imports aislados. La evidencia de quince paquetes que sigue corresponde al snapshot T03. [Alcance de modelado actual](t16-t17-validation.md).
+
 ## Versiones y alcance
 
 | Componente directo | Versión fijada |
@@ -42,7 +44,7 @@ La prueba [test_installation.py](../tests/unit/test_installation.py) importa los
 Con herramientas aprobadas instaladas en el entorno de mantenimiento:
 
 ```powershell
-.\.venv\Scripts\python.exe -m piptools compile --extra dev --extra data --allow-unsafe --strip-extras --generate-hashes --index-url https://pypi.org/simple --no-emit-index-url --no-emit-trusted-host --cache-dir .cache/pip-tools --output-file requirements-dev.lock pyproject.toml
+.\.venv\Scripts\python.exe -m piptools compile --extra dev --extra data --extra features --extra boosting --allow-unsafe --strip-extras --generate-hashes --index-url https://pypi.org/simple --no-emit-index-url --no-emit-trusted-host --cache-dir .cache/pip-tools --output-file requirements-dev.lock pyproject.toml
 ```
 
 `--allow-unsafe` es el nombre histórico de la opción de pip-tools que incorpora pip/setuptools al lock; no desactiva la verificación de hashes. Las versiones directas están fijadas en pyproject y las transitivas en el lock. Al cambiar dependencias hay que regenerar y revisar el lock y repetir su instalación limpia; no añadir paquetes sin registrar aprobación cuando corresponda.

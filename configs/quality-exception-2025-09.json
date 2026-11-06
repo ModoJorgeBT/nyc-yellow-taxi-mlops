@@ -1,0 +1,72 @@
+{
+  "format_version": 2,
+  "exception_id": "d04-2025-09-exact-failure-set-academic-v2",
+  "approval_status": "APPROVED",
+  "approved_by": "USER_EXPLICIT_IN_CONVERSATION",
+  "approval_recorded_on": "2026-11-05",
+  "approval_timezone": "America/Costa_Rica",
+  "user_instruction": "Sí, aprobar los nueve meses con esas exclusiones y trazabilidad",
+  "proposal_sha256_before_approval": "2274e848107f1bba35efdf61c93c2c9245d0ade256b57291389517ff41130f8d",
+  "year": 2025,
+  "month": 9,
+  "raw_sha256": "cd39b9901f01d1fd752d45cbaec91ee5f68c4dddf9e261e938c1dbab404644c7",
+  "config_sha256": "555f4b943b12884639369caeae348a37d97b7efb2918e72818fa8f1cd9a5dc48",
+  "policy_version": "d04-real-v1-2026-11-03",
+  "preserve_invalid_row_exclusions": true,
+  "allow_other_failures": false,
+  "allow_other_lots": false,
+  "rejected_report": {
+    "relative_path": "../reports/quality/2025/09/4ba53192c22548a78abf4062b76cc09a.json",
+    "sha256": "6d27942f7d6648b56b03b636fe32750ca7dc9b07b65f17474826433fdc124901"
+  },
+  "allowed_failures": [
+    {
+      "evidence": {
+        "first_raw_row_indexes": [
+          321,
+          322,
+          323,
+          374,
+          375
+        ],
+        "index_base": 0
+      },
+      "observed": {
+        "count": 57179,
+        "rate": 0.013450670016454894
+      },
+      "rule": "rows.duration_nonpositive",
+      "severity": "critical",
+      "status": "FAIL",
+      "threshold": {
+        "denominator": "all_raw_rows",
+        "fail_above": 0.005,
+        "warn_above": null
+      }
+    },
+    {
+      "evidence": {
+        "first_raw_row_indexes": [
+          103,
+          321,
+          322,
+          323,
+          374
+        ],
+        "index_base": 0
+      },
+      "observed": {
+        "count": 58751,
+        "rate": 0.013820464053878897
+      },
+      "rule": "rows.union_invalid_rows",
+      "severity": "critical",
+      "status": "FAIL",
+      "threshold": {
+        "denominator": "all_raw_rows",
+        "fail_above": 0.01,
+        "warn_above": 0.005
+      }
+    }
+  ]
+}

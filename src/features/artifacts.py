@@ -17,7 +17,7 @@ import pyarrow.parquet as pq
 from src.features.build import feature_values, prepare_historical
 from src.features.schema import FEATURE_COLUMNS, FEATURE_VERSION, FeatureError
 from src.features.target import TEMPORAL_POLICY, TIMEZONE
-from src.features.vectorized import real_tables
+from src.features.vectorized import SUPPORTED_REAL_YEARS, real_tables
 from src.ingestion.manifest import (
     describe_parquet,
     publish_file,
@@ -223,7 +223,7 @@ def build_validated_features(
             for batch in parquet.iter_batches(batch_size=batch_size, use_threads=False):
                 if resource_check is not None:
                     resource_check()
-                if not test_only and validation["year"] in (2024, 2025):
+                if not test_only and validation["year"] in SUPPORTED_REAL_YEARS:
                     tables = real_tables(
                         batch,
                         year=validation["year"],
@@ -324,7 +324,7 @@ def build_validated_features(
             "preprocessor_fitted": False,
             "historical_engine": (
                 "numpy-hour-offsets-v1"
-                if not test_only and validation["year"] in (2024, 2025)
+                if not test_only and validation["year"] in SUPPORTED_REAL_YEARS
                 else "reference-python-v1"
             ),
             "artifacts": descriptions,

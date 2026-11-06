@@ -32,7 +32,10 @@ def reference(table, start=7):
     return {name: pa.Table.from_pylist(rows, schema=SCHEMAS[name]) for name, rows in values.items()}
 
 
-@pytest.mark.parametrize("year,month", [(y, m) for y in (2024, 2025) for m in range(1, 13)])
+@pytest.mark.parametrize(
+    "year,month",
+    [(y, m) for y in (2024, 2025) for m in range(1, 13)] + [(2026, m) for m in (1, 2, 3, 11)],
+)
 def test_every_day_hour_and_dst_matches_reference_exactly(year, month):
     template = make_table()
     base = template.to_pylist()[0]
@@ -51,7 +54,8 @@ def test_every_day_hour_and_dst_matches_reference_exactly(year, month):
                     }
                 )
     if month in (3, 11):
-        day = (10 if year == 2024 else 9) if month == 3 else (3 if year == 2024 else 2)
+        sundays = [day for day in range(1, 15) if datetime(year, month, day).weekday() == 6]
+        day = sundays[1] if month == 3 else sundays[0]
         pickup = datetime(year, month, day, 1 if month == 3 else 0, 55)
         dropoff = datetime(year, month, day, 3 if month == 3 else 2, 5)
         rows.append({**base, "tpep_pickup_datetime": pickup, "tpep_dropoff_datetime": dropoff})

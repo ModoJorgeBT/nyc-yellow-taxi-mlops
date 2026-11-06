@@ -21,6 +21,7 @@ dev = [
 ]
 data = ["pyarrow==26.0.1"]
 features = ["scikit-learn==1.9.1", "tzdata==2026.6"]
+boosting = ["lightgbm==4.7.0"]
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -30,7 +31,7 @@ include = ["src", "src.*"]
 target-version = "py314"
 line-length = 100
 include = ["*.py", "*.pyi", "pyproject.toml"]
-extend-exclude = ["data", "reports", ".cache", ".venv-verify"]
+extend-exclude = ["data", "reports", ".cache", ".venv-verify", ".venv-mlflow"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

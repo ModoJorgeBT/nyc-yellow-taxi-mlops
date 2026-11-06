@@ -29,6 +29,29 @@ from src.ingestion.manifest import (
 LOGGER = logging.getLogger(__name__)
 
 
+class DownloadBudget:
+    """Cuenta también bytes recibidos en intentos incompletos o reintentados."""
+
+    def __init__(self, limit_bytes: int, used_bytes: int = 0):
+        if (
+            type(limit_bytes) is not int
+            or limit_bytes < 1
+            or type(used_bytes) is not int
+            or not 0 <= used_bytes <= limit_bytes
+        ):
+            raise ValueError("Presupuesto de transferencia inválido")
+        self.limit_bytes, self.used_bytes = limit_bytes, used_bytes
+
+    @property
+    def remaining(self):
+        return self.limit_bytes - self.used_bytes
+
+    def consume(self, count: int):
+        if count > self.remaining:
+            raise IngestionError("Límite acumulado de descarga excedido")
+        self.used_bytes += count
+
+
 @contextmanager
 def month_lock(directory: Path):
     path = directory / ".ingestion.lock"
@@ -46,7 +69,14 @@ def month_lock(directory: Path):
         path.unlink(missing_ok=True)
 
 
-def fetch(url: str, directory: Path, *, timeout: float) -> Path:
+def fetch(
+    url: str,
+    directory: Path,
+    *,
+    timeout: float,
+    max_bytes: int | None = None,
+    budget: DownloadBudget | None = None,
+) -> Path:
     """Un intento, en bloques de 1 MiB y con temporal propio limpiado ante fallo."""
     temporary = None
     try:
@@ -57,12 +87,36 @@ def fetch(url: str, directory: Path, *, timeout: float) -> Path:
             length = response.headers.get("Content-Length")
             if length is not None and (not length.isdigit() or int(length) < 0):
                 raise IngestionError("Content-Length invalido")
+            limits = [
+                value
+                for value in (max_bytes, budget.remaining if budget else None)
+                if value is not None
+            ]
+            if length is not None and any(int(length) > limit for limit in limits):
+                raise IngestionError("Content-Length supera el límite de descarga autorizado")
             with tempfile.NamedTemporaryFile(dir=directory, suffix=".part", delete=False) as stream:
                 temporary = Path(stream.name)
                 received = 0
-                while chunk := response.read(1024 * 1024):
-                    stream.write(chunk)
+                while True:
+                    if limits and length is not None and received == int(length):
+                        break
+                    available = [1024 * 1024]
+                    if max_bytes is not None:
+                        available.append(max_bytes - received)
+                    if budget is not None:
+                        available.append(budget.remaining)
+                    size = min(available)
+                    if size <= 0:
+                        raise IngestionError("Límite de descarga alcanzado sin tamaño verificable")
+                    chunk = response.read(size)
+                    if not chunk:
+                        break
+                    if budget is not None:
+                        budget.consume(len(chunk))
                     received += len(chunk)
+                    if max_bytes is not None and received > max_bytes:
+                        raise IngestionError("Límite por archivo excedido durante transferencia")
+                    stream.write(chunk)
                 stream.flush()
                 os.fsync(stream.fileno())
             if length is not None and received != int(length):
@@ -74,10 +128,18 @@ def fetch(url: str, directory: Path, *, timeout: float) -> Path:
         raise
 
 
-def _download_new(url: str, directory: Path, *, timeout: float, retries: int) -> Path:
+def _download_new(
+    url: str,
+    directory: Path,
+    *,
+    timeout: float,
+    retries: int,
+    max_bytes: int | None = None,
+    budget: DownloadBudget | None = None,
+) -> Path:
     for attempt in range(retries + 1):
         try:
-            return fetch(url, directory, timeout=timeout)
+            return fetch(url, directory, timeout=timeout, max_bytes=max_bytes, budget=budget)
         except urllib.error.HTTPError as error:
             error.close()
             if error.code not in (408, 429, 500, 502, 503, 504) or attempt == retries:
@@ -99,6 +161,8 @@ def ingest(
     retries: int = 2,
     expected_sha256: str | None = None,
     register_local: bool = False,
+    max_download_bytes: int | None = None,
+    download_budget: DownloadBudget | None = None,
 ) -> dict:
     """Ingiere un lote o verifica el existente; la calidad se evalua en T08/T09."""
     url = source_url(year, month)
@@ -106,6 +170,12 @@ def ingest(
         raise ValueError("timeout debe ser positivo y finito")
     if type(retries) is not int or not 0 <= retries <= 5:
         raise ValueError("retries debe ser entero entre 0 y 5")
+    if max_download_bytes is not None and (
+        type(max_download_bytes) is not int or max_download_bytes < 1
+    ):
+        raise ValueError("max_download_bytes debe ser un entero positivo")
+    if download_budget is not None and not isinstance(download_budget, DownloadBudget):
+        raise ValueError("Presupuesto de descarga no válido")
     if expected_sha256 is not None and not re.fullmatch(r"[a-fA-F0-9]{64}", expected_sha256):
         raise ValueError("expected_sha256 debe tener 64 digitos hexadecimales")
     root = raw_dir.resolve()
@@ -139,7 +209,14 @@ def ingest(
             else:
                 if register_local:
                     raise IngestionConflict("--register-local requiere un Parquet local existente")
-                staged = _download_new(url, directory, timeout=timeout, retries=retries)
+                staged = _download_new(
+                    url,
+                    directory,
+                    timeout=timeout,
+                    retries=retries,
+                    max_bytes=max_download_bytes,
+                    budget=download_budget,
+                )
                 description = describe_parquet(staged)
                 if expected_sha256 and description["sha256"] != expected_sha256.lower():
                     raise IngestionConflict("SHA-256 descargado distinto del esperado")
@@ -178,6 +255,7 @@ def main() -> None:
     parser.add_argument("--retries", type=int, default=2)
     parser.add_argument("--expected-sha256")
     parser.add_argument("--register-local", action="store_true")
+    parser.add_argument("--max-download-bytes", type=int)
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     try:
@@ -189,6 +267,7 @@ def main() -> None:
             retries=args.retries,
             expected_sha256=args.expected_sha256,
             register_local=args.register_local,
+            max_download_bytes=args.max_download_bytes,
         )
     except (IngestionError, OSError, ValueError) as error:
         parser.exit(1, f"Ingesta fallida: {error}\n")

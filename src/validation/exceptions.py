@@ -19,11 +19,44 @@ def load_exception(path: Path) -> dict:
         raise ValueError("Registro de excepcion incompleto") from error
 
 
+def _allowed_failures(document: dict) -> list[dict]:
+    version = document.get("format_version")
+    if type(version) is not int:
+        raise ValueError("Version de excepcion incompatible")
+    if version == 1:
+        failures = [document["allowed_failure"]]
+        expected_rules = {"rows.duration_nonpositive"}
+        if "allowed_failures" in document:
+            raise ValueError("Excepcion v1 con conjuntos de fallos incompatibles")
+    elif version == 2:
+        failures = document["allowed_failures"]
+        expected_rules = {"rows.duration_nonpositive", "rows.union_invalid_rows"}
+        if "allowed_failure" in document:
+            raise ValueError("Excepcion v2 con autorizaciones contradictorias")
+    else:
+        raise ValueError("Version de excepcion incompatible")
+    if (
+        not isinstance(failures, list)
+        or not failures
+        or any(not isinstance(failure, dict) for failure in failures)
+    ):
+        raise ValueError("Conjunto de fallos autorizado incompleto")
+    rules = [failure.get("rule") for failure in failures]
+    if (
+        any(not isinstance(rule, str) for rule in rules)
+        or len(set(rules)) != len(rules)
+        or not set(rules).issubset(expected_rules)
+        or "rows.duration_nonpositive" not in rules
+        or any(failure.get("status") != "FAIL" for failure in failures)
+    ):
+        raise ValueError("La excepcion no cubre ese conjunto de fallos")
+    return failures
+
+
 def _load_exception(path: Path) -> dict:
     path = path.resolve()
     document = json.loads(path.read_text(encoding="utf-8"))
     required = {
-        "format_version": 1,
         "approval_status": "APPROVED",
         "approved_by": "USER_EXPLICIT_IN_CONVERSATION",
         "preserve_invalid_row_exclusions": True,
@@ -34,6 +67,7 @@ def _load_exception(path: Path) -> dict:
         type(document.get(k)) is not type(v) or document[k] != v for k, v in required.items()
     ):
         raise ValueError("Excepcion de calidad sin aprobacion explicita o con alcance ampliado")
+    allowed = _allowed_failures(document)
     reference = (path.parent / document["rejected_report"]["relative_path"]).resolve()
     if digest(reference) != document["rejected_report"]["sha256"]:
         raise ValueError("Reporte FAIL original alterado o no verificable")
@@ -49,12 +83,10 @@ def _load_exception(path: Path) -> dict:
         or rejected.get("error") is not None
         or rejected.get("scan_scope") != "FULL_PARQUET"
         or rejected.get("eligibility_complete") is not True
-        or len(failures) != 1
-        or failures[0]["rule"] != "rows.duration_nonpositive"
-        or failures[0] != document["allowed_failure"]
+        or failures != allowed
     ):
         raise ValueError(
-            "La excepcion solo admite el rechazo completo original de duracion no positiva"
+            "La excepcion solo admite el rechazo completo y el conjunto de fallos autorizados"
         )
     context = {
         "path": path,
@@ -89,7 +121,7 @@ def authorize_exception(report: dict, path: Path) -> dict:
         report.get("scan_scope") != "FULL_PARQUET"
         or report.get("eligibility_complete") is not True
         or report.get("lineage_status") != "VERIFIED_CONTENT"
-        or failures != [context["document"]["allowed_failure"]]
+        or failures != _allowed_failures(context["document"])
         or any(
             report.get(k) != original.get(k)
             for k in (
@@ -106,13 +138,17 @@ def authorize_exception(report: dict, path: Path) -> dict:
         raise ValueError(
             "La excepcion no cubre otros fallos, mediciones distintas ni escaneos incompletos"
         )
-    return {
+    evidence = {
         "authorization_path": str(context["path"]),
         "authorization_sha256": context["authorization_sha256"],
         "authorization": context["document"],
         "rejected_report_sha256": context["document"]["rejected_report"]["sha256"],
-        "waived_rule": "rows.duration_nonpositive",
     }
+    if context["document"]["format_version"] == 1:
+        evidence["waived_rule"] = "rows.duration_nonpositive"
+    else:
+        evidence["waived_rules"] = [failure["rule"] for failure in failures]
+    return evidence
 
 
 def verify_exception(report: dict) -> None:

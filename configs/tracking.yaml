@@ -1,0 +1,98 @@
+{
+  "format_version": 1,
+  "approval_status": "APPROVED",
+  "approved_by": "USER_EXPLICIT_IN_CONVERSATION",
+  "user_instruction": "Sí, aprobar D-07 y ese alcance de T18",
+  "approval_recorded_at_utc": "2026-11-06T01:14:38.606097+00:00",
+  "scope": "register_frozen_candidates_without_promotion",
+  "tracking_uri": "http://127.0.0.1:5000",
+  "backend_store_uri": "sqlite:///tracking/mlflow.db",
+  "artifact_directory": "tracking/artifacts",
+  "experiment_name": "nyc-yellow-taxi-duration",
+  "registered_model_name": "nyc-yellow-taxi-duration",
+  "mlflow_version": "3.16.1",
+  "resources": {
+    "approval_status": "APPROVED",
+    "threads_total": 4,
+    "parallel_models": 1,
+    "process_rss_limit_gib": 2,
+    "preflight_min_free_ram_gib": 4,
+    "preflight_min_free_disk_gib": 50,
+    "candidate_timeout_seconds": 7200
+  },
+  "models": {
+    "lightgbm": {
+      "path": "models/lightgbm/a36932872f8e49989a52bb76186ca88a/lightgbm.joblib",
+      "sha256": "8bd17196b3a5c1974036c11456f61083d2a5f601236d55d56f884802b477cff6",
+      "training_manifest_path": "models/lightgbm/a36932872f8e49989a52bb76186ca88a/training_manifest.json",
+      "training_manifest_sha256": "95c132ccdbd034370dd20268a1fce10bfa30796fc0442715a7fdbf56ef3e77a6"
+    },
+    "sgd": {
+      "path": "models/candidates/faf8ab304ffb447f8bff8c1372715352/sgd.joblib",
+      "sha256": "bfe284f297e7eb8d67261242ab1d4d35dc9639d181760dc923da128e52082541",
+      "training_manifest_path": "models/candidates/faf8ab304ffb447f8bff8c1372715352/training_manifest.json",
+      "training_manifest_sha256": "a610e5bf9ee96e773abe9cced6717ff61c6d5711cd034dca26c15bb40d67f308"
+    },
+    "baseline": {
+      "path": "data/processed/baselines/f44a7df0171b484788f059b0b1b10328/model.json",
+      "sha256": "7d6e3eefd040f04f46e7a8f6ef6068fd65dcf86c56bb0e97cde5ecb8f0c8abf9",
+      "training_manifest_path": "data/processed/baselines/f44a7df0171b484788f059b0b1b10328/baseline_manifest.json",
+      "training_manifest_sha256": "a8aa611bfa296d9ff3afecf4fb50f2046f3436e7e583ddb0e744722f521de66b"
+    },
+    "mlp": {
+      "path": "models/candidates/faf8ab304ffb447f8bff8c1372715352/mlp.joblib",
+      "sha256": "518a7e34ac0ff5c44d93ed6b767457daf8b3e604a51d080a0d2ad4471b9e53c8",
+      "training_manifest_path": "models/candidates/faf8ab304ffb447f8bff8c1372715352/training_manifest.json",
+      "training_manifest_sha256": "a610e5bf9ee96e773abe9cced6717ff61c6d5711cd034dca26c15bb40d67f308"
+    }
+  },
+  "evaluations": {
+    "original_2025": {
+      "path": "data/processed/evaluations/0834219fa03e4eae965c67db282e0bb7/evaluation_manifest.json",
+      "status": "EVALUATION_REAL",
+      "sha256": "e1df7547dbb9cd7d766dd12a462b61c6c2753a71566e5cda796cd45e6ac3f943"
+    },
+    "lightgbm_validation_2025": {
+      "path": "data/processed/lightgbm-evaluations/e80728e5140a4bbd936fc7b740c73544/evaluation_manifest.json",
+      "status": "LIGHTGBM_EVALUATION_REAL",
+      "sha256": "4d81c5e387439f55a4f3f6195eb86ab7e9b0768ed3139c125a612eb55f863f4b"
+    },
+    "final_2026": {
+      "path": "data/processed/independent-final-evaluations/ce0c3b7426dc43dfb76d366c22d73a31/evaluation_manifest.json",
+      "status": "FINAL_EVALUATION_REAL",
+      "sha256": "b8db6bd31643a1eba1a5822b42ceeb7636ca8da9c70ae939e8e3ed6298e20175"
+    }
+  },
+  "lineage_files": {
+    "configs/candidates.yaml": "a494d8776d35a005b568809899dd7b84d4ca6fe8e2206dda9ca0f985711a9b6b",
+    "configs/data.yaml": "1429b37abe8a1aa09210f12308b5355ebfa8aed39c04243c107d952ea35cf167",
+    "configs/lightgbm-final-evaluation.yaml": "e4e896fd9a996e297d375cca5f76318df3c2d05400677ee17c323d7341691183",
+    "configs/lightgbm-final-resources.yaml": "3e2b4da417f3ec81661555b1017d26c08f1ef74f7764f73c36718861da2ef0cc",
+    "configs/lightgbm.yaml": "d4fa4bd2e2791eaecab5981d039efcfd9dd2e4fa62b20dc75d6d82c05db9de90",
+    "configs/model.yaml": "0936b8a801d538e8d2264dcca3ec14c67a8f2ce9297378e1dbffd969a836ec4c",
+    "data/processed/baselines/f44a7df0171b484788f059b0b1b10328/baseline_manifest.json": "a8aa611bfa296d9ff3afecf4fb50f2046f3436e7e583ddb0e744722f521de66b",
+    "data/processed/evaluations/0834219fa03e4eae965c67db282e0bb7/evaluation_manifest.json": "e1df7547dbb9cd7d766dd12a462b61c6c2753a71566e5cda796cd45e6ac3f943",
+    "data/processed/final-holdouts/be5aef1e584949b897ccfd7b25d478fc/holdout_manifest.json": "ba441be034bc0b4b8f33ec9876d6fc2cf6e02f51b2f62974ff95d28e6260b29b",
+    "data/processed/independent-final-evaluations/ce0c3b7426dc43dfb76d366c22d73a31/evaluation_manifest.json": "b8db6bd31643a1eba1a5822b42ceeb7636ca8da9c70ae939e8e3ed6298e20175",
+    "data/processed/lightgbm-evaluations/e80728e5140a4bbd936fc7b740c73544/evaluation_manifest.json": "4d81c5e387439f55a4f3f6195eb86ab7e9b0768ed3139c125a612eb55f863f4b",
+    "data/processed/splits/e02156de2ac5477bafc4657774e31673/split_manifest.json": "c34f4712710a10181d2c04631e9cd05f550e7110c3142fb067a1bb5566fd592a",
+    "models/candidates/faf8ab304ffb447f8bff8c1372715352/training_manifest.json": "a610e5bf9ee96e773abe9cced6717ff61c6d5711cd034dca26c15bb40d67f308",
+    "models/lightgbm/a36932872f8e49989a52bb76186ca88a/training_manifest.json": "95c132ccdbd034370dd20268a1fce10bfa30796fc0442715a7fdbf56ef3e77a6",
+    "reports/tracking-input-audits/lightgbm/evaluation-audit.json": "3503e1df7210df21b17a802bef70022489162fe70a5c95ab797171d8d6c658fa",
+    "reports/tracking-input-audits/lightgbm/training-audit.json": "74db79b7dbccd36dbcf5a3be3eac997fa69a0e2c84bcbc2166da05f722d0f8e3",
+    "reports/tracking-input-audits/lightgbm-final/evaluation-audit.json": "4da0e7d58c9601144c6db085561a8f9746c80352d3b460c55602c5e850d10b45",
+    "reports/tracking-input-audits/lightgbm-final/holdout-audit.json": "396470b3b43cdc8380b34b2149349c77d2a8ba60e48380ad348d9f096aadd48d",
+    "reports/tracking-input-audits/t16/audit.json": "b2fb8828469be7365acbd1cbcb1f6b0b7d677401eb1cb23b674b9710cccaf93a",
+    "reports/tracking-input-audits/t17/audit.json": "75f9c0aab1e8edf2267e7f3975e7cda957cde3466c9780cf41fa06e6cbffdc2e",
+    "requirements-dev.lock": "0a91f93e814050fe7171cbd91bdc12ae0693468c34267192cfbdffc28c61b079"
+  },
+  "training_scope": "all_eligible_2024_train_only",
+  "champion_assignment_authorized": false,
+  "code_at_training": "recorded_in_original_training_manifests",
+  "registration_is_posthoc": true,
+  "extra_integrations_disabled": [
+    "FileStore",
+    "crewai",
+    "trulens"
+  ]
+}

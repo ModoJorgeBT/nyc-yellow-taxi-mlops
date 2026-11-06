@@ -1,0 +1,72 @@
+{
+  "format_version": 2,
+  "exception_id": "d04-2025-11-exact-failure-set-academic-v2",
+  "approval_status": "APPROVED",
+  "approved_by": "USER_EXPLICIT_IN_CONVERSATION",
+  "approval_recorded_on": "2026-11-05",
+  "approval_timezone": "America/Costa_Rica",
+  "user_instruction": "Sí, aprobar los nueve meses con esas exclusiones y trazabilidad",
+  "proposal_sha256_before_approval": "2274e848107f1bba35efdf61c93c2c9245d0ade256b57291389517ff41130f8d",
+  "year": 2025,
+  "month": 11,
+  "raw_sha256": "2cf2f3127f96d4d5dea30f8afe05119cf8e4ba57bd9e60b789d3f296fc8459ab",
+  "config_sha256": "555f4b943b12884639369caeae348a37d97b7efb2918e72818fa8f1cd9a5dc48",
+  "policy_version": "d04-real-v1-2026-11-03",
+  "preserve_invalid_row_exclusions": true,
+  "allow_other_failures": false,
+  "allow_other_lots": false,
+  "rejected_report": {
+    "relative_path": "../reports/quality/2025/11/518df25e97944bcea14b0887b0630f64.json",
+    "sha256": "92d98e4c3f54213c7a1c826723af54ddce39c23681f23f9ea86955a3c464bb2b"
+  },
+  "allowed_failures": [
+    {
+      "evidence": {
+        "first_raw_row_indexes": [
+          0,
+          21,
+          22,
+          23,
+          30
+        ],
+        "index_base": 0
+      },
+      "observed": {
+        "count": 60517,
+        "rate": 0.014472751518374991
+      },
+      "rule": "rows.duration_nonpositive",
+      "severity": "critical",
+      "status": "FAIL",
+      "threshold": {
+        "denominator": "all_raw_rows",
+        "fail_above": 0.005,
+        "warn_above": null
+      }
+    },
+    {
+      "evidence": {
+        "first_raw_row_indexes": [
+          0,
+          21,
+          22,
+          23,
+          30
+        ],
+        "index_base": 0
+      },
+      "observed": {
+        "count": 76519,
+        "rate": 0.01829965916080665
+      },
+      "rule": "rows.union_invalid_rows",
+      "severity": "critical",
+      "status": "FAIL",
+      "threshold": {
+        "denominator": "all_raw_rows",
+        "fail_above": 0.01,
+        "warn_above": 0.005
+      }
+    }
+  ]
+}

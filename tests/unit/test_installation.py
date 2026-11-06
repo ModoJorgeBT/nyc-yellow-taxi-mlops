@@ -21,7 +21,13 @@ packages = ["src", "src.ingestion", "src.validation", "src.features", "src.train
             "src.features.artifacts", "src.validation.real", "src.training.split",
             "src.training.resources", "src.training.baseline", "src.features.vectorized",
             "src.training.baseline_fit", "src.training.baseline_evaluate",
-            "src.validation.exceptions"]
+            "src.validation.exceptions", "src.training.models",
+            "src.training.candidate_runtime", "src.training.train",
+            "src.evaluation.metrics", "src.evaluation.segments", "src.evaluation.run",
+            "src.training.lightgbm_model", "src.training.lightgbm_train",
+            "src.training.lightgbm_worker", "src.training.native_supervisor",
+            "src.evaluation.lightgbm_run", "src.evaluation.final_data", "src.evaluation.final_run",
+            "src.training.tracking", "src.training.tracking_model", "src.training.champion"]
 for package in packages:
     importlib.import_module(package)
 print(json.dumps({"version": distribution.version, "packages": packages}))
@@ -37,4 +43,4 @@ print(json.dumps({"version": distribution.version, "packages": packages}))
     assert result.returncode == 0, result.stderr
     observed = json.loads(result.stdout)
     assert observed["version"] == "0.1.0"
-    assert len(observed["packages"]) == 24
+    assert len(observed["packages"]) == 40

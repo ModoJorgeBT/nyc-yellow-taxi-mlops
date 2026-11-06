@@ -1,6 +1,7 @@
 # Entornos y caches de Python
 .venv/
 .venv-verify/
+.venv-mlflow/
 .cache/
 venv/
 __pycache__/

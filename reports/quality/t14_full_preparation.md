@@ -2,6 +2,8 @@
 
 Fecha: 2026-11-03, America/Costa_Rica. **Registro/validación autorizados; ninguna excepción nueva aplicada.** [Contrato de ejecución](../../docs/t14-full-preparation.md). Este informe mide calidad y disponibilidad de fuentes; no evalúa modelos ni selecciona parámetros con test/replay.
 
+**Nota histórica:** las mediciones siguientes son los rechazos originales del 2026-11-03 y se conservan intactas. El 2026-11-05 se aprobaron y aplicaron nueve autorizaciones acotadas; T14 terminó su auditoría integral. [Resultado actual](t14_completion.md). La aceptación humana no modifica los FAIL medidos ni conserva filas inválidas.
+
 Estado local: `WAITING_FOR_REJECTED_LOT_DECISIONS`; 24 meses registrados, 15 con features aceptadas (incluye las 15 versiones previas) y 9 rechazos nuevos. El catálogo de 24 meses y su particionado requieren todas las entradas aceptadas.
 
 Los 24 originales conservaron tamaño/SHA-256 en el preflight. Se reutilizan las versiones explícitas train/validation ya verificadas, con la única excepción existente de marzo. Cada archivo nuevo se registra LOCAL_UNVERIFIED, sin inventar fuente/fecha de descarga. No se descargan datos ni se reemplazan originales.

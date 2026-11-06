@@ -1,0 +1,144 @@
+{
+  "format_version": 1,
+  "approval_status": "APPROVED",
+  "approval_id": "initial-lightgbm-v4-2026-11-05",
+  "scope": "initial_champion_only",
+  "approved_by": "USER_EXPLICIT_IN_CONVERSATION",
+  "user_instruction": "Entonces no, favor usar LightGBM como champion y hacer T19",
+  "approval_recorded_at_utc": "2026-11-06T02:10:02.611444+00:00",
+  "segment_limitations_acknowledged": true,
+  "segment_acceptance_context": "Elección explícita posterior a informar mayor MAE frente a SGD en 14/20 rutas; aceptación puntual, sin aprobar tolerancias generales D-05.",
+  "automatic_future_promotion_authorized": false,
+  "hyperparameter_search_authorized": false,
+  "tracking_uri": "http://127.0.0.1:5000",
+  "target": {
+    "family": "lightgbm",
+    "name": "nyc-yellow-taxi-duration",
+    "version": "4",
+    "run_id": "be28c76c84c44efa8914c5950a2959bf",
+    "logged_model_uri": "models:/m-63c9e8fe22fd448498301d6340f375b7",
+    "model_sha256": "8bd17196b3a5c1974036c11456f61083d2a5f601236d55d56f884802b477cff6",
+    "training_manifest_sha256": "95c132ccdbd034370dd20268a1fce10bfa30796fc0442715a7fdbf56ef3e77a6",
+    "registered_code_sha256": "410f05ffa50167d19c1be940ccb63b9d58dfc10be50ee77171f8f24c0ef68e7c",
+    "run_metrics_sha256": "0e9f26beed65434592031dbd08861d80ef255408ba04e58692f51e851474de00",
+    "run_params_sha256": "8da10526a2b9479e1dd91cd3ffdba2807d0ba6b2040b4c40b7331dde194678a1"
+  },
+  "frozen_model_artifact": "artifacts/lightgbm.joblib",
+  "artifact_files": {
+    "artifacts/lightgbm.joblib": "8bd17196b3a5c1974036c11456f61083d2a5f601236d55d56f884802b477cff6",
+    "code/src/__init__.py": "e4be9ba2df2529819213cb6211c4be389c003f0a8fc6c351a459c82fe9e652cd",
+    "code/src/api/__init__.py": "edd4c12d17b1d2560631d4548317a838cd5114933c2b265153604f9078c1e380",
+    "code/src/evaluation/__init__.py": "0a95a6d48af714c951ec7311b7c0bc60dae627402180b6925bb92ea683742dab",
+    "code/src/evaluation/final_data.py": "d84302593728b1c47deec76cbd6e61ae7a674d1acca3e6e328246dbfc110c772",
+    "code/src/evaluation/final_run.py": "89e99020439ac87ffddd85e717bae40d6a1cf7e46518af6c6c4b990102b68afe",
+    "code/src/evaluation/lightgbm_run.py": "5c178a732b2a8721293ce8b2ff7a6df4f56e8c061987f3cac1f4294bda50ed76",
+    "code/src/evaluation/metrics.py": "765ddd134e52dabe5174bdf5bcd49e8177dfb20bc69ecd50fafb034b7fd3a301",
+    "code/src/evaluation/run.py": "8fdcb77bf9c00b69d0e9e8dbedb6c0f591851a97df1bb2a33097758435da37f4",
+    "code/src/evaluation/segments.py": "1be65c80925aab84206a0dced52cdd652b3eb7dd89e2e5b477641738dbd18ce6",
+    "code/src/features/__init__.py": "e534c16fb58a4cadd52a08481ec6953b88659e174bb0abab4502340f2dedf314",
+    "code/src/features/artifacts.py": "80d07875cbfd02f4e5dfdd39f390b9cd46f7780df08dd91df1264ad32dd3a3de",
+    "code/src/features/build.py": "2a5aaf154ba88029f30629dfd9e60f2cf8ae3834ab884dc6247604b886186363",
+    "code/src/features/schema.py": "a6935d0b44ee53b3d88415e1280355fdd9fb31d7daf382ddde9e8019fa462959",
+    "code/src/features/target.py": "d4f95d4d1ab318ffc2e6aeead6d8abd7ebb9337e2472e3cf3ca93a2779edcb16",
+    "code/src/features/vectorized.py": "fdadb5ba3b585c9a862efaf260f079803c03374f1ada4fcc35bf9ab1b6513dd8",
+    "code/src/ingestion/__init__.py": "7df1422377adfe7d16526b2a99510d571307515694c3a5baf472e0490daddb0f",
+    "code/src/ingestion/download.py": "1a025524270db88383ab69ba7917175296ca13ae53aec49090958f88ba5388b1",
+    "code/src/ingestion/manifest.py": "54cf1c192b3bf4810993c4ca0d85a30dcfa5cf55a98d9a7455f125a6a702c8fe",
+    "code/src/monitoring/__init__.py": "6b63c9b19b4bfa9bc31e1e870e1ce70ef6b619d7be2f2abb87d56d1ccb5940ad",
+    "code/src/retraining/__init__.py": "2b98abd14c4faf4ba3adb87f19cd8348d0a89b181c26be179ced1238e6d39f75",
+    "code/src/training/__init__.py": "0f35e10011c2fb3b1d6fc0f220ef98922c5f609e27b3b57ace7210a9364b4a92",
+    "code/src/training/baseline.py": "77e84262dfd8cbc1cd0ca4524a1c41da1c29942caa26673f02ebf2ac4d2afafd",
+    "code/src/training/baseline_evaluate.py": "3f7bd1bf1806f878a5c50919d71d4e2da64329b4ef448cc44692850b49c49d6d",
+    "code/src/training/baseline_fit.py": "408271e2117ba512430673d454f66cb2c4ce9a6948f0fe548af422b4adc0b61c",
+    "code/src/training/candidate_runtime.py": "b18d056d3ceda123ddbcbbab74c550dcb58c80dd9e706650bb8d02033da9386d",
+    "code/src/training/lightgbm_model.py": "80cc96161d950f189915a5175b359fd11cb0626dbb4783f6caf7a5439b9120b5",
+    "code/src/training/lightgbm_train.py": "7df83f690c30c226e1b4ceda40fc8d4bd2d3257b5f3698d9ac05106277dd9788",
+    "code/src/training/lightgbm_worker.py": "f7efecd2a286cc4d4615bf9ac9ed4a368fff7b9b962fa3fe4ee6d099b5ae970f",
+    "code/src/training/models.py": "0c9136c527492298572c7ee20a360d35e34599a6a0d6b641680459d04f0e1ea6",
+    "code/src/training/native_supervisor.py": "a91fb59d04cd92fa2a61c509d8bfb6344bde37608508be3db3dd42f357497506",
+    "code/src/training/resources.py": "f2ab17957aace708bf040f27c2c9ef5aa66b20eb3c6d53e7dbedf4f5e8e927e1",
+    "code/src/training/split.py": "bd2d63dc300b91709b29bedc71ad8708cb6f5e802d2148317cfb80a623ba30cf",
+    "code/src/training/tracking.py": "c7ea1894be3cd94c26e5414714d02c8a76f1258c9ca3d06d3d3e199ead3136fc",
+    "code/src/training/tracking_model.py": "b451972b686976e8c2080ba7664c1775741ec8c9b680bb353883fc30aef9ccd0",
+    "code/src/training/train.py": "893207c9f277c247cc45862357f135bfff306efbf9705e4061711b0f053b5f7b",
+    "code/src/validation/__init__.py": "922370fad88f1c006e39af830fb10726993b1a7cd334b15c7aa82236703bd656",
+    "code/src/validation/exceptions.py": "6e8470e23ba266c0251eed3e057c61b56a74bd8c84593175affe469f3f247a07",
+    "code/src/validation/real.py": "7aecf642cb7c87bdb2a0f9049a6ee54ecd148f6cba522bbc235446e126e11b25",
+    "code/src/validation/rules.py": "f7445bfd2275da081fe99155707a049ece52962f5c898a81d0ce3ccbe3a4b514",
+    "code/src/validation/run.py": "f1e7f635fba96c5502f63b7afe516b986e86b6f9abd9235f770e9a8ab85bd407",
+    "code/src/validation/schema.py": "8b661a41df83bbcb7d8cb1db7e8d3a67d93a9daa1f3d8f4e3f624935ad11817f",
+    "conda.yaml": "2bb391dfe2c3f68d3771d47e01a570094d0368dc48c45bfba5821bacef175ff9",
+    "input_example.json": "2fe193db7967680bce15d1972da481caa717a38cb0969e057b80861d0ec09a51",
+    "MLmodel": "fa939b08725425fcbd07a05722bfa65c9f6beca46de5c23543430e9b03c39b24",
+    "python_env.yaml": "2b4625059a3aabce5dc90ad8b477045b01d6629e294b4a56776b7094cc5f1d7e",
+    "python_model.pkl": "8677c60381f9521d5f1bc2006a034cc1cee6ceb1992c35d78e48571a5002533e",
+    "registered_model_meta": "120b0aaef98dba527140295aa92da9038d59c089012bf93e608f534d2beda63c",
+    "requirements.txt": "b784797d13467eb741d27ab11c6cbfcf32215de075b901f2261c273bc8c81762",
+    "serving_input_example.json": "40c96a64e6abd43cd2aea07f69280cd432060a179d2092c9b09fb8d965dd9eb6"
+  },
+  "smoke": {
+    "fixture_origin": "synthetic",
+    "payloads": [
+      {
+        "pickup_datetime": "2026-01-12T08:30:00-05:00",
+        "pickup_location_id": 161
+      },
+      {
+        "pickup_datetime": "2026-03-12T18:30:00-04:00",
+        "pickup_location_id": 237,
+        "passenger_count": 2
+      },
+      {
+        "pickup_datetime": "2026-03-12T22:30:00+00:00",
+        "pickup_location_id": 237,
+        "passenger_count": 2
+      },
+      {
+        "pickup_datetime": "2026-11-01T01:30:00-04:00",
+        "pickup_location_id": 161,
+        "passenger_count": null
+      },
+      {
+        "pickup_datetime": "2026-11-01T01:30:00-05:00",
+        "pickup_location_id": 161,
+        "passenger_count": 0
+      },
+      {
+        "pickup_datetime": "2026-02-12T10:00:00-05:00",
+        "pickup_location_id": 999999,
+        "passenger_count": 1
+      }
+    ],
+    "expected_minutes": [
+      13.047639392840258,
+      9.348309320788001,
+      9.348309320788001,
+      12.310282642545337,
+      10.162737113837556,
+      31.75777211109379
+    ]
+  },
+  "evidence": {
+    "tracking_audit": {
+      "path": "reports/tracking/real/independent-audit.json",
+      "sha256": "d128a1dc869370a7c73ec952d75accfa2a722757c4231cd17e6e2c9a95ef56eb"
+    },
+    "registration": {
+      "path": "reports/tracking/real/d9f2a299e7c904b5f55b21abf73c62d0cd3e7a26a1fd62d3fcee964487c6fdec.json",
+      "sha256": "44047540f6122c03adfc026a83783bcaff386fc12d671909b6d8c502930d5cd4"
+    },
+    "final": {
+      "path": "data/processed/independent-final-evaluations/ce0c3b7426dc43dfb76d366c22d73a31/evaluation_manifest.json",
+      "sha256": "b8db6bd31643a1eba1a5822b42ceeb7636ca8da9c70ae939e8e3ed6298e20175"
+    }
+  },
+  "resources": {
+    "approval_status": "APPROVED",
+    "threads_total": 4,
+    "parallel_models": 1,
+    "process_rss_limit_gib": 2,
+    "preflight_min_free_ram_gib": 4,
+    "preflight_min_free_disk_gib": 50,
+    "candidate_timeout_seconds": 7200
+  }
+}
