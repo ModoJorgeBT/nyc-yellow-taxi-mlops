@@ -6,6 +6,7 @@ import importlib.metadata
 import json
 import math
 import os
+import shutil
 import subprocess
 from pathlib import Path
 from urllib.parse import urlparse
@@ -17,6 +18,23 @@ from src.training.train import source_digest
 from src.validation.schema import fingerprint
 
 FAMILIES = ("baseline", "sgd", "mlp", "lightgbm")
+
+
+def _git_state(root: Path) -> tuple[str | None, bool | None]:
+    if shutil.which("git") is None:
+        return None, None
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True, check=False
+    )
+    dirty = subprocess.run(
+        ["git", "status", "--porcelain"], cwd=root, capture_output=True, text=True, check=False
+    )
+    return (
+        commit.stdout.strip() if commit.returncode == 0 else None,
+        bool(dirty.stdout) if dirty.returncode == 0 else None,
+    )
+
+
 EXAMPLE = [
     {"pickup_datetime": "2026-01-12T08:30:00-05:00", "pickup_location_id": 161},
     {
@@ -247,12 +265,7 @@ def register_candidates(profile_path=Path("configs/tracking.yaml"), *, root=None
     )
     # Input example sintético; ninguna fila del holdout se usa para empaquetar.
     example = pd.DataFrame([EXAMPLE[0]])
-    git = subprocess.run(
-        ["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True, check=False
-    )
-    dirty = subprocess.run(
-        ["git", "status", "--porcelain"], cwd=root, capture_output=True, text=True, check=False
-    )
+    git_commit, git_dirty = _git_state(root)
     receipt = {
         "status": "TRACKING_TEST_ONLY" if test_only else "TRACKING_REAL",
         "registered_at_utc": utc_now(),
@@ -261,8 +274,8 @@ def register_candidates(profile_path=Path("configs/tracking.yaml"), *, root=None
         "registered_model_name": name,
         "source_tree_sha256": code_hash,
         "tracking_lock_sha256": sha256(lock),
-        "git_commit": git.stdout.strip() if git.returncode == 0 else None,
-        "git_dirty": bool(dirty.stdout) if dirty.returncode == 0 else None,
+        "git_commit": git_commit,
+        "git_dirty": git_dirty,
         "models_fitted": False,
         "aliases_before": aliases_before,
         "champion_assigned": False,

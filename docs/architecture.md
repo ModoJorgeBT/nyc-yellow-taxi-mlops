@@ -144,3 +144,23 @@ G3 cumple sus condiciones de Sprint 3. D-05 conserva pendientes sus reglas
 automáticas de drift y promociones futuras; no se aprueban nuevos umbrales.
 [Decisión, pruebas y evidencia](../reports/model_selection.md). Las menciones anteriores a champion
 pendiente son históricas; API y despliegue siguen en sus tareas posteriores.
+
+
+**Serving T20–T22 — 2026-11-09:** contrato D-06 y HTTPX aprobados explícitamente.
+Esquemas, carga segura del champion LightGBM v4 y endpoints FastAPI verificados;
+553 casos serving, 501 nativos y 51 sobre wheel fuera de src. El reinicio
+sintético de T18 necesitó reintento fuera del sandbox; pasó y se limpió su proceso.
+Registry, modelos, evaluaciones y locks históricos intactos. Sin recarga
+automática; Docker/T23–T25 y G4 pendientes. [Contrato y evidencia](t20-t22-serving.md).
+Las menciones previas a API/contrato REST pendientes describen su estado histórico.
+
+
+**T23–T25 verificadas — 2026-11-09:** build Docker Linux amd64, usuario
+10001 y límites 2 GiB/2 CPU por API/MLflow verificados; smoke real 200/422/503,
+reinicio y persistencia PASS. G4 cumple técnicamente su alcance. API en 8080
+y MLflow Docker en 5001, solo loopback; originales conservados. El usuario
+aprobó el perfil Linux, el cambio de puerto y la auditoría portable de
+metadatos sin modificar datos. Volumen Linux aislado con champion v4;
+sin reentrenamiento ni promoción nueva. [Guía y evidencia](t23-t25-docker.md).
+Las menciones previas a Docker pendiente describen estados históricos;
+T26–T38 y la revisión humana de resultados permanecen independientes.

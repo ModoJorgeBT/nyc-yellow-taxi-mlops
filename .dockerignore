@@ -1,0 +1,26 @@
+# Contexto por whitelist: nunca enviar datos, modelos, SQLite, venvs o secretos.
+**
+!Dockerfile
+!.dockerignore
+!pyproject.toml
+!README.md
+!requirements-serving-linux.lock
+!requirements-ci-linux.lock
+!src/
+!src/**
+!configs/
+!configs/container-wheels-linux.json
+!configs/container-system-packages.json
+!configs/ci-tools-linux.json
+!configs/champion.yaml
+!configs/data.yaml
+!configs/serving-logging.json
+!scripts/
+!scripts/container_build.py
+!scripts/prepare_compose.py
+!scripts/smoke_api.py
+!scripts/mlflow_container.py
+**/__pycache__/**
+**/*.pyc
+**/*.pkl
+**/*.joblib

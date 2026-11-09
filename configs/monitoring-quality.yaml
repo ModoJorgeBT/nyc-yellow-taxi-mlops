@@ -1,0 +1,143 @@
+{
+  "format_version": 1,
+  "status": "APPROVED",
+  "approved_by": "USER_EXPLICIT_IN_CONVERSATION",
+  "approved_on": "2026-11-09",
+  "scope": "quality_schema_only",
+  "reference_year": 2024,
+  "comparison": "same_calendar_month_2025_replay",
+  "new_thresholds_authorized": false,
+  "training_authorized": false,
+  "policy_identity_sha256": "b1db33ac94582426f373cd697eb818eb375d6835deb3b2f9dafaeea76c11f8be",
+  "reference_reports": [
+    {
+      "year": 2024,
+      "month": 1,
+      "path": "data/validated/2024/01/eb3c22ba4da94a2fb647fa4ffe1c6a0f/validation.json",
+      "sha256": "c9f344aabc7fe6940cbd5ef0ef7faf02fe7158da42742d8d26a89acd8d7071b1",
+      "raw_sha256": "c4d59da7bbc8abaeeeb1727947ee93d9891a71acb42854bd80db1571b2030510"
+    },
+    {
+      "year": 2024,
+      "month": 2,
+      "path": "data/validated/2024/02/4e23d01b42434264a20c401a8d8eff94/validation.json",
+      "sha256": "975f16e3b407ffb9c1452935fdc56ce7fbe83be2e73b8004989266d0a1fe7dbc",
+      "raw_sha256": "c76c43c18c6c6664080dd920baab4928988d5786a6b65980792ca7cd796f9f20"
+    },
+    {
+      "year": 2024,
+      "month": 3,
+      "path": "data/validated/2024/03/7048e81ee8b84d2a8b08b3571a86644b/validation.json",
+      "sha256": "598978bf0cb879e7726c2f635c1b28c38fae5d0db70f1c8971296705abfb4ab9",
+      "raw_sha256": "2d4cdc8fb96726cdd3803b13b02d2e61e71d45720aff0ebc693a8bdd1f249823"
+    },
+    {
+      "year": 2024,
+      "month": 4,
+      "path": "data/validated/2024/04/32008ed85b2440a3b961b6a5ac4fbe61/validation.json",
+      "sha256": "08cf76487ed9eb49e8acd3f1c866f6d8cabf7cf64b5ca9e2593663a411c6e0a0",
+      "raw_sha256": "ce37f736c7cf9e92164c850ef2b502a8f7bb590fc1804b6edbcb80293da01b89"
+    },
+    {
+      "year": 2024,
+      "month": 5,
+      "path": "data/validated/2024/05/37911ebd2a8049dcbcbf57af4416abd6/validation.json",
+      "sha256": "10e9ddd0b4839aab7c4a19a29a0e4edad267d2f12796f56c88672b86e39ac989",
+      "raw_sha256": "1974230be2b5a3ea92e47b5eb77f32dbf1de896d81ad8df4ab6faba52749ad23"
+    },
+    {
+      "year": 2024,
+      "month": 6,
+      "path": "data/validated/2024/06/8b74f9ee53bb4f6a8f5c648feb9e208e/validation.json",
+      "sha256": "0130ce185d23e7619fabce696f984c001a57c3e71ad336857cdd5c722a06354f",
+      "raw_sha256": "677cf14c8347f745b583f012fbdba072334c6c4efa17bfd6a64369f2ba30329c"
+    },
+    {
+      "year": 2024,
+      "month": 7,
+      "path": "data/validated/2024/07/5e4e291197344392b63be5abdae902db/validation.json",
+      "sha256": "a21f7bd6526103633fc1d14dbe5df1a73a0a2d45cc4beb657a5447a40d07fe37",
+      "raw_sha256": "af12d6b04daeb78550799ae99933d495b27d715b6dbb0fad9bb750a4537d3070"
+    },
+    {
+      "year": 2024,
+      "month": 8,
+      "path": "data/validated/2024/08/1c4955cdcdfb40c2bebe1c7af9e9eb65/validation.json",
+      "sha256": "76148bf93303caa4623801c925430afc3c9da570aaac74969da91169412ce77f",
+      "raw_sha256": "7315643dd16bafc03e27d9903edbfd35404c2550a695d0da0a3e73852d940cfb"
+    },
+    {
+      "year": 2024,
+      "month": 9,
+      "path": "data/validated/2024/09/dfa3e12e57a64f608efb2fed3e8c7407/validation.json",
+      "sha256": "26fccf4e09a6b511019c44ff8b0e61a9e19f79cccfc7c5a98d4ac38297bd9b32",
+      "raw_sha256": "2f42e4a383a6635de803001462848d0aee2b47f6ce899126805d2d05361fb843"
+    },
+    {
+      "year": 2024,
+      "month": 10,
+      "path": "data/validated/2024/10/185acfe1085e468fa7b111dd88b35e21/validation.json",
+      "sha256": "6adac318449afb863c4960abe3492ac4869c6274e0d116d44781bbf34c7b1b6d",
+      "raw_sha256": "d19fe05aa0b259af24eb47051735293287f1e6dc263ba04030ec1ab4c6ec2650"
+    },
+    {
+      "year": 2024,
+      "month": 11,
+      "path": "data/validated/2024/11/facd04ed29fd468681dfd0870fc7e193/validation.json",
+      "sha256": "95e670d934b5ec034790446b34657be4752751db85a8f14d28b193b68406b5bf",
+      "raw_sha256": "5ef321876de5007a7c147a347389133fc94fd7ac28f82eb1d57d8f2cf05cfd3b"
+    },
+    {
+      "year": 2024,
+      "month": 12,
+      "path": "data/validated/2024/12/5b6c916a1fd64dfaafa4b0524a1c6e7a/validation.json",
+      "sha256": "012f04dd61b635b7d61311707f718cd4e0de328c339e0d343186ddbcf2f5557e",
+      "raw_sha256": "41ebf7db80bebde60c58e5143c14cdf38ad04a0f3e3ff44215b3e240d55f6c78"
+    }
+  ],
+  "current_reports": [
+    {
+      "year": 2025,
+      "month": 7,
+      "path": "data/validated/2025/07/9421a962474e463dadb8a5eeca8dc2de/validation.json",
+      "sha256": "f5315fae47858989169abc64da372b6163d83be5a37fd6fffcf670f4deea8786",
+      "raw_sha256": "1efa6a0458dc60341f7f81dcbb5015af731f42d1a109f4e0d594dd46970fd4ef"
+    },
+    {
+      "year": 2025,
+      "month": 8,
+      "path": "data/validated/2025/08/15c5f65072bb4db8b1c4df7704add576/validation.json",
+      "sha256": "32f481ec9b465b5ee695784b63e0ccc648870e13bdb96d78765ca3cd7b1a9886",
+      "raw_sha256": "b982ace703e3564d92e94edae5ec93515f4f1fb07a5b95e7404c32464c1a6a89"
+    },
+    {
+      "year": 2025,
+      "month": 9,
+      "path": "data/validated/2025/09/b80c89deb4324dd7b3f5c14694c34b3e/validation.json",
+      "sha256": "8779be5963e5234b99cdca20f2208f3a04d7efe6e3c186b63717e4276ce5f1bd",
+      "raw_sha256": "cd39b9901f01d1fd752d45cbaec91ee5f68c4dddf9e261e938c1dbab404644c7"
+    },
+    {
+      "year": 2025,
+      "month": 10,
+      "path": "data/validated/2025/10/0228a7a2975044a38aac36a8b51bc4c2/validation.json",
+      "sha256": "680ea7adbd902ba595cc3913994a1a5d33928a757a6f59cfedef09ef81e63eb3",
+      "raw_sha256": "e1f63caf331bc6230d9c6f757cb88e55fdc2bddde185fb414d2c947abdc773c3"
+    },
+    {
+      "year": 2025,
+      "month": 11,
+      "path": "data/validated/2025/11/fae1ecfa1c4e454f849cc89fdfcab20a/validation.json",
+      "sha256": "e4447b1e959fbcee087b7b304c338360edbe876a86188e07a6901cfa70dc3509",
+      "raw_sha256": "2cf2f3127f96d4d5dea30f8afe05119cf8e4ba57bd9e60b789d3f296fc8459ab"
+    },
+    {
+      "year": 2025,
+      "month": 12,
+      "path": "data/validated/2025/12/829bffcf8efe40898e5eda33061e2188/validation.json",
+      "sha256": "bbedea9f201a9ef51dbc691ef4d6314ff6a79f59f27c2a91e6582bb3dbba03e3",
+      "raw_sha256": "eaba7ff61ebb6453fc6f673fda43d621380307f869b768b124992e8486c785e1"
+    }
+  ],
+  "lineage_split_sha256": "c34f4712710a10181d2c04631e9cd05f550e7110c3142fb067a1bb5566fd592a"
+}

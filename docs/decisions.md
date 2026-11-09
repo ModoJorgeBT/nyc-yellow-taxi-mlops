@@ -53,13 +53,13 @@ El éxito es el ciclo MLOps auditable y reproducible, incluyendo baseline y dos 
 | ID | Estado y decisión | Responsable de resolver | Antes de / evidencia necesaria |
 |---|---|---|---|
 | D-01 | APROBADA. Train 2024; validation ene–mar 2025; test original abr–jun; replay jul–dic. Extensión final independiente ene–mar 2026 aprobada y auditada. | Equipo | [Protocolo original](d01-d02-protocol.md) y [evaluación final separada](../reports/evaluation/lightgbm_final_evaluation.md). T14 completa; sin presumir disponibilidad histórica de publicación. |
-| D-02 | APROBADA. Todos los elegibles. Preparación 4/2; entrenamiento 8/4; inferencia final 2026 6 GiB libres/2 GiB RSS. Cuatro hilos, un candidato, 2 h y 50 GiB disco. | Equipo | [Revisión de entrenamiento](d02-t16-resource-review.md) y [revisión final](d02-final-evaluation-resource-review.md) probadas y ejecutadas. Contratos congelados anteriores intactos. |
-| D-03 | PARCIAL. Lock histórico de 24 paquetes intacto. MLflow 3.16.1 y 95 paquetes con hashes en entorno T18 separado; pandas/Pydantic/FastAPI limitados al SDK. API del proyecto, Compose, Actions y Evidently pendientes. | Equipo; docente cuando corresponda | Windows/Python 3.14, tracking y Registry probados; sin acreditar Docker/Linux ni todo el stack. |
+| D-02 | APROBADA. Todos los elegibles. Preparación 4/2; entrenamiento 8/4; inferencia final 2026 6 GiB libres/2 GiB RSS. Cuatro hilos, un candidato, 2 h y 50 GiB disco. CI exclusivo con fixtures: 2 CPU/4 GiB, 10 GiB disco y 20 min por job. | Equipo | [Revisión de entrenamiento](d02-t16-resource-review.md), [revisión final](d02-final-evaluation-resource-review.md) y [CI local](t26-t28.md). Presupuestos científicos y build local intactos. |
+| D-03 | PARCIAL. Locks Windows 24/95/97 intactos; Linux 99 paquetes y Debian fijados. Serving/Compose verificados. Workflow Actions preparado con Ruff fijado y perfil CI aprobado 2 CPU/4 GiB/10 GiB disco/20 min; ejecución remota pendiente. Evidently pendiente. | Equipo | [T23–T25 y G4](t23-t25-docker.md); [T26–T28](t26-t28.md), solo fixtures en CI. |
 | D-04 | V1 congelada; diez excepciones exactas de 2025 y tres de ene–mar 2026 por mes/hash/reporte aprobadas y aplicadas. | Equipo | 27 lotes: 14 pasan calidad y 13 aceptados excepcionalmente; FAIL y exclusiones conservados. [Excepciones finales](lightgbm-final-quality-exceptions-proposal.md). Cualquier nuevo incumplimiento requiere aprobación. |
 | D-05 | PENDIENTE para reglas automáticas/futuras; T19 tiene aprobación humana puntual. 115 % en dos ventanas, PSI 0.20, mejora 2 % o no inferioridad son propuestas del PDF pp. 8–9. | Equipo | T32/T34: referencia, ventanas, volumen mínimo, bins/categorías, margen de no inferioridad y tolerancias por segmento aprobados. |
-| D-06 | PARCIAL. Aprobados origen/calendario/pasajeros opcionales y convención America/New_York/UTC con cuarentena DST; destino deshabilitado. Catálogo operativo aprobado en D-04; contrato REST completo pendiente. | Equipo | T12/T13 probadas y calidad real alineada con UTC; cerrar contrato REST y tratamiento de entradas en T20. |
-| D-07 | APROBADA, IMPLEMENTADA Y VERIFICADA. MLflow 3.16.1 aislado, SQLite/artefactos persistentes y loopback; cuatro versiones; LightGBM v4 champion por T19. | Equipo | [Registro real, carga, linaje y reinicio auditados](../reports/tracking/t18_completion.md). T19 aprobó el champion inicial; promociones futuras requieren aprobación; Compose T24/T25 pendiente. |
-| D-08 | T14/T15/T16/T17, evaluación final independiente y T18/T19 con cierre técnico PASS; revisión humana independiente. Criterio general de PR pendiente. | Equipo | 488 pruebas nativas, una omisión explícita y 489 sobre wheel MLflow; auditorías reales. G3 verificado en T19 por aprobación humana; sin promoción futura automática. |
+| D-06 | APROBADA el 2026-11-09: REST v1 con offset, origen del catálogo, pasajeros opcionales/null o entero 0–6; campos extra y coerciones rechazados. Destino deshabilitado. | Equipo | [Contrato y pruebas T20–T22](t20-t22-serving.md); versión cargada fija, 422/503/500 sin secretos. |
+| D-07 | APROBADA, IMPLEMENTADA Y VERIFICADA. MLflow 3.16.1 aislado, SQLite/artefactos persistentes y loopback; cuatro versiones; LightGBM v4 champion por T19. | Equipo | [Registro real, carga, linaje y reinicio auditados](../reports/tracking/t18_completion.md). Compose T24/T25 verificado con copia aislada; promociones futuras requieren aprobación. |
+| D-08 | T14–T25 y T27/T28 con cierre técnico PASS; revisión humana independiente. T26 local PASS, criterio de PR remoto pendiente. | Equipo | [CI local: 601 pruebas Linux y smoke HTTP](t26-t28.md); G3/G4 verificados. G5 y evidencia GitHub independientes; sin promoción futura automática. |
 
 La arquitectura local está confirmada en el [ADR 0001](adr/0001-arquitectura-local.md). Las propuestas técnicas de persistencia, modelos y librerías no se consideran aprobadas por ese ADR.
 
@@ -249,3 +249,14 @@ G3 cumple sus condiciones de Sprint 3. D-05 conserva pendientes sus reglas
 automáticas de drift y promociones futuras; no se aprueban nuevos umbrales.
 [Decisión, pruebas y evidencia](../reports/model_selection.md). Las menciones anteriores a champion
 pendiente son históricas; API y despliegue siguen en sus tareas posteriores.
+
+
+**T23–T25 verificadas — 2026-11-09:** build Docker Linux amd64, usuario
+10001 y límites 2 GiB/2 CPU por API/MLflow verificados; smoke real 200/422/503,
+reinicio y persistencia PASS. G4 cumple técnicamente su alcance. API en 8080
+y MLflow Docker en 5001, solo loopback; originales conservados. El usuario
+aprobó el perfil Linux, el cambio de puerto y la auditoría portable de
+metadatos sin modificar datos. Volumen Linux aislado con champion v4;
+sin reentrenamiento ni promoción nueva. [Guía y evidencia](t23-t25-docker.md).
+Las menciones previas a Docker pendiente describen estados históricos;
+T26–T38 y la revisión humana de resultados permanecen independientes.

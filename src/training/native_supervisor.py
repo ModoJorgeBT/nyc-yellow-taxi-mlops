@@ -13,6 +13,15 @@ from pathlib import Path
 from src.training.resources import ResourceLimitError
 
 
+def _linux_peak_rss(status: str) -> int:
+    fields = dict(line.split(":", 1) for line in status.splitlines() if ":" in line)
+    if "VmHWM" not in fields:
+        if fields.get("State", "").strip().startswith(("Z", "X")):
+            raise ProcessLookupError("El proceso propio ya termino")
+        raise ResourceLimitError("Proceso activo sin medicion VmHWM; no continuar sin control RSS")
+    return int(fields["VmHWM"].split()[0]) * 1024
+
+
 def process_peak_rss(pid: int) -> int:
     if os.name == "nt":
         from ctypes import wintypes
@@ -44,12 +53,7 @@ def process_peak_rss(pid: int) -> int:
         finally:
             kernel.CloseHandle(handle)
     if os.name == "posix":
-        fields = dict(
-            line.split(":", 1)
-            for line in Path(f"/proc/{pid}/status").read_text().splitlines()
-            if ":" in line
-        )
-        return int(fields["VmHWM"].split()[0]) * 1024
+        return _linux_peak_rss(Path(f"/proc/{pid}/status").read_text())
     raise ResourceLimitError("Sin medición externa de RSS para esta plataforma")
 
 
@@ -143,6 +147,13 @@ def supervise(command, *, policy, guard, log_path, env=None, identity=None):
                     observed_pid = process.pid if identity is None else worker_pid
                     try:
                         peak = max(peak, process_peak_rss(observed_pid))
+                    except ProcessLookupError:
+                        if process_alive(observed_pid):
+                            raise
+                        # /proc puede mostrar Z antes de que poll recoja el codigo de salida.
+                        # Conservar el pico anterior; nunca sustituir RSS de un proceso activo.
+                        time.sleep(policy["native_process_poll_seconds"])
+                        continue
                     except OSError, ResourceLimitError:
                         if process.poll() is None:
                             raise

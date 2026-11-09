@@ -1,6 +1,6 @@
 # PLAN — Implementación incremental NYC Yellow Taxi MLOps
 
-**Versión:** 1.0 · **Estado:** T14, T15 y primera comparación T16/T17 con cierre técnico auditado; LightGBM con evaluación final independiente auditada; T18/T19 con cierre técnico auditado; LightGBM v4 champion inicial aprobado; T20–T38 pendientes · **Entorno:** Windows local, Docker sin verificar.
+**Versión:** 1.0 · **Estado:** T14–T25 y T27–T28 con cierre técnico verificado; T26 verificada localmente, ejecución GitHub pendiente; T29–T38 pendientes · **Entorno:** Windows local y Docker Linux amd64; API 8080/MLflow Docker 5001.
 **Fuentes de verdad:** `intent.md`, `spec.md`, y PDF académico *Proyecto_Maestria_MLOps_NYC_Taxi_Estructura*, septiembre 2026. En caso de contradicción, detenerse y pedir decisión; no cambiar el alcance silenciosamente.
 
 ## 0. Protocolo obligatorio para Codex
@@ -18,11 +18,11 @@
 | ID | Decisión | Valor de trabajo / criterio | Estado |
 |---|---|---|---|
 | D-01 | Periodos | Train 2024 completo; validación ene–mar 2025; test original abr–jun 2025; replay jul–dic 2025. Extensión final independiente ene–mar 2026, sin reajustes | APROBADA y auditada; protocolo final separado, periodos originales intactos |
-| D-02 | Recursos | Todos los elegibles. Preparación: 4 GiB libres/2 GiB RSS. Entrenamiento: 8/4. Inferencia final 2026: 6/2; 4 hilos, un candidato, 2 h/candidato y 50 GiB disco | APROBADOS y verificados; reinicio final trazado, Docker sin verificar |
-| D-03 | Herramientas | Lock histórico de 24 paquetes intacto; MLflow 3.16.1 y 95 paquetes fijados en entorno T18 separado. pandas/Pydantic/FastAPI instalados solo como dependencias de MLflow; API del proyecto, Compose, Actions y Evidently pendientes | PARCIAL; T18 local verificada, sin acreditar Docker ni stack completo |
+| D-02 | Recursos | Todos los elegibles. Preparación 4 GiB libres/2 GiB RSS; entrenamiento 8/4; inferencia final 6/2; cuatro hilos, un candidato, dos horas y 50 GiB disco. Docker serving: 2 GiB/2 CPU por API/MLflow y un worker | APROBADOS y verificados; sin entrenamiento Docker en T23–T25 |
+| D-03 | Herramientas | Locks Windows 24/95/97 intactos; Linux 99 y Debian fijados. Workflow CI con Ruff y BuildKit por hash; perfil CI aprobado y verificado localmente | PARCIAL; serving/Compose y CI local verificados; Actions remoto/Evidently pendientes |
 | D-04 | Umbrales DQ | D-04 v1 congelada; diez excepciones exactas de 2025 y tres de ene–mar 2026, ligadas a mes/hash/reporte, inválidos excluidos | APROBADA E IMPLEMENTADA; 27 lotes incorporados: 14 pasan calidad y 13 aceptados excepcionalmente |
 | D-05 | Drift y promoción | Evaluar propuestas PDF: MAE > 115 % dos ventanas, PSI > 0.20, mejora MAE ≥ 2 % o no inferioridad definida | PENDIENTE para automatismos; elección inicial T19 aprobada |
-| D-06 | API | Origen/calendario/pasajeros opcionales y convención Nueva York/UTC aprobados; destino deshabilitado. Catálogo operativo aprobado en D-04; contrato REST completo pendiente | PARCIAL |
+| D-06 | API | Contrato REST v1 aprobado el 2026-11-09: offset, origen del catálogo, pasajeros opcionales 0–6, whitelist estricta y errores 422/503/500 | APROBADA; [contrato y pruebas T20–T22](docs/t20-t22-serving.md) |
 | D-07 | MLflow | MLflow 3.16.1 en entorno separado; SQLite persistente, artefactos locales, loopback y cuatro versiones; LightGBM v4 champion por T19 | APROBADA, IMPLEMENTADA Y VERIFICADA; registro/reinicio/carga/linaje auditados |
 | D-08 | Definition of Done | T14/T15/T16/T17, evaluación independiente y T18/T19 auditadas técnicamente; revisión humana de resultados independiente | PARCIAL; criterio general de PR pendiente; G3 verificado |
 
@@ -226,38 +226,44 @@ Extensión adicional aprobada y completada: **LightGBM**, ajuste sobre todo trai
 - **Trabajo:** request con timestamp offset, zonas positivas/catálogo, pasajero opcional; response con minutos, unidad, versión y timestamp UTC.
 - **Entregables:** `src/api/schemas.py`.
 - **Aceptación/prueba:** payload válido; 422 para valores/timestamps inválidos.
+- **Estado T20: CIERRE TÉCNICO PASS.** Contrato D-06 y HTTPX aprobados expresamente; [contrato y verificación](docs/t20-t22-serving.md). Límites, campos prohibidos, catálogo y timestamps probados con 422.
 
 ### T21 — Carga segura del champion
 - **Depende de:** T19.
 - **Trabajo:** resolver y cargar pipeline serializado aprobado al arranque, sin usar artefacto arbitrario del usuario; fallo controlado si falta.
 - **Entregables:** `src/api/model_loader.py`.
 - **Aceptación/prueba:** modelo correcto y versión expuesta; ausencia del champion da estado no listo, no predicción ficticia.
+- **Estado T21: CIERRE TÉCNICO PASS.** Carga real de LightGBM v4, 50 archivos verificados antes de deserializar y seis smoke exactos; [T20–T22](docs/t20-t22-serving.md). Sin promoción ni recarga automática.
 
 ### T22 — Endpoints FastAPI
 - **Depende de:** T20, T21.
 - **Trabajo:** `POST /predict`, `GET /health`, `GET /model-info`, logging básico sin secretos.
 - **Entregables:** `src/api/main.py`, `tests/api/`.
 - **Aceptación/prueba:** 200 válido, 422 inválido, 503 sin modelo, metadatos coherentes, pruebas con TestClient.
+- **Estado T22: CIERRE TÉCNICO PASS.** 50 pruebas específicas y auditoría REST con champion real; suite serving de 553 casos verificados (un reinicio requirió reintento fuera del sandbox), 501 nativos y 51 sobre wheel fuera de src. [Evidencia y límites](docs/t20-t22-serving.md). Revisión humana independiente; Docker/G4 pendientes.
 
 ### T23 — Dockerfile reproducible
 - **Depende de:** T03, T22.
 - **Trabajo:** imagen Python con versiones fijadas, usuario no root cuando sea viable, sin datasets ni secretos embebidos.
 - **Entregables:** `Dockerfile`, `.dockerignore`.
 - **Aceptación/prueba:** `docker build -t nyc-taxi-api:local .` y prueba de arranque local.
+- **Estado T23: CIERRE TÉCNICO PASS.** Build real Python 3.14.7 amd64 fijado por digest, lock Linux y paquetes Debian con hashes; imports/predicción Linux verificados. Usuario 10001 y contexto por whitelist. [Perfil aprobado](docs/t23-t25-execution-proposal.md), [pruebas](docs/t23-t25-docker.md).
 
 ### T24 — Docker Compose y volúmenes
 - **Depende de:** T18, T23.
 - **Trabajo:** servicios `mlflow`, `api`, `pipeline` bajo demanda; persistencia SQLite/artefactos/datos/reportes; bind localhost 5000/8000; healthchecks.
 - **Entregables:** `docker-compose.yml`, `.env.example`, instrucciones bootstrap.
 - **Aceptación/prueba:** `docker compose config`, `docker compose up -d mlflow`, persistencia tras `down` sin `-v`, arranque de API con champion.
+- **Estado T24: CIERRE TÉCNICO PASS.** Configuración, servicios saludables y volumen Linux persistente tras down/up; bootstrap repetido SKIPPED. Copia aislada conserva cuatro runs/versiones y champion v4; original intacto. Perfil aprobado: API 8080 y MLflow 5001. [Evidencia y comandos](docs/t23-t25-docker.md).
 
 ### T25 — Smoke test de serving
 - **Depende de:** T24.
 - **Trabajo:** levantar entorno, consultar `/health`, `/model-info`, `/predict` y comprobar reinicio.
 - **Entregables:** `scripts/smoke_api.py`, `reports/smoke/`.
 - **Aceptación/prueba:** HTTP esperado y versión correcta; prueba de 503 sin champion; reinicio no pierde registro.
+- **Estado T25: CIERRE TÉCNICO PASS.** Smoke nativo y Compose, 200/422/503, diez predicciones Docker exactas, reinicio y auditoría de persistencia PASS. Corrección portable SQLite conserva valores exactos y evidencia legacy; actualización de metadatos aprobada. [Evidencia y límites](docs/t23-t25-docker.md). Revisión humana independiente.
 
-**Gate G4:** demo local con Docker Compose y predicción real de modelo registrado.
+**Gate G4: PASS técnico.** Demo local con Docker Compose y predicción real del champion LightGBM v4, persistencia y 503 aislado verificadas. Revisión humana independiente; no acredita T26–T38.
 
 ## 7. Sprint 5 — CI/CD y observabilidad
 
@@ -266,18 +272,21 @@ Extensión adicional aprobada y completada: **LightGBM**, ajuste sobre todo trai
 - **Trabajo:** GitHub Actions con Ruff, Pytest, fixtures, smoke API y build Docker; evitar descarga masiva/entrenamiento pesado.
 - **Entregables:** `.github/workflows/ci.yml`.
 - **Aceptación/prueba:** PR verde en GitHub; introducir fallo de prueba en rama de demostración y observar CI rojo; restaurar.
+- **Estado:** workflow y perfil exclusivo CI aprobados (2 CPU/4 GiB, 10 GiB disco, 20 minutos). PASS local: 601 pruebas Linux, Ruff, dependencias, smoke HTTP e imagen de producción; límites globales del builder verificados. PR y demostración remota pendientes de [publicación autorizada](docs/t26-publication-proposal.md). No se declara cerrado.
 
 ### T27 — Métricas operativas del servicio
 - **Depende de:** T22.
 - **Trabajo:** registrar latencia p50/p95, throughput, códigos 4xx/5xx, health; agregar por ventana; no prometer disponibilidad real sin medición.
 - **Entregables:** `src/api/metrics.py`, reportes/logs agregados.
 - **Aceptación/prueba:** solicitudes sintéticas actualizan contadores y latencias; errores no revelan datos internos.
+- **Estado:** PASS técnico con solicitudes reales Docker 200/422/503; ventanas de 60 s, percentiles exactos hasta 10.000 solicitudes y exportación sin endpoint adicional. [Evidencia y límites](docs/t26-t28.md).
 
 ### T28 — Monitoreo de calidad y schema drift
 - **Depende de:** T10, T05.
 - **Trabajo:** comparar nuevos lotes con referencia aprobada, cambios de columnas, volumen, nulos y categorías.
 - **Entregables:** `src/monitoring/data_quality.py`, reporte por mes.
 - **Aceptación/prueba:** fixture con columna incompatible/valores anómalos dispara señal verificable.
+- **Estado:** PASS técnico; referencia aprobada con doce reportes completos 2024, replay julio–diciembre 2025 por mismo mes. Cambios descriptivos y FAIL/excepciones conservados, sin umbrales nuevos. [Reporte](reports/monitoring/t28_quality_replay.md).
 
 ### T29 — Data drift con Evidently
 - **Depende de:** T13, T28 y versión de Evidently fijada.
@@ -428,7 +437,7 @@ Prepara un guion reproducible para la demostración de la plataforma local. Usa 
 - [ ] G1 Arquitectura, entorno y fixtures reproducibles.
 - [ ] G2 Ingesta y DQ auditables.
 - [x] G3 Modelado temporal, MLflow y champion inicial aprobado/aplicado/auditado; alcance Sprint 3, no API/Docker.
-- [ ] G4 API y Docker Compose operativos.
+- [x] G4 API y Docker Compose operativos; smoke real, persistencia y champion v4 verificados técnicamente.
 - [ ] G5 CI y observabilidad verificables.
 - [ ] G6 Retraining, rollback y demo reproducible.
 

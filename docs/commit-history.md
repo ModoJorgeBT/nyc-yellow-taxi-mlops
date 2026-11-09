@@ -1,4 +1,4 @@
-# Historial de las tres entregas en Git
+# Historial de entregas en Git
 
 Repositorio: [ModoJorgeBT/nyc-yellow-taxi-mlops](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops), rama `main`. El usuario autorizó cada publicación, incluida «Favor subir el tercer commit a github». Cada entrega conserva el estado y las aprobaciones de su momento; publicar no autoriza tareas, lotes ni promociones futuras.
 
@@ -59,6 +59,22 @@ Verificación de la versión de código incluida: **501 pruebas aprobadas y dos 
 El PDF [Informe_Proyecto_MLOps_NYC_Taxi.pdf](../Informe_Proyecto_MLOps_NYC_Taxi.pdf) es una fotografía académica anterior a la evaluación independiente y a T18/T19: describe LightGBM solo en validation. Se conserva como documento de avance, sin presentar sus pendientes históricos como el estado actual. El estado vigente está en `plan.md` y los informes enlazados arriba.
 
 La publicación contiene código y evidencias públicas, no una copia de la instancia local de MLflow. Los pesos, SQLite, artefactos, aprobaciones aplicadas y recibos JSON permanecen locales conforme a las exclusiones del proyecto. El contrato versionado de champion expresa la aprobación y sus hashes; reconstruir el entorno requiere los artefactos y el linaje correspondientes. T20–T38, API, Docker/Compose, CI y monitoreo siguen pendientes.
+
+## Cuarta entrega — Serving, Docker, CI y calidad T20–T28
+
+Publicación aprobada el 2026-11-09 en `ci/t26-t28`, con PR en borrador contra
+`main`, sin merge. Incluye FastAPI con champion verificado, Compose con copia
+aislada del Registry, locks Linux/serving, observación operativa por ventanas
+y comparación de calidad sobre evidencia congelada. No reentrena ni modifica
+modelos, umbrales o excepciones. El PDF nuevo del equipo queda excluido.
+
+Verificación previa: 601 pruebas Linux PASS, Ruff, dependencias, smoke HTTP
+y build/inspección de producción; límites CI globales de 2 CPU/4 GiB probados.
+T27/T28 verificadas técnicamente. T26 requiere además PR verde y demostración
+roja/verde en `ci/t26-signal`, separada del código del PR. Los enlaces/SHA
+remotos se registrarán al observarlos; no se anticipa su resultado.
+[Alcance aprobado](t26-publication-proposal.md) y [evidencia](t26-t28.md).
+G5 y T29–T31 siguen pendientes.
 
 ## Contenido público y consulta del historial
 

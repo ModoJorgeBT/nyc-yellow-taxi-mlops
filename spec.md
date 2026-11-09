@@ -137,7 +137,7 @@ trip_duration_minutes = (
 
 **[DECISIÓN T12/T13] Tiempo:** históricos naive interpretados en America/New_York; horarios ambiguos/inexistentes apartados con motivo. Target = diferencia en minutos entre instantes UTC localizados. Inferencia exige offset y convierte a Nueva York para calendario. Es una convención del proyecto, no una garantía explícita del diccionario. El contexto de evento final de etiqueta no acredita publicación del lote.
 
-**[PARCIAL: D-06]** Whitelist, convención temporal y catálogo operativo aprobados; contrato REST completo pendiente. Reintroducir destino requiere nueva aprobación causal. El perfil real D-04 ya aplica duración UTC coherente con T12; T09 conserva además la política sintética anterior para pruebas aisladas.
+**[DECISIÓN D-06]** Whitelist, convención temporal, catálogo operativo y contrato REST v1 aprobados; [implementación y pruebas T20–T22](docs/t20-t22-serving.md). Reintroducir destino requiere nueva aprobación causal. El perfil real D-04 aplica duración UTC coherente con T12; T09 conserva además la política sintética anterior para pruebas aisladas.
 
 **Regla de consistencia:** serializar un único pipeline de preprocesamiento + estimador; reutilizarlo en inferencia, sin reconstruir transformaciones ad hoc. Los agregados de ruta, si se incorporan, se calculan mediante ventanas históricas sin mirar al futuro y deben poder resolverse en serving.
 
@@ -145,7 +145,7 @@ trip_duration_minutes = (
 
 **[BASE]** Comprobar esquema, volumen, fechas, duración, duplicados, nulos de zonas, categorías, rangos, cambios de esquema y trazabilidad. Cada gate genera resultado `PASS`, `WARN` o `FAIL`, con regla, valor observado, umbral, severidad y evidencia. Por defecto, un fallo crítico detiene el pipeline y no genera un dataset aprobado. La excepción humana puntual de marzo, descrita abajo, conserva el FAIL medido y excluye las filas inválidas antes de aceptar el lote.
 
-Los reportes de lotes rechazados también alimentan la observación de calidad. Los datos rechazados no pasan al entrenamiento ni se presentan como lotes aprobados para evaluación de desempeño. El monitoreo de drift requiere una referencia aprobada e identificable, aún pendiente de definición en D-05.
+Los reportes de lotes rechazados también alimentan la observación de calidad. Los datos rechazados no pasan al entrenamiento ni se presentan como lotes aprobados para evaluación de desempeño. T28 tiene una referencia aprobada e identificable para calidad/schema: los doce reportes completos de train 2024, con comparación por mismo mes de replay julio–diciembre 2025. La referencia para drift de distribuciones y sus umbrales D-05 siguen pendientes; no se deducen de esos agregados.
 
 **[CONTINUACIÓN APROBADA 2026-11-05]** Los nueve permisos exactos de abril–diciembre de 2025 ya se aplicaron por mes/hash/reporte y conjunto de fallos. Se excluyeron 543.725 filas inválidas, manteniendo D-04 y los FAIL originales; el lector v2 conserva marzo v1. Las 24 versiones y sus cuatro particiones terminaron la auditoría. [Evidencia](reports/quality/t14_completion.md). Cualquier archivo, medición o fallo distinto requiere nueva consulta/aprobación.
 
@@ -194,7 +194,7 @@ Cada run debe incluir: nombre de experimento, versión de dataset, rango tempora
 
 **[BASE]** Endpoints `POST /predict`, `GET /health` y `GET /model-info`, validación Pydantic y respuesta con predicción, unidad, versión y timestamp.
 
-**[PROPUESTA: contrato REST v1, alineado con las entradas aprobadas T12/T13]**
+**[DECISIÓN D-06: contrato REST v1 aprobado el 2026-11-09]** [Contrato y verificación T20–T22](docs/t20-t22-serving.md).
 
 `POST /predict`
 
@@ -206,7 +206,7 @@ Cada run debe incluir: nombre de experimento, versión de dataset, rango tempora
 }
 ```
 
-`passenger_count` es opcional; origen debe ser entero positivo. D-04 aprobó el catálogo operativo y normalización de pasajeros históricos fuera de 0–6 a null; T20/D-06 deben alinear el tratamiento REST antes de servir. Destino deshabilitado. **La fecha/hora debe incluir offset**: convertir a `America/New_York` para extraer calendario. El adaptador compartido ya rechaza timestamps de inferencia sin offset; el servicio REST/Pydantic sigue sin implementar.
+`passenger_count` es opcional/null o entero estricto 0–6; origen es entero estricto del catálogo aprobado, incluidas zonas 264/265. Fuera de catálogo/rango o campos extra producen 422, sin coerción de strings, decimales ni booleanos. Destino deshabilitado. **La fecha/hora ISO debe incluir offset**: convertir a `America/New_York` mediante el pipeline compartido. El contrato REST rechaza timestamps numéricos. La normalización histórica D-04 permanece intacta.
 
 Respuesta `200` de ejemplo **ilustrativo, no una predicción real**:
 
@@ -214,26 +214,29 @@ Respuesta `200` de ejemplo **ilustrativo, no una predicción real**:
 {
   "predicted_duration_minutes": 18.4,
   "unit": "minutes",
-  "model_version": "3",
+  "model_version": "4",
   "predicted_at_utc": "2026-11-03T16:00:00Z"
 }
 ```
 
-`GET /health`: `200` solo si API y modelo activo están listos; `503` si falta el modelo. **[PROPUESTA]** Responder `{"status":"ok","model_loaded":true}`.
+`GET /health`: `200` solo si API y modelo activo están listos; `503` si falta el modelo. Responder `{"status":"ok","model_loaded":true}`.
 
 `GET /model-info`: nombre, versión activa, fecha de entrenamiento (si se registra), rango de datos y estado; **no revelar secretos ni rutas internas**.
 
-Errores: `422` para payload inválido; `503` para ausencia de modelo; `500` para error inesperado sin exponer trazas al cliente. **[PROPUESTA]** La API carga una versión aprobada al iniciar; un cambio de champion requiere recarga/reinicio controlado.
+Errores: `422` para payload inválido; `503` para ausencia de modelo en los tres endpoints; `500` para error inesperado sin exponer trazas al cliente. La API carga la versión fija aprobada al iniciar; un cambio de champion requiere reinicio controlado, sin recarga automática.
 
 ## 10. Docker Compose y persistencia local
 
 **[DECISIÓN]** Ejecutar la solución en local con Docker Compose.
 
-**[PROPUESTA]** Servicios mínimos:
+**[DECISIÓN T23–T25]** Servicios verificados en Docker Linux amd64:
 
-- `mlflow`: puerto host `5000`, almacenamiento persistente de tracking/artefactos; sin exposición pública.
-- `api`: puerto host `8000`, carga del champion aprobado; depende de disponibilidad de artefactos/modelo.
-- `pipeline`: perfil o servicio de ejecución bajo demanda para ingesta, entrenamiento, monitoreo y retraining; no requiere puerto abierto.
+- `mlflow`: puerto host `127.0.0.1:5001`, copia aislada de tracking/artefactos en volumen Linux; MLflow nativo conserva 5000.
+- `api`: puerto host `127.0.0.1:8080`, champion LightGBM v4; conexión interna `http://mlflow:5000`, recibos de lectura y versión fija al iniciar.
+- `pipeline`: perfil manual, probado con ayuda de CLI; sin entrenamiento Linux en estas tareas. `bootstrap` inicializa sin reemplazar el volumen y `smoke` prueba 503 en una instancia sin recibos.
+
+Perfil, actualización portable de metadatos y puerto 8080 aprobados; build,
+200/422/503 y persistencia tras down/up verificados. [Guía y evidencia](docs/t23-t25-docker.md).
 
 Montajes separados para datos, tracking y reportes. Variables configurables por `.env.example`; `.env` real excluido de Git. No publicar puertos en interfaces públicas por defecto; para desarrollo, enlazar al loopback del host cuando sea viable. Usar versiones de imágenes/dependencias fijadas, usuario no root donde sea viable, health checks y arranque documentado.
 
@@ -242,6 +245,8 @@ Montajes separados para datos, tracking y reportes. Variables configurables por 
 ## 11. Monitoreo y reentrenamiento
 
 **[BASE]** Monitorear calidad de entradas, drift de distribuciones, desempeño cuando existan etiquetas verdaderas y métricas del servicio (latencia p50/p95, tasa de errores 4xx/5xx, throughput, disponibilidad). **[PROPUESTA: D-03 pendiente]** Utilizar Evidently para reportes por ventana temporal.
+
+**[APROBADO T27/T28, 2026-11-09]** Ventanas operativas de 60 segundos; p50/p95 exactos hasta 10.000 solicitudes por ventana, no disponibles al superarlas y contadores conservados. Logs agregados y exportación local, sin endpoint adicional ni afirmación de disponibilidad continua. Calidad/schema utiliza los reportes completos congelados, preserva D-04 y excepciones exactas; cambios de volumen/tasas descriptivos, sin nuevos umbrales ni distribuciones inventadas. [Contrato y evidencia](docs/t26-t28.md).
 
 **[PROPUESTA: D-05 pendiente, PDF §9.1]** Posible trigger si MAE mensual supera 115 % del MAE de referencia durante dos ventanas consecutivas; PSI > 0.20 en features críticas; cambios sostenidos de calidad/esquema; evaluación trimestral preventiva. Estos valores no están aprobados como configuración ejecutable.
 
@@ -252,6 +257,8 @@ Montajes separados para datos, tracking y reportes. Variables configurables por 
 ## 12. CI/CD y pruebas
 
 **[BASE]** GitHub Actions debe ejecutar lint/formato, unit tests, smoke tests del pipeline y API, y construcción de imagen Docker. **[PROPUESTA]** PR: `ruff check`, `ruff format --check`, `pytest`, test con muestra pequeña y `docker build`. Merge a `main`: repetir verificaciones y generar imagen etiquetada con commit. No se requiere despliegue cloud.
+
+**[APROBADO T26, 2026-11-09]** Perfil exclusivo CI con fixtures: 2 CPU/4 GiB RAM, mínimo 10 GiB disco y 20 minutos por job. No entrena con datos reales; conserva el mínimo de 50 GiB para build local y los presupuestos científicos. El workflow está preparado; se requiere evidencia remota real para cerrar T26, sin publicar imágenes ni implementar T36 ahora.
 
 Cobertura mínima funcional:
 
@@ -363,7 +370,7 @@ docker compose build
 |---|---|---|---|
 | D-01 | Meses y volumen | APROBADA: train 2024; validation ene–mar 2025; test original abr–jun; replay jul–dic. Evaluación final independiente ene–mar 2026 aprobada y auditada por separado | equipo |
 | D-02 | Límites de hardware | Todos los elegibles; preparación 4/2, entrenamiento 8/4 e inferencia final 2026 6 GiB libres/2 GiB RSS; cuatro hilos, un candidato, 2 h/candidato y 50 GiB disco. Perfiles aprobados y verificados | equipo |
-| D-03 | Herramientas | Lock histórico de 24 paquetes intacto. MLflow 3.16.1 y 95 paquetes con hashes en entorno separado; pandas/Pydantic/FastAPI solo como dependencias de T18. API del proyecto, Compose, Actions y Evidently pendientes | equipo/docente |
+| D-03 | Herramientas | Locks históricos 24/95 intactos; serving Windows 97 y Linux 99 fijados. API/Compose verificados; workflow Actions con Ruff fijado preparado y perfil CI aprobado, ejecución remota pendiente. Evidently pendiente | equipo/docente |
 | D-04 | Umbrales DQ | V1 global congelada; diez excepciones exactas de 2025 y tres de ene–mar 2026 aplicadas. 14 lotes pasan calidad y 13 aceptados excepcionalmente; FAIL y exclusiones conservados. Todo incumplimiento nuevo requiere consulta/aprobación | equipo |
 | D-05 | Drift/retraining | Reglas automáticas 115 %, PSI 0.20 y 2 % pendientes; elección humana inicial LightGBM v4 aprobada y aplicada en T19 | equipo |
 | D-06 | Contrato API | whitelist origen/calendario/pasajeros, convención temporal y catálogo operativo aprobados; destino deshabilitado. Contrato REST completo pendiente | equipo |
