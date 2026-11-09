@@ -164,3 +164,13 @@ metadatos sin modificar datos. Volumen Linux aislado con champion v4;
 sin reentrenamiento ni promoción nueva. [Guía y evidencia](t23-t25-docker.md).
 Las menciones previas a Docker pendiente describen estados históricos;
 T26–T38 y la revisión humana de resultados permanecen independientes.
+
+**T26–T28 verificadas — 2026-11-09:** Actions prueba fixtures, API e imágenes
+con backend fijado y presupuesto CI separado; PR verde y demostración
+roja/verde reales, sin merge. El middleware ASGI emite ventanas agregadas
+de 60 segundos a logs JSON, con memoria acotada y exportación local, sin
+endpoint adicional. El monitoreo de calidad es offline sobre reportes
+congelados: referencia train 2024 y comparación del mismo mes del replay
+julio–diciembre 2025. Preserva FAIL, exclusiones y excepciones. No incorpora
+Evidently, drift de distribuciones, reentrenamiento ni promociones automáticas.
+[Contratos](t26-t28.md) y [evidencia GitHub](../reports/monitoring/t26_github_ci.md).

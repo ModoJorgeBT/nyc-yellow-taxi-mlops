@@ -2,8 +2,9 @@
 
 Estado: **APROBADA por el usuario el 2026-11-09**; verificación local PASS
 (601 pruebas Linux, Ruff, dependencias, smoke HTTP y build/inspección de
-producción). Publicación en ejecución. Backend fijado y límites globales
-CI comprobados. El cierre exige enlaces reales de GitHub.
+producción). Código publicado en ci/t26-t28, PR #1 en borrador verde y
+demostración roja/verde en ci/t26-signal verificadas. Backend fijado y límites
+globales CI comprobados. [Evidencia real](../reports/monitoring/t26_github_ci.md).
 
 El remoto `ModoJorgeBT/nyc-yellow-taxi-mlops` tiene como último commit local
 `07f8729` (tercera entrega T14–T19). T20–T25 todavía no están comprometidas;

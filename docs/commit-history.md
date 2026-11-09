@@ -70,9 +70,12 @@ modelos, umbrales o excepciones. El PDF nuevo del equipo queda excluido.
 
 Verificación previa: 601 pruebas Linux PASS, Ruff, dependencias, smoke HTTP
 y build/inspección de producción; límites CI globales de 2 CPU/4 GiB probados.
-T27/T28 verificadas técnicamente. T26 requiere además PR verde y demostración
-roja/verde en `ci/t26-signal`, separada del código del PR. Los enlaces/SHA
-remotos se registrarán al observarlos; no se anticipa su resultado.
+T26/T27/T28 verificadas técnicamente. Código publicado en
+[`f675188`](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commit/f675188fa52d7d50fc6a61f181569975ff846ded),
+[PR #1 en borrador](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/pull/1)
+verde. Demostración roja `22396d9` y restauración verde `3d89195` en
+`ci/t26-signal`, separada del PR. Un commit documental posterior conserva
+[los resultados reales y enlaces](../reports/monitoring/t26_github_ci.md).
 [Alcance aprobado](t26-publication-proposal.md) y [evidencia](t26-t28.md).
 G5 y T29–T31 siguen pendientes.
 

@@ -133,7 +133,8 @@ T26–T38 y la revisión humana de resultados permanecen independientes.
 **Actualización T26–T28 — 2026-11-09:** T27/T28 verificadas técnicamente:
 métricas operativas Docker y comparación de calidad/schema con referencia
 aprobada de train 2024 frente al mismo mes del replay julio–diciembre 2025.
-D-04, excepciones, pesos y champion conservados. Workflow T26 preparado con
-perfil exclusivo CI aprobado 2 CPU/4 GiB/10 GiB disco/20 minutos; ejecución
-GitHub pendiente de publicación autorizada. G5 y T29–T31 siguen abiertos.
+D-04, excepciones, pesos y champion conservados. T26 también tiene cierre
+técnico con perfil CI aprobado 2 CPU/4 GiB/10 GiB disco/20 minutos, 601 pruebas,
+PR verde y demostración roja/verde reales. PR en borrador, sin merge a main.
+G5 y T29–T31 siguen abiertos.
 [Detalle y límites](docs/t26-t28.md).

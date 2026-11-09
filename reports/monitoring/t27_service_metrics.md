@@ -15,6 +15,12 @@ Contadores, rutas y latencias se exportaron desde logs JSON a
 la comprobación está en `audit.json` (evidencia local excluida de Git).
 No se registran entradas, headers, query, IP ni identificadores de viajes.
 
+Una exportación posterior de la API activa verificó 168 ventanas emitidas,
+166 completas de exactamente 60 segundos y 978 solicitudes acumuladas,
+incluidos health checks. Evidencia local adicional: `live-windows.json` y
+`live-audit.json` en la misma carpeta. Confirma la emisión durante operación;
+no convierte los health checks en una medición de disponibilidad continua.
+
 La aprobación fija ventanas de 60 segundos y hasta 10.000 solicitudes para
 percentiles exactos. Al superar ese límite se conservan los contadores y
 los percentiles quedan no disponibles. Las pruebas incluyen ese caso,

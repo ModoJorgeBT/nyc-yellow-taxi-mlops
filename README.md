@@ -240,7 +240,8 @@ umbrales ni aprobaciones. [Métricas](reports/monitoring/t27_service_metrics.md)
 
 T26 prepara Ruff, Pytest, smoke HTTP y build Docker en GitHub Actions con
 fixtures, 2 CPU/4 GiB, 10 GiB de disco y 20 minutos. La verificación Linux
-local pasó: 601 pruebas, Ruff, dependencias, smoke HTTP e imagen de producción;
-PR verde y demostración roja/verde remotos pendientes.
+local y remota pasó: 601 pruebas, Ruff, dependencias, smoke HTTP e imagen de
+producción. **T26 PASS técnico:** [PR #1 verde](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/pull/1)
+y demostración roja/verde separada; [evidencia](reports/monitoring/t26_github_ci.md).
 La [publicación](docs/t26-publication-proposal.md) fue aprobada por el usuario;
-está en ejecución, sin merge a main. G5 y T29–T31 continúan pendientes.
+queda en PR borrador para revisión, sin merge a main. G5 y T29–T31 continúan pendientes.

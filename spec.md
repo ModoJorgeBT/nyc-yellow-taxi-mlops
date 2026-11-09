@@ -258,7 +258,7 @@ Montajes separados para datos, tracking y reportes. Variables configurables por 
 
 **[BASE]** GitHub Actions debe ejecutar lint/formato, unit tests, smoke tests del pipeline y API, y construcción de imagen Docker. **[PROPUESTA]** PR: `ruff check`, `ruff format --check`, `pytest`, test con muestra pequeña y `docker build`. Merge a `main`: repetir verificaciones y generar imagen etiquetada con commit. No se requiere despliegue cloud.
 
-**[APROBADO T26, 2026-11-09]** Perfil exclusivo CI con fixtures: 2 CPU/4 GiB RAM, mínimo 10 GiB disco y 20 minutos por job. No entrena con datos reales; conserva el mínimo de 50 GiB para build local y los presupuestos científicos. El workflow está preparado; se requiere evidencia remota real para cerrar T26, sin publicar imágenes ni implementar T36 ahora.
+**[APROBADO T26, 2026-11-09]** Perfil exclusivo CI con fixtures: 2 CPU/4 GiB RAM, mínimo 10 GiB disco y 20 minutos por job. No entrena con datos reales; conserva el mínimo de 50 GiB para build local y los presupuestos científicos. Workflow verificado con PR verde y demostración roja/verde reales, 601 pruebas; sin publicar imágenes, merge o implementar T36. [Evidencia](reports/monitoring/t26_github_ci.md).
 
 Cobertura mínima funcional:
 
@@ -370,7 +370,7 @@ docker compose build
 |---|---|---|---|
 | D-01 | Meses y volumen | APROBADA: train 2024; validation ene–mar 2025; test original abr–jun; replay jul–dic. Evaluación final independiente ene–mar 2026 aprobada y auditada por separado | equipo |
 | D-02 | Límites de hardware | Todos los elegibles; preparación 4/2, entrenamiento 8/4 e inferencia final 2026 6 GiB libres/2 GiB RSS; cuatro hilos, un candidato, 2 h/candidato y 50 GiB disco. Perfiles aprobados y verificados | equipo |
-| D-03 | Herramientas | Locks históricos 24/95 intactos; serving Windows 97 y Linux 99 fijados. API/Compose verificados; workflow Actions con Ruff fijado preparado y perfil CI aprobado, ejecución remota pendiente. Evidently pendiente | equipo/docente |
+| D-03 | Herramientas | Locks históricos 24/95 intactos; serving Windows 97 y Linux 99 fijados. API/Compose y Actions verificados; Ruff/BuildKit fijados y perfil CI aprobado, PR verde y demostración roja/verde reales. Evidently pendiente | equipo/docente |
 | D-04 | Umbrales DQ | V1 global congelada; diez excepciones exactas de 2025 y tres de ene–mar 2026 aplicadas. 14 lotes pasan calidad y 13 aceptados excepcionalmente; FAIL y exclusiones conservados. Todo incumplimiento nuevo requiere consulta/aprobación | equipo |
 | D-05 | Drift/retraining | Reglas automáticas 115 %, PSI 0.20 y 2 % pendientes; elección humana inicial LightGBM v4 aprobada y aplicada en T19 | equipo |
 | D-06 | Contrato API | whitelist origen/calendario/pasajeros, convención temporal y catálogo operativo aprobados; destino deshabilitado. Contrato REST completo pendiente | equipo |

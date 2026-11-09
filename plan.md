@@ -1,6 +1,6 @@
 # PLAN — Implementación incremental NYC Yellow Taxi MLOps
 
-**Versión:** 1.0 · **Estado:** T14–T25 y T27–T28 con cierre técnico verificado; T26 verificada localmente, ejecución GitHub pendiente; T29–T38 pendientes · **Entorno:** Windows local y Docker Linux amd64; API 8080/MLflow Docker 5001.
+**Versión:** 1.0 · **Estado:** T14–T28 con cierre técnico verificado; T26 con PR verde y demostración roja/verde reales; T29–T38 pendientes · **Entorno:** Windows local y Docker Linux amd64; API 8080/MLflow Docker 5001.
 **Fuentes de verdad:** `intent.md`, `spec.md`, y PDF académico *Proyecto_Maestria_MLOps_NYC_Taxi_Estructura*, septiembre 2026. En caso de contradicción, detenerse y pedir decisión; no cambiar el alcance silenciosamente.
 
 ## 0. Protocolo obligatorio para Codex
@@ -19,7 +19,7 @@
 |---|---|---|---|
 | D-01 | Periodos | Train 2024 completo; validación ene–mar 2025; test original abr–jun 2025; replay jul–dic 2025. Extensión final independiente ene–mar 2026, sin reajustes | APROBADA y auditada; protocolo final separado, periodos originales intactos |
 | D-02 | Recursos | Todos los elegibles. Preparación 4 GiB libres/2 GiB RSS; entrenamiento 8/4; inferencia final 6/2; cuatro hilos, un candidato, dos horas y 50 GiB disco. Docker serving: 2 GiB/2 CPU por API/MLflow y un worker | APROBADOS y verificados; sin entrenamiento Docker en T23–T25 |
-| D-03 | Herramientas | Locks Windows 24/95/97 intactos; Linux 99 y Debian fijados. Workflow CI con Ruff y BuildKit por hash; perfil CI aprobado y verificado localmente | PARCIAL; serving/Compose y CI local verificados; Actions remoto/Evidently pendientes |
+| D-03 | Herramientas | Locks Windows 24/95/97 intactos; Linux 99 y Debian fijados. Workflow CI con Ruff y BuildKit por hash; perfil CI aprobado y verificado local/remoto | PARCIAL; serving/Compose y Actions verificados; Evidently pendiente |
 | D-04 | Umbrales DQ | D-04 v1 congelada; diez excepciones exactas de 2025 y tres de ene–mar 2026, ligadas a mes/hash/reporte, inválidos excluidos | APROBADA E IMPLEMENTADA; 27 lotes incorporados: 14 pasan calidad y 13 aceptados excepcionalmente |
 | D-05 | Drift y promoción | Evaluar propuestas PDF: MAE > 115 % dos ventanas, PSI > 0.20, mejora MAE ≥ 2 % o no inferioridad definida | PENDIENTE para automatismos; elección inicial T19 aprobada |
 | D-06 | API | Contrato REST v1 aprobado el 2026-11-09: offset, origen del catálogo, pasajeros opcionales 0–6, whitelist estricta y errores 422/503/500 | APROBADA; [contrato y pruebas T20–T22](docs/t20-t22-serving.md) |
@@ -272,7 +272,7 @@ Extensión adicional aprobada y completada: **LightGBM**, ajuste sobre todo trai
 - **Trabajo:** GitHub Actions con Ruff, Pytest, fixtures, smoke API y build Docker; evitar descarga masiva/entrenamiento pesado.
 - **Entregables:** `.github/workflows/ci.yml`.
 - **Aceptación/prueba:** PR verde en GitHub; introducir fallo de prueba en rama de demostración y observar CI rojo; restaurar.
-- **Estado:** workflow y perfil exclusivo CI aprobados (2 CPU/4 GiB, 10 GiB disco, 20 minutos). PASS local: 601 pruebas Linux, Ruff, dependencias, smoke HTTP e imagen de producción; límites globales del builder verificados. PR y demostración remota pendientes de [publicación autorizada](docs/t26-publication-proposal.md). No se declara cerrado.
+- **Estado:** PASS técnico. Perfil CI aprobado (2 CPU/4 GiB, 10 GiB disco, 20 minutos); 601 pruebas, Ruff, dependencias, smoke HTTP e imagen de producción, local y GitHub. PR #1 verde y demostración roja/verde separada verificadas; sin merge. [Evidencia remota](reports/monitoring/t26_github_ci.md).
 
 ### T27 — Métricas operativas del servicio
 - **Depende de:** T22.
