@@ -1,0 +1,8 @@
+# T20-T22: entorno SDK existente, con versiones historicas conservadas.
+-r requirements-mlflow.in
+-c requirements-mlflow.lock
+fastapi==0.162.0
+pydantic==2.14.3
+starlette==1.10.0
+uvicorn==0.54.0
+httpx==0.28.1

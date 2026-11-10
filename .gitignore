@@ -2,6 +2,7 @@
 .venv/
 .venv-verify/
 .venv-mlflow/
+.venv-monitoring/
 .cache/
 venv/
 __pycache__/

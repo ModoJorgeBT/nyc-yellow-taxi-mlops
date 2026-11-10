@@ -1,0 +1,87 @@
+{
+  "format_version": 1,
+  "status": "APPROVED",
+  "protocol": "monthly-full-replay-v1",
+  "approval": "USER_EXPLICIT_T29_T31_AND_PANDAS_ISOLATION_2026_11_09",
+  "policy": {
+    "reference_year": 2024,
+    "current_year": 2025,
+    "current_months": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "psi_threshold": 0.2,
+    "smoothing_alpha": 0.5,
+    "minimum_rows": 1000,
+    "label_maturity_hours": 24,
+    "automatic_retraining": false,
+    "automatic_promotion": false
+  },
+  "resources": {
+    "preflight_min_free_ram_gib": 4,
+    "process_rss_limit_gib": 2,
+    "preflight_min_free_disk_gib": 50,
+    "threads_total": 4,
+    "candidate_timeout_seconds": 7200
+  },
+  "feature_columns": [
+    "pickup_location_id",
+    "pickup_hour",
+    "pickup_weekday",
+    "pickup_month",
+    "passenger_count",
+    "passenger_count_missing"
+  ],
+  "split": {
+    "path": "data/processed/splits/e02156de2ac5477bafc4657774e31673/split_manifest.json",
+    "sha256": "c34f4712710a10181d2c04631e9cd05f550e7110c3142fb067a1bb5566fd592a"
+  },
+  "quality_config": {
+    "path": "configs/monitoring-quality.yaml",
+    "sha256": "ace2cb92f0dde79accd73c316c5bf02e5fd8e068cb9242bcfa823164000fe75d"
+  },
+  "model": {
+    "path": "models/lightgbm/a36932872f8e49989a52bb76186ca88a/lightgbm.joblib",
+    "sha256": "8bd17196b3a5c1974036c11456f61083d2a5f601236d55d56f884802b477cff6"
+  },
+  "champion_approval": {
+    "path": "configs/champion.yaml",
+    "sha256": "0b38d56282ed4f1e7e5578069ab27275fe149561390e153807c1d65bbb26c179"
+  },
+  "validation_evaluation": {
+    "path": "data/processed/lightgbm-evaluations/e80728e5140a4bbd936fc7b740c73544/evaluation_manifest.json",
+    "sha256": "4d81c5e387439f55a4f3f6195eb86ab7e9b0768ed3139c125a612eb55f863f4b"
+  },
+  "model_runtime_locks": {
+    "windows": {
+      "path": "requirements-serving.lock",
+      "sha256": "7e71d888e7b18dcd31e521ca070d6477be38d22a80a7558b9bbeea8fba292093"
+    },
+    "linux": {
+      "path": "requirements-serving-linux.lock",
+      "sha256": "ac1dc0809e77d3be01afcc1c735643ae17bacf47bea67c1318ca9f4c89b2c650"
+    }
+  },
+  "renderer_locks": {
+    "windows": {
+      "path": "requirements-monitoring.lock",
+      "sha256": "9c8830d7b27fe8479b3b6757d0cdf2d4736b8a74dfd18c1e1f996971670ecb7e"
+    },
+    "linux": {
+      "path": "requirements-monitoring-linux.lock",
+      "sha256": "1863bb2f652e0985e4a8c5684da76cdda6ad7f646bd156331f426cffd302839c"
+    }
+  },
+  "renderer_python": {
+    "windows": ".venv-monitoring/Scripts/python.exe",
+    "linux": ".venv-monitoring/bin/python"
+  },
+  "reference": {
+    "path": "reports/monitoring/reference/train-2024-distributions-v1.json",
+    "sha256": "cda17a6a5765f7a3ba5a2bf6ecac9da27a76da12b214fe8403c34382234b5799"
+  }
+}

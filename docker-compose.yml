@@ -1,0 +1,221 @@
+{
+  "name": "nyc-taxi-local",
+  "services": {
+    "mlflow": {
+      "image": "nyc-taxi-api:local",
+      "platform": "linux/amd64",
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile"
+      },
+      "command": [
+        "python",
+        "scripts/mlflow_container.py"
+      ],
+      "ports": [
+        "127.0.0.1:${DOCKER_MLFLOW_PORT:-5001}:5000"
+      ],
+      "environment": {
+        "MLFLOW_DISABLE_TELEMETRY": "true",
+        "MLFLOW_DISABLE_AGENT_HINT": "1",
+        "MLFLOW_SERVER_ENABLE_JOB_EXECUTION": "false",
+        "DOCKER_MLFLOW_PORT": "${DOCKER_MLFLOW_PORT:-5001}"
+      },
+      "volumes": [
+        {
+          "type": "volume",
+          "source": "tracking-state",
+          "target": "/app/tracking"
+        }
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health',timeout=3)"
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "start_period": "45s",
+        "retries": 6
+      },
+      "read_only": true,
+      "tmpfs": [
+        "/tmp:uid=10001,gid=10001,mode=1770,size=268435456",
+        "/app/.cache:uid=10001,gid=10001,mode=0750,size=268435456"
+      ],
+      "init": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "mem_limit": "2g",
+      "cpus": 2.0
+    },
+    "api": {
+      "image": "nyc-taxi-api:local",
+      "platform": "linux/amd64",
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile"
+      },
+      "ports": [
+        "127.0.0.1:${DOCKER_API_PORT:-8080}:8000"
+      ],
+      "environment": {
+        "NYC_MLFLOW_TRACKING_URI": "http://mlflow:5000"
+      },
+      "depends_on": {
+        "mlflow": {
+          "condition": "service_healthy"
+        }
+      },
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "${COMPOSE_STATE_DIR:-./.cache/compose-state}/tracking/approvals",
+          "target": "/app/tracking/approvals",
+          "read_only": true,
+          "bind": {
+            "create_host_path": false
+          }
+        }
+      ],
+      "read_only": true,
+      "tmpfs": [
+        "/tmp:uid=10001,gid=10001,mode=1770,size=268435456",
+        "/app/.cache:uid=10001,gid=10001,mode=0750,size=268435456"
+      ],
+      "init": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "mem_limit": "2g",
+      "cpus": 2.0
+    },
+    "pipeline": {
+      "profiles": [
+        "pipeline"
+      ],
+      "image": "nyc-taxi-api:local",
+      "platform": "linux/amd64",
+      "command": [
+        "python",
+        "-m",
+        "src.ingestion.download",
+        "--help"
+      ],
+      "volumes": [
+        "./data:/app/data",
+        "./reports:/app/reports",
+        "./configs:/app/configs:ro"
+      ],
+      "healthcheck": {
+        "disable": true
+      },
+      "read_only": true,
+      "tmpfs": [
+        "/tmp:uid=10001,gid=10001,mode=1770,size=268435456",
+        "/app/.cache:uid=10001,gid=10001,mode=0750,size=268435456"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "mem_limit": "4g",
+      "cpus": 4.0
+    },
+    "api-unavailable": {
+      "profiles": [
+        "smoke"
+      ],
+      "image": "nyc-taxi-api:local",
+      "platform": "linux/amd64",
+      "ports": [
+        "127.0.0.1:${DOCKER_UNAVAILABLE_PORT:-8001}:8000"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request,urllib.error; exec('try:\\n urllib.request.urlopen(\"http://127.0.0.1:8000/health\",timeout=3)\\n raise SystemExit(1)\\nexcept urllib.error.HTTPError as e:\\n raise SystemExit(0 if e.code==503 else 1)')"
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 6
+      },
+      "read_only": true,
+      "tmpfs": [
+        "/tmp:uid=10001,gid=10001,mode=1770,size=268435456",
+        "/app/.cache:uid=10001,gid=10001,mode=0750,size=268435456"
+      ],
+      "init": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "mem_limit": "2g",
+      "cpus": 2.0
+    },
+    "bootstrap": {
+      "profiles": [
+        "bootstrap"
+      ],
+      "image": "nyc-taxi-api:local",
+      "platform": "linux/amd64",
+      "command": [
+        "python",
+        "scripts/prepare_compose.py",
+        "--import-seed",
+        "/seed/tracking",
+        "--volume-root",
+        "/app/tracking"
+      ],
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "${COMPOSE_STATE_DIR:-./.cache/compose-state}/tracking",
+          "target": "/seed/tracking",
+          "read_only": true,
+          "bind": {
+            "create_host_path": false
+          }
+        },
+        {
+          "type": "volume",
+          "source": "tracking-state",
+          "target": "/app/tracking"
+        }
+      ],
+      "healthcheck": {
+        "disable": true
+      },
+      "read_only": true,
+      "tmpfs": [
+        "/tmp:uid=10001,gid=10001,mode=1770,size=268435456"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "mem_limit": "2g",
+      "cpus": 2.0
+    }
+  },
+  "volumes": {
+    "tracking-state": {}
+  }
+}

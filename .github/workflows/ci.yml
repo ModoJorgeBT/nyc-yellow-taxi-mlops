@@ -1,0 +1,59 @@
+name: CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, "ci/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-tests-build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6; SHA verificado
+        with:
+          persist-credentials: false
+      - name: Bound the complete build and pin BuildKit
+        run: |
+          docker buildx create --name ci-builder --driver docker-container \
+            --driver-opt image=moby/buildkit:v0.34.2@sha256:c5f8862f52499773af85bc07695b2379ef08e8002352b0df2c4864c91d78dabe \
+            --driver-opt memory=4g --driver-opt memory-swap=4g \
+            --driver-opt cpu-quota=200000 --driver-opt cpu-period=100000 \
+            --driver-opt restart-policy=no --bootstrap
+          test "$(docker inspect buildx_buildkit_ci-builder0 --format '{{.HostConfig.Memory}} {{.HostConfig.CpuQuota}} {{.HostConfig.CpuPeriod}}')" = "4294967296 200000 100000"
+      - name: Build CI and production images
+        run: |
+          docker buildx build --builder ci-builder --load --resource memory=4g --resource cpu-quota=200000 --resource cpu-period=100000 --platform linux/amd64 --build-arg BUILD_PROFILE=ci --target ci -t nyc-taxi-ci:local .
+          docker buildx build --builder ci-builder --load --resource memory=4g --resource cpu-quota=200000 --resource cpu-period=100000 --platform linux/amd64 --build-arg BUILD_PROFILE=ci --target ci-monitoring -t nyc-taxi-monitoring-ci:local .
+          docker buildx build --builder ci-builder --load --resource memory=4g --resource cpu-quota=200000 --resource cpu-period=100000 --platform linux/amd64 --build-arg BUILD_PROFILE=ci -t nyc-taxi-api:ci .
+          docker buildx stop ci-builder
+      - name: Lint, tests and HTTP smoke with fixtures
+        run: |
+          docker run --rm --cpus=2 --memory=4g \
+            --user "$(id -u):$(id -g)" \
+            --volume "$GITHUB_WORKSPACE:/workspace" --workdir /workspace \
+            --env CI=true --env OPENBLAS_NUM_THREADS=2 --env OMP_NUM_THREADS=2 --env MKL_NUM_THREADS=2 \
+            nyc-taxi-ci:local python scripts/ci_checks.py
+      - name: Verify isolated Evidently renderer with fixtures
+        run: |
+          docker run --rm --cpus=2 --memory=4g \
+            --user "$(id -u):$(id -g)" \
+            --volume "$GITHUB_WORKSPACE:/workspace" --workdir /workspace \
+            --env CI=true --env DO_NOT_TRACK=1 --env OPENBLAS_NUM_THREADS=2 --env OMP_NUM_THREADS=2 --env MKL_NUM_THREADS=2 \
+            nyc-taxi-monitoring-ci:local python -m pytest -q --maxfail=1 \
+              tests/unit/test_monitoring_protocol.py tests/integration/test_monitoring.py \
+              --basetemp=.cache/ci-monitoring -o cache_dir=.cache/ci-monitoring-cache
+      - name: Verify production image without datasets
+        run: |
+          docker run --rm --cpus=2 --memory=4g --read-only --tmpfs /tmp \
+            --entrypoint python nyc-taxi-api:ci -c \
+            "import os,lightgbm,pyarrow; from pathlib import Path; assert os.getuid()==10001; assert not Path('/app/data/raw').exists(); assert not Path('/app/.env').exists()"

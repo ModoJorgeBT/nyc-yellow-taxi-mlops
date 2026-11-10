@@ -19,12 +19,51 @@ from src.training.native_supervisor import process_alive, process_peak_rss, work
 from src.training.tracking import read_object, register_candidates, verify_registry
 
 
+def _stop_linux_http_worker(log, parent_pid):
+    """MLflow puede separar la sesion HTTP; verificar su ascendencia antes de detenerla."""
+    workers = set(re.findall(r"Started server process \[(\d+)\]", log.read_text("utf-8")))
+    for value in workers:
+        worker = int(value)
+        if not process_alive(worker):
+            continue
+        # Abrir antes de verificar: la senal conserva esa identidad aun si el PID se reutiliza.
+        try:
+            descriptor = os.pidfd_open(worker)
+        except ProcessLookupError:
+            continue
+        try:
+            current = worker
+            visited = set()
+            while current != parent_pid:
+                if current <= 1 or current in visited:
+                    raise RuntimeError("El worker HTTP no pertenece al servidor propio")
+                visited.add(current)
+                try:
+                    status = Path(f"/proc/{current}/status").read_text()
+                except FileNotFoundError:
+                    break
+                current = int(re.search(r"^PPid:\s+(\d+)", status, re.MULTILINE)[1])
+            else:
+                signal.pidfd_send_signal(descriptor, signal.SIGTERM)
+                deadline = time.monotonic() + 10
+                while process_alive(worker) and time.monotonic() < deadline:
+                    time.sleep(0.05)
+                if process_alive(worker):
+                    signal.pidfd_send_signal(descriptor, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        finally:
+            os.close(descriptor)
+
+
 @contextmanager
 def owned_server(config, root, *, test_only=False):
     """Solo detener el arbol que identifica nuestro proceso lanzado por token."""
     profile = read_object(config)
     port = urlparse(profile["tracking_uri"]).port
     with socket.socket() as probe:
+        if os.name == "posix":
+            probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         probe.bind(("127.0.0.1", port))
     cache = root / ".cache/tracking-server"
     cache.mkdir(parents=True, exist_ok=True)
@@ -102,7 +141,12 @@ def owned_server(config, root, *, test_only=False):
                         ["taskkill", "/PID", str(pid), "/T", "/F"], check=True, capture_output=True
                     )
                 else:
-                    os.killpg(pid, signal.SIGTERM)
+                    _stop_linux_http_worker(log, pid)
+                    if process.poll() is None:
+                        try:
+                            os.killpg(pid, signal.SIGTERM)
+                        except ProcessLookupError:
+                            pass
             process.wait(timeout=15)
 
 

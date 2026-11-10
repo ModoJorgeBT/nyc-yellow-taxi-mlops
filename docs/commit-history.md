@@ -1,4 +1,4 @@
-# Historial de las tres entregas en Git
+# Historial de entregas en Git
 
 Repositorio: [ModoJorgeBT/nyc-yellow-taxi-mlops](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops), rama `main`. El usuario autorizó cada publicación, incluida «Favor subir el tercer commit a github». Cada entrega conserva el estado y las aprobaciones de su momento; publicar no autoriza tareas, lotes ni promociones futuras.
 
@@ -59,6 +59,71 @@ Verificación de la versión de código incluida: **501 pruebas aprobadas y dos 
 El PDF [Informe_Proyecto_MLOps_NYC_Taxi.pdf](../Informe_Proyecto_MLOps_NYC_Taxi.pdf) es una fotografía académica anterior a la evaluación independiente y a T18/T19: describe LightGBM solo en validation. Se conserva como documento de avance, sin presentar sus pendientes históricos como el estado actual. El estado vigente está en `plan.md` y los informes enlazados arriba.
 
 La publicación contiene código y evidencias públicas, no una copia de la instancia local de MLflow. Los pesos, SQLite, artefactos, aprobaciones aplicadas y recibos JSON permanecen locales conforme a las exclusiones del proyecto. El contrato versionado de champion expresa la aprobación y sus hashes; reconstruir el entorno requiere los artefactos y el linaje correspondientes. T20–T38, API, Docker/Compose, CI y monitoreo siguen pendientes.
+
+## Cuarta entrega — Serving, Docker, CI y calidad T20–T28
+
+Publicación aprobada el 2026-11-09 en `ci/t26-t28`, con PR en borrador contra
+`main`, sin merge. Incluye FastAPI con champion verificado, Compose con copia
+aislada del Registry, locks Linux/serving, observación operativa por ventanas
+y comparación de calidad sobre evidencia congelada. No reentrena ni modifica
+modelos, umbrales o excepciones. El PDF nuevo del equipo queda excluido.
+
+Verificación previa: 601 pruebas Linux PASS, Ruff, dependencias, smoke HTTP
+y build/inspección de producción; límites CI globales de 2 CPU/4 GiB probados.
+T26/T27/T28 verificadas técnicamente. Código publicado en
+[`f675188`](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commit/f675188fa52d7d50fc6a61f181569975ff846ded),
+[PR #1 en borrador](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/pull/1)
+verde. Demostración roja `22396d9` y restauración verde `3d89195` en
+`ci/t26-signal`, separada del PR. Un commit documental posterior conserva
+[los resultados reales y enlaces](../reports/monitoring/t26_github_ci.md).
+[Alcance aprobado](t26-publication-proposal.md) y [evidencia](t26-t28.md).
+En ese checkpoint G5 y T29–T31 seguían pendientes; la ampliación siguiente documenta su cierre técnico posterior.
+
+### Ampliación aprobada de la cuarta entrega — T29–T31
+
+El usuario autorizó ampliar el PR #1 con T29–T31, conservando main y todos los
+commits existentes. Se incorporan PSI sobre distribuciones completas de train,
+replay con predicciones/etiquetas separadas y reportes mensuales versionados.
+Evidently 0.7.23 requiere un renderer con pandas 2.3.3; las predicciones conservan
+el runtime original. Locks y etapas CI separados, con hashes y supervisión.
+
+Checkpoint inicial de publicación (histórico): implementación y pruebas enfocadas verificadas;
+referencia completa de 41.119.495 filas congelada; replay real de julio/agosto
+completado y septiembre–diciembre en ejecución. CI remoto y auditoría final
+siguen pendientes; G5 no se cierra por publicar el código. Un seguimiento
+documental registrará los SHA, resultados y enlaces observados.
+
+Se registran explícitamente el intento fallido de generación de hashes y la
+recuperación adicional autorizada: [incidente](t29-dependency-download-incident.md).
+No se incluyen datasets, modelos ni el PDF nuevo del equipo. No hay merge.
+
+Checkpoint de código: [`fe2b530`](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commit/fe2b5308fc63550748eee07bea2e32e4516ac94b).
+El primer CI de esta ampliación detectó un directorio de trabajo incorrecto
+en la etapa Docker del renderer (`/workspace` en lugar de `/build`); no fue
+un incumplimiento de calidad de datos. Se conserva la ejecución fallida
+[42729494259](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/actions/runs/42729494259)
+y se corrige en un commit posterior, junto con el auditor exhaustivo.
+
+Corrección y auditor exhaustivo en
+[`05e5358`](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commit/05e5358aac72f273aba9b098549680d746525da3):
+directorio Docker corregido, auditor público independiente y siete pruebas de
+cuantiles mediante CDF. [CI del PR verde](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/actions/runs/42730725351):
+**625 pruebas aprobadas y una omitida** en el runtime original; **17 aprobadas**
+en el renderer aislado; builds e inspección de producción correctos. El fallo
+anterior queda visible en el historial y no se reescribieron commits.
+
+Cierre técnico T29–T31/G5: referencia sellada de **41.119.495 filas** y seis
+meses de replay con **24.266.924 filas**, todas auditadas. PSI, predicciones,
+métricas exactas, cobertura y segmentos verificados; las alertas solo solicitan
+revisión. Pesos, alias champion v4, evaluaciones originales y locks históricos
+conservados. [Resultados](../reports/monitoring/t29-t31_monthly_replay.md) y
+[operación](t29-t31-monitoring.md). No se implementa T32.
+
+Un seguimiento documental incorpora este cierre y sincroniza plan, spec,
+intent, README, decisiones y arquitectura. La cuarta **entrega funcional**
+contiene varios commits trazables: T20–T28, su evidencia CI, implementación
+T29–T31, corrección/auditor y cierre documental. `main` conserva exactamente
+los tres commits anteriores; el PR #1 permanece en borrador, sin merge.
 
 ## Contenido público y consulta del historial
 

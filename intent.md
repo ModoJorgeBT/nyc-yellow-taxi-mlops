@@ -109,3 +109,42 @@ G3 cumple sus condiciones de Sprint 3. D-05 conserva pendientes sus reglas
 automáticas de drift y promociones futuras; no se aprueban nuevos umbrales.
 [Decisión, pruebas y evidencia](reports/model_selection.md). Las menciones anteriores a champion
 pendiente son históricas; API y despliegue siguen en sus tareas posteriores.
+
+
+**Continuación T20–T22 — 2026-11-09:** contrato D-06 y HTTPX aprobados explícitamente.
+Esquemas, carga segura del champion LightGBM v4 y endpoints FastAPI verificados;
+553 casos serving, 501 nativos y 51 sobre wheel fuera de src. El reinicio
+sintético de T18 necesitó reintento fuera del sandbox; pasó y se limpió su proceso.
+Registry, modelos, evaluaciones y locks históricos intactos. Sin recarga
+automática; Docker/T23–T25 y G4 pendientes. [Contrato y evidencia](docs/t20-t22-serving.md).
+Las menciones previas a API/contrato REST pendientes describen su estado histórico.
+
+
+**T23–T25 verificadas — 2026-11-09:** build Docker Linux amd64, usuario
+10001 y límites 2 GiB/2 CPU por API/MLflow verificados; smoke real 200/422/503,
+reinicio y persistencia PASS. G4 cumple técnicamente su alcance. API en 8080
+y MLflow Docker en 5001, solo loopback; originales conservados. El usuario
+aprobó el perfil Linux, el cambio de puerto y la auditoría portable de
+metadatos sin modificar datos. Volumen Linux aislado con champion v4;
+sin reentrenamiento ni promoción nueva. [Guía y evidencia](docs/t23-t25-docker.md).
+Las menciones previas a Docker pendiente describen estados históricos;
+T26–T38 y la revisión humana de resultados permanecen independientes.
+
+**Actualización T26–T28 — 2026-11-09:** T27/T28 verificadas técnicamente:
+métricas operativas Docker y comparación de calidad/schema con referencia
+aprobada de train 2024 frente al mismo mes del replay julio–diciembre 2025.
+D-04, excepciones, pesos y champion conservados. T26 también tiene cierre
+técnico con perfil CI aprobado 2 CPU/4 GiB/10 GiB disco/20 minutos, 601 pruebas,
+PR verde y demostración roja/verde reales. PR en borrador, sin merge a main.
+G5 y T29–T31 siguen abiertos.
+[Detalle y límites](docs/t26-t28.md).
+
+**Actualización T29–T31 — 2026-11-09:** G5 verificado técnicamente. Referencia
+completa train 2024 y 24.266.924 filas de replay julio–diciembre 2025 auditadas;
+PSI, calidad, desempeño con etiquetas maduras y reportes mensuales versionados.
+Evidently 0.7.23 utiliza un renderer pandas 2.3.3 aislado, aprobado tras probar
+la incompatibilidad; las predicciones conservan pandas 3.1.1 y el modelo v4.
+CI verde con 625 pruebas principales y 17 del renderer. Se conservan el
+incidente de descargas, su recuperación autorizada y los FAIL originales.
+[Evidencia](reports/monitoring/t29-t31_monthly_replay.md). Cuarta entrega
+ampliada en PR #1, sin merge; reglas T32 y promociones futuras pendientes.

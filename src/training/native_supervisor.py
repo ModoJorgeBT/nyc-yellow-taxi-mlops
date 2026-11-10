@@ -13,6 +13,15 @@ from pathlib import Path
 from src.training.resources import ResourceLimitError
 
 
+def _linux_peak_rss(status: str) -> int:
+    fields = dict(line.split(":", 1) for line in status.splitlines() if ":" in line)
+    if "VmHWM" not in fields:
+        if fields.get("State", "").strip().startswith(("Z", "X")):
+            raise ProcessLookupError("El proceso propio ya termino")
+        raise ResourceLimitError("Proceso activo sin medicion VmHWM; no continuar sin control RSS")
+    return int(fields["VmHWM"].split()[0]) * 1024
+
+
 def process_peak_rss(pid: int) -> int:
     if os.name == "nt":
         from ctypes import wintypes
@@ -44,12 +53,7 @@ def process_peak_rss(pid: int) -> int:
         finally:
             kernel.CloseHandle(handle)
     if os.name == "posix":
-        fields = dict(
-            line.split(":", 1)
-            for line in Path(f"/proc/{pid}/status").read_text().splitlines()
-            if ":" in line
-        )
-        return int(fields["VmHWM"].split()[0]) * 1024
+        return _linux_peak_rss(Path(f"/proc/{pid}/status").read_text())
     raise ResourceLimitError("Sin medición externa de RSS para esta plataforma")
 
 
@@ -124,8 +128,11 @@ def terminate_worker(pid):
         kernel.CloseHandle(handle)
 
 
-def supervise(command, *, policy, guard, log_path, env=None, identity=None):
+def supervise(
+    command, *, policy, guard, log_path, env=None, identity=None, aggregate_parent_rss=False
+):
     peak = 0
+    combined_peak = 0
     worker_pid = None
     flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
     with Path(log_path).open("w", encoding="utf-8") as log:
@@ -143,11 +150,22 @@ def supervise(command, *, policy, guard, log_path, env=None, identity=None):
                     observed_pid = process.pid if identity is None else worker_pid
                     try:
                         peak = max(peak, process_peak_rss(observed_pid))
+                    except ProcessLookupError:
+                        if process_alive(observed_pid):
+                            raise
+                        # /proc puede mostrar Z antes de que poll recoja el codigo de salida.
+                        # Conservar el pico anterior; nunca sustituir RSS de un proceso activo.
+                        time.sleep(policy["native_process_poll_seconds"])
+                        continue
                     except OSError, ResourceLimitError:
                         if process.poll() is None:
                             raise
                     if peak > policy["process_rss_limit_gib"] * 2**30:
                         raise ResourceLimitError("D-02: RSS nativo excedido; intento cancelado")
+                    if aggregate_parent_rss:
+                        combined_peak = max(combined_peak, peak + process_peak_rss(os.getpid()))
+                        if combined_peak > policy["process_rss_limit_gib"] * 2**30:
+                            raise ResourceLimitError("D-02: RSS combinado de renderer excedido")
                     if identity is not None and not Path(identity[1]).exists():
                         ready = Path(identity[1])
                         temporary = ready.with_suffix(".tmp")
@@ -168,13 +186,16 @@ def supervise(command, *, policy, guard, log_path, env=None, identity=None):
                     process.kill()
                     process.wait(timeout=10)
                 raise
-    return {
+    result = {
         "native_peak_rss_bytes": peak,
         "exit_code": process.returncode,
         "worker_pid_verified": identity is not None and worker_pid is not None,
         "worker_pid": worker_pid,
         "launcher_pid": process.pid,
     }
+    if aggregate_parent_rss:
+        result["combined_peak_rss_bytes"] = combined_peak
+    return result
 
 
 def run_worker(request_path, *, policy, guard, log_path):

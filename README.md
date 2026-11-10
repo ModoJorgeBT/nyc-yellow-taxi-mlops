@@ -19,7 +19,7 @@ modelos y selección de 2025 permanecen intactos. Reinicio de recursos aprobado
 4/2 sin cambios. 474 pruebas por entorno y auditoría completa. Sin promoción en aquella fase.
 [Informe final](reports/evaluation/lightgbm_final_evaluation.md).
 
-T18 tiene cierre técnico auditado: MLflow 3.16.1 registra baseline v1, SGD v2, MLP v3 y LightGBM v4; reinicio sin pérdida ni duplicados. [Runs y evidencia](reports/tracking/t18_completion.md), [guía local](docs/t18-mlflow.md). Servidor activo al cierre: http://127.0.0.1:5000. **T19 completada:** LightGBM **v4 es el champion inicial**, aprobado por el usuario y verificado. El alias `champion` resuelve a `models:/nyc-yellow-taxi-duration/4`. [Decisión y evidencia](reports/model_selection.md). G3 cumple su alcance de Sprint 3; sigue T20. API, Docker, CI, monitoreo y retraining siguen pendientes en sus tareas. Revisión humana de resultados independiente del cierre técnico. La tercera entrega reúne código y documentación de T14–T19; el estado operativo de MLflow y los binarios permanecen locales.
+T18 tiene cierre técnico auditado: MLflow 3.16.1 registra baseline v1, SGD v2, MLP v3 y LightGBM v4; reinicio sin pérdida ni duplicados. [Runs y evidencia](reports/tracking/t18_completion.md), [guía local](docs/t18-mlflow.md). Servidor activo al cierre: http://127.0.0.1:5000. **T19 completada:** LightGBM **v4 es el champion inicial**, aprobado por el usuario y verificado. El alias `champion` resuelve a `models:/nyc-yellow-taxi-duration/4`. [Decisión y evidencia](reports/model_selection.md). G3 cumple su alcance de Sprint 3. T20–T22 tienen cierre técnico verificado: API con champion LightGBM v4, validación estricta y errores controlados. Docker serving T23–T25 está verificado; CI, monitoreo y retraining siguen pendientes en sus tareas. Revisión humana de resultados independiente del cierre técnico. La tercera entrega reúne código y documentación de T14–T19; el estado operativo de MLflow y los binarios permanecen locales.
 
 Repositorio GitHub: [ModoJorgeBT/nyc-yellow-taxi-mlops](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops), rama `main`. El primer commit `164bf9e` contiene T01–T11; el segundo `27b09d2` incorpora features T12/T13, D-01/D-02/D-04, baseline T15 y el bloqueo histórico de T14. El tercero completa T14–T19, evaluación independiente, tracking MLflow y champion LightGBM v4. El [historial de las tres entregas](docs/commit-history.md) detalla alcance, pruebas y límites; los datos, pesos y la instancia MLflow permanecen locales. Las menciones históricas a «sin nuevo commit/push» corresponden al momento de esas mediciones. GitHub Actions sigue sin implementar.
 
@@ -51,7 +51,7 @@ D-04 ratificada/congelada con [excepción puntual de marzo](docs/t15-march-excep
 | `src/evaluation` | Comparación auditada baseline/SGD/MLP, métricas exactas y segmentos; elección con validation antes de test. |
 | `src/api`, `src/monitoring`, `src/retraining` | Serving, observación y retraining futuros. |
 | `tests/unit`, `tests/fixtures` | Pruebas de empaquetado, casos sintéticos y perfilador; no requieren datos reales. |
-| `tests/integration`, `tests/api` | Integración de datos offline; API pendiente. |
+| `tests/integration`, `tests/api` | Integración offline, persistencia MLflow y contrato REST. |
 | `scripts` | Perfilador acotado de T05; no es el pipeline productivo. |
 | `configs`, `notebooks` | Contrato data.yaml versionado; otras configuraciones y exploración futuras. |
 | `data/raw`, `data/validated`, `data/processed` | Datos locales excluidos de Git; solo se versionan marcadores. |
@@ -168,9 +168,9 @@ La consulta `python -m pytest --version` de T02 solo acreditaba disponibilidad. 
 
 [.env.example](.env.example) es una plantilla pública con rutas relativas y una URI de MLflow propuesta para el host. No contiene credenciales ni se carga automáticamente. No hay todavía servicio MLflow al que conectarse; la configuración entre contenedores se resolverá en su tarea.
 
-Python, MLflow, FastAPI y Docker Compose para ejecución local están confirmados. T03 fija las herramientas de entorno y PyArrow; T13 añade scikit-learn/tzdata y transitivas con aprobación. MLflow/FastAPI no se instalaron aún; pandas, Pydantic, Evidently y GitHub Actions siguen pendientes. D-04 aprueba calidad provisional y catálogo operativo; D-06 resuelve whitelist/tiempo, con destino deshabilitado. D-01/D-02 fijan periodos y ejecución incremental con todos los elegibles: SGDRegressor/MLPRegressor pequeño, 4 hilos, 8 GiB, 2 h/candidato, preflight 12 GiB RAM/50 GiB disco libres. Contrato REST, controles/mediciones de entrenamiento, Docker, drift/promoción, persistencia y criterio general de PR mantienen sus pendientes. No introducir llegada, target, importes finales ni distancia real de taxímetro en inferencia.
+Python, MLflow, FastAPI y Docker Compose para ejecución local están confirmados. T03 fija las herramientas de entorno y PyArrow; T13 añade scikit-learn/tzdata y transitivas con aprobación. MLflow/FastAPI/Pydantic y pandas están instalados en el entorno separado del SDK; T20–T22 reutilizan ese entorno con HTTPX/httpcore aprobados. Evidently y GitHub Actions siguen pendientes. D-04 aprueba calidad provisional y catálogo operativo; D-06 resuelve whitelist/tiempo, con destino deshabilitado. D-01/D-02 fijan periodos y ejecución incremental con todos los elegibles: SGDRegressor/MLPRegressor pequeño, 4 hilos, 8 GiB, 2 h/candidato, preflight 12 GiB RAM/50 GiB disco libres. El contrato REST D-06 está aprobado y probado; los presupuestos vigentes y resultados de entrenamiento/persistencia constan en el plan. Docker, reglas automáticas de drift/promoción y criterio general de PR mantienen sus pendientes. No introducir llegada, target, importes finales ni distancia real de taxímetro en inferencia.
 
-Los CLI de ingesta/validación/features están implementados con las restricciones indicadas; modelos/API/Docker siguen siendo contratos futuros. No subir `.env`, Parquet reales, modelos ni bases locales de MLflow a Git. Ver [.gitignore](.gitignore).
+Los CLI de ingesta/validación/features están implementados con las restricciones indicadas; modelos, Registry y API tienen verificación técnica; Docker serving está verificado en T23–T25. No subir `.env`, Parquet reales, modelos ni bases locales de MLflow a Git. Ver [.gitignore](.gitignore).
 
 ## Particiones temporales T14
 
@@ -193,3 +193,75 @@ SGD Huber y MLP16 se ajustaron con las 41.119.495 filas train, una pasada por ca
 [Entrenamiento T16](reports/quality/t16_training.md), [comparación T17 y segmentos](reports/evaluation/t17_model_comparison.md) y [software/CLI verificados](docs/t16-t17-validation.md). 423 pruebas en desarrollo y 423 desde wheel instalado; límites reales 8 GiB libres/4 GiB RSS respetados.
 
 El usuario aprobó [añadir LightGBM](docs/t16-lightgbm-extension-proposal.md) con todos los elegibles, presupuesto vigente y evaluación solo con validation. El test de la primera comparación permanece congelado; una nueva evaluación final independiente de LightGBM queda pendiente. Ya está instalado, entrenado y auditado en el alcance de validation; [resultado](reports/evaluation/lightgbm_validation.md). Esta continuación sigue local, sin nuevo commit/push.
+
+
+## Serving T20–T22 — 2026-11-09
+
+LightGBM v4 se carga desde el Registry con aprobación y hashes verificados.
+`POST /predict`, `GET /health` y `GET /model-info` probados: 200 válido,
+422 inválido y 503 sin modelo. Contrato D-06 aprobado: origen del catálogo,
+timestamp con offset y pasajeros opcionales 0–6; destino deshabilitado.
+
+[Contrato, instalación y arranque local](docs/t20-t22-serving.md).
+553 casos serving verificados (incluye reintento de un reinicio bloqueado por
+el sandbox), 501 nativos y 51 del wheel instalado fuera de src. Auditoría con
+champion real, sin cambios de modelos/evaluaciones/Registry. Locks históricos
+intactos; nuevo `requirements-serving.lock` con 97 paquetes.
+Aquella entrega no dejó la API iniciada; la entrega Docker posterior sí deja API/MLflow saludables.
+
+
+## Docker T23–T25 — 2026-11-09
+
+Build, arranque Linux, predicción LightGBM v4, errores 422/503 y persistencia
+tras down/up verificados. **G4 PASS técnico.** Servicios activos:
+
+- API y documentación: http://127.0.0.1:8080/docs
+- MLflow Docker: http://127.0.0.1:5001
+
+El puerto 8000 y MLflow nativo 5000 se conservaron. El Registry Docker usa una
+copia aislada en volumen Linux; cuatro runs/versiones y champion v4 intactos.
+No se reentrenó ni cambió ninguna aprobación de modelo o umbral de calidad.
+
+[Operación y comandos](docs/t23-t25-docker.md),
+[cierre y evidencia](reports/smoke/t23-t25.md).
+Usar `docker compose up -d --no-build --wait mlflow api` para arrancar y
+`docker compose down` para detener conservando el volumen. No usar `down -v`.
+Clonar Git no incluye los datos/modelos/Registry; se necesita el bootstrap
+aprobado. Próxima tarea: T26 (CI). Sin nuevo commit/push en esta entrega.
+
+## CI y observación T26–T28 — 2026-11-09
+
+T27/T28 tienen verificación técnica: métricas operativas reales Docker y
+comparación de calidad de julio–diciembre 2025 contra los mismos meses de
+2024. Los FAIL y excepciones D-04 siguen visibles; no se cambian modelos,
+umbrales ni aprobaciones. [Métricas](reports/monitoring/t27_service_metrics.md),
+[calidad](reports/monitoring/t28_quality_replay.md) y
+[comandos y límites](docs/t26-t28.md).
+
+T26 prepara Ruff, Pytest, smoke HTTP y build Docker en GitHub Actions con
+fixtures, 2 CPU/4 GiB, 10 GiB de disco y 20 minutos. La verificación Linux
+local y remota pasó: 601 pruebas, Ruff, dependencias, smoke HTTP e imagen de
+producción. **T26 PASS técnico:** [PR #1 verde](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/pull/1)
+y demostración roja/verde separada; [evidencia](reports/monitoring/t26_github_ci.md).
+La [publicación](docs/t26-publication-proposal.md) fue aprobada por el usuario;
+queda en PR borrador para revisión, sin merge a main. G5 y T29–T31 continúan pendientes.
+
+## Monitoreo T29–T31 — 2026-11-09
+
+**G5 PASS técnico.** Referencia de train 2024 completo y seis meses de replay
+julio–diciembre 2025: 24.266.924 predicciones/etiquetas maduras auditadas.
+PSI, calidad, métricas y reportes Evidently versionados; no se cambia el champion.
+CI verifica 625 pruebas principales y 17 del renderer aislado. La omisión de
+Evidently en el runtime original se cubre explícitamente en ese segundo entorno.
+
+```powershell
+.\.venv-mlflow\Scripts\python.exe -m src.monitoring.run --year 2025 --month 7
+```
+
+El renderer usa `.venv-monitoring`, Evidently 0.7.23 y pandas 2.3.3; el modelo
+conserva su runtime pandas 3.1.1. Sin etiquetas, desempeño NOT_AVAILABLE.
+Las observaciones actuales de servicio no se atribuyen a meses de 2025.
+[Operación y límites](docs/t29-t31-monitoring.md),
+[resultados y CI](reports/monitoring/t29-t31_monthly_replay.md).
+El [historial](docs/commit-history.md) distingue código, correcciones y evidencia
+de la cuarta entrega ampliada. PR #1 en borrador; T32–T38 pendientes.
