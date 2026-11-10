@@ -1,0 +1,6 @@
+# El hash aprobado de este lock usa LF; evitar conversion CRLF en checkout Windows.
+requirements-serving.lock text eol=lf
+configs/retraining.yaml text eol=lf
+# Autorizaciones ligadas por SHA-256 a recibos locales: conservar bytes exactos.
+configs/quality-exception-2026-*-t34.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+src/retraining/*.py text eol=lf

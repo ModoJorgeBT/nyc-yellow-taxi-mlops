@@ -51,6 +51,11 @@ class DownloadBudget:
             raise IngestionError("Límite acumulado de descarga excedido")
         self.used_bytes += count
 
+    def read(self, response, size: int):
+        chunk = response.read(size)
+        self.consume(len(chunk))
+        return chunk
+
 
 @contextmanager
 def month_lock(directory: Path):
@@ -108,11 +113,11 @@ def fetch(
                     size = min(available)
                     if size <= 0:
                         raise IngestionError("Límite de descarga alcanzado sin tamaño verificable")
-                    chunk = response.read(size)
+                    chunk = (
+                        budget.read(response, size) if budget is not None else response.read(size)
+                    )
                     if not chunk:
                         break
-                    if budget is not None:
-                        budget.consume(len(chunk))
                     received += len(chunk)
                     if max_bytes is not None and received > max_bytes:
                         raise IngestionError("Límite por archivo excedido durante transferencia")

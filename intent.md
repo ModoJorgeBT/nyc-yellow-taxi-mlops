@@ -148,3 +148,24 @@ CI verde con 625 pruebas principales y 17 del renderer. Se conservan el
 incidente de descargas, su recuperación autorizada y los FAIL originales.
 [Evidencia](reports/monitoring/t29-t31_monthly_replay.md). Cuarta entrega
 ampliada en PR #1, sin merge; reglas T32 y promociones futuras pendientes.
+
+**Actualización posterior T32–T34 — 2026-11-09:** PR #1 integrado por
+solicitud humana (21a6abf, CI verde). El usuario aprobó por separado triggers,
+periodos/descargas/recursos y gate; después aprobó las tres excepciones D-04
+exactas de Q2 2026. T32–T34 tienen cierre técnico: train 2025 completo,
+validation Q1 2026 declarada conocida y final independiente Q2 2026;
+70.684.628 filas de cohortes auditadas. V5 se registró sin alias y fue
+rechazado por mejora MAE 0,737317 % <2 %; v4 conserva champion. Primer fit
+cancelado por memoria preservado, escritura acotada corregida sin elevar
+límites ni reducir datos. 663 pruebas locales aprobadas y una omitida.
+[Evidencia T34](reports/retraining/t34_comparison.md). Cambios locales sin
+nuevo commit/push; sin promoción ni T35–T38. Las menciones previas a estados
+pendientes y PR en borrador describen checkpoints anteriores.
+
+**Actualización T35–T38:** operación reversible v2, demo MLflow/FastAPI
+TEST_ONLY y workflow manual verificados; v4 real intacto/v5 bloqueado. Runbook,
+trazabilidad y presentación completos; reproducción offline limpia PASS con
+681 pruebas/una omisión. G6 PASS técnico; timeout inicial y repetición trazados.
+Cierre técnico separado de revisión humana y defensa oral NO VERIFICADAS,
+según aprobación explícita. Sin nueva publicación Git ni consumo de holdout.
+[Cierre](reports/final/completion.md), [operación](docs/runbook.md).

@@ -1,0 +1,204 @@
+{
+  "format_version": 1,
+  "approval_status": "APPROVED_BY_USER",
+  "scope": "Only exact original 2026-Q2 failures for T34; no predictive metrics inspected",
+  "preserve_invalid_row_exclusions": true,
+  "allow_other_lots": false,
+  "allow_other_failures": false,
+  "global_d04_unchanged": true,
+  "lots": [
+    {
+      "year": 2026,
+      "month": 4,
+      "raw_sha256": "e03b82d5722a6b21d4fbce011afd8837495202c0b5db77ff0d8d15dd80834ba8",
+      "raw_rows": 3831240,
+      "excluded_rows": 50772,
+      "eligible_rows_before_cutoff": 3780468,
+      "config_sha256": "555f4b943b12884639369caeae348a37d97b7efb2918e72818fa8f1cd9a5dc48",
+      "policy_version": "d04-real-v1-2026-11-03",
+      "rejected_report": {
+        "path": "reports/quality/2026/04/c4eabc84c7154d7ebe1e5ad0928bb09f.json",
+        "sha256": "0c4d787971eb7f06753a4f65ebc5870514fde8a32bfc9f9726d5034c16031c1d"
+      },
+      "allowed_failures_if_approved": [
+        {
+          "evidence": {
+            "first_raw_row_indexes": [
+              5,
+              137,
+              595,
+              618,
+              637
+            ],
+            "index_base": 0
+          },
+          "observed": {
+            "count": 49511,
+            "rate": 0.012922970108894248
+          },
+          "rule": "rows.duration_nonpositive",
+          "severity": "critical",
+          "status": "FAIL",
+          "threshold": {
+            "denominator": "all_raw_rows",
+            "fail_above": 0.005,
+            "warn_above": null
+          }
+        },
+        {
+          "evidence": {
+            "first_raw_row_indexes": [
+              5,
+              137,
+              518,
+              584,
+              595
+            ],
+            "index_base": 0
+          },
+          "observed": {
+            "count": 50772,
+            "rate": 0.013252106367651204
+          },
+          "rule": "rows.union_invalid_rows",
+          "severity": "critical",
+          "status": "FAIL",
+          "threshold": {
+            "denominator": "all_raw_rows",
+            "fail_above": 0.01,
+            "warn_above": 0.005
+          }
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 5,
+      "raw_sha256": "9aa5a1609e2bf07d9051b7d530de05b1019e12a560ecb2c59c137c8b3a8b6750",
+      "raw_rows": 4090836,
+      "excluded_rows": 53505,
+      "eligible_rows_before_cutoff": 4037331,
+      "config_sha256": "555f4b943b12884639369caeae348a37d97b7efb2918e72818fa8f1cd9a5dc48",
+      "policy_version": "d04-real-v1-2026-11-03",
+      "rejected_report": {
+        "path": "reports/quality/2026/05/ebcd1f8a71d54f04a5339456f345eda2.json",
+        "sha256": "454e2726b54c20ae9f0b55a126c7011f32a43a4b934c2006e8c1b2da24f4344d"
+      },
+      "allowed_failures_if_approved": [
+        {
+          "evidence": {
+            "first_raw_row_indexes": [
+              4,
+              54,
+              73,
+              74,
+              175
+            ],
+            "index_base": 0
+          },
+          "observed": {
+            "count": 52063,
+            "rate": 0.012726738495505565
+          },
+          "rule": "rows.duration_nonpositive",
+          "severity": "critical",
+          "status": "FAIL",
+          "threshold": {
+            "denominator": "all_raw_rows",
+            "fail_above": 0.005,
+            "warn_above": null
+          }
+        },
+        {
+          "evidence": {
+            "first_raw_row_indexes": [
+              4,
+              40,
+              54,
+              73,
+              74
+            ],
+            "index_base": 0
+          },
+          "observed": {
+            "count": 53505,
+            "rate": 0.013079233682308457
+          },
+          "rule": "rows.union_invalid_rows",
+          "severity": "critical",
+          "status": "FAIL",
+          "threshold": {
+            "denominator": "all_raw_rows",
+            "fail_above": 0.01,
+            "warn_above": 0.005
+          }
+        }
+      ]
+    },
+    {
+      "year": 2026,
+      "month": 6,
+      "raw_sha256": "f340c62a18885c56176433c9db28e97d0a8a14e6e49869276ad8afb20ebf088b",
+      "raw_rows": 3837248,
+      "excluded_rows": 50930,
+      "eligible_rows_before_cutoff": 3786318,
+      "config_sha256": "555f4b943b12884639369caeae348a37d97b7efb2918e72818fa8f1cd9a5dc48",
+      "policy_version": "d04-real-v1-2026-11-03",
+      "rejected_report": {
+        "path": "reports/quality/2026/06/404601a2ed2145c7b85a147ab57759d3.json",
+        "sha256": "46a2c897d0bb8427ccdbcdc02af5661e6bb65336e64ebebf38dfaef1b144285a"
+      },
+      "allowed_failures_if_approved": [
+        {
+          "evidence": {
+            "first_raw_row_indexes": [
+              116,
+              117,
+              137,
+              191,
+              365
+            ],
+            "index_base": 0
+          },
+          "observed": {
+            "count": 49807,
+            "rate": 0.012979875160531715
+          },
+          "rule": "rows.duration_nonpositive",
+          "severity": "critical",
+          "status": "FAIL",
+          "threshold": {
+            "denominator": "all_raw_rows",
+            "fail_above": 0.005,
+            "warn_above": null
+          }
+        },
+        {
+          "evidence": {
+            "first_raw_row_indexes": [
+              116,
+              117,
+              137,
+              191,
+              365
+            ],
+            "index_base": 0
+          },
+          "observed": {
+            "count": 50930,
+            "rate": 0.013272532815184215
+          },
+          "rule": "rows.union_invalid_rows",
+          "severity": "critical",
+          "status": "FAIL",
+          "threshold": {
+            "denominator": "all_raw_rows",
+            "fail_above": 0.01,
+            "warn_above": 0.005
+          }
+        }
+      ]
+    }
+  ],
+  "proposal_sha256_before_approval": "8c031cc59d203bd2bfaade2d9e416cbccf867e4bfc7e640ec020e4aa551c964d"
+}

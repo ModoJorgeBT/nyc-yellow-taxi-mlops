@@ -165,7 +165,7 @@ def supervise(
                     if aggregate_parent_rss:
                         combined_peak = max(combined_peak, peak + process_peak_rss(os.getpid()))
                         if combined_peak > policy["process_rss_limit_gib"] * 2**30:
-                            raise ResourceLimitError("D-02: RSS combinado de renderer excedido")
+                            raise ResourceLimitError("D-02: RSS combinado de procesos excedido")
                     if identity is not None and not Path(identity[1]).exists():
                         ready = Path(identity[1])
                         temporary = ready.with_suffix(".tmp")
@@ -198,7 +198,7 @@ def supervise(
     return result
 
 
-def run_worker(request_path, *, policy, guard, log_path):
+def run_worker(request_path, *, policy, guard, log_path, aggregate_parent_rss=False):
     request_path = Path(request_path).resolve()
     pid_path, ready_path = request_path.with_suffix(".pid.json"), request_path.with_suffix(".ready")
     if pid_path.exists() or ready_path.exists():
@@ -227,4 +227,5 @@ def run_worker(request_path, *, policy, guard, log_path):
         log_path=log_path,
         env=environment,
         identity=(pid_path, ready_path, token),
+        aggregate_parent_rss=aggregate_parent_rss,
     )

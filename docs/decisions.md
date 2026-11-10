@@ -1,6 +1,6 @@
 # T01 — Requisitos, decisiones y riesgos
 
-Fecha inicial: 2026-11-03; actualización: 2026-11-09, America/Costa_Rica. **T14–T31 y G3/G4/G5 tienen cierre técnico auditado.** D-04, exclusiones y champion LightGBM v4 conservados. [Resultados del monitoreo](../reports/monitoring/t29-t31_monthly_replay.md). D-05 sigue parcial: PSI aprobado para revisión; triggers y promociones futuras pendientes. PR #1 en borrador, sin merge. Las secciones siguientes conservan la cronología.
+Fecha inicial: 2026-11-03; actualización: 2026-11-09, America/Costa_Rica. **T14–T34 y G3/G4/G5 tienen cierre técnico auditado.** Triggers y gate del nuevo ciclo aprobados. V5 registrado y rechazado por mejora MAE 0,737317 % <2 %; v4 conserva champion. [Resultados T34](../reports/retraining/t34_comparison.md). PR #1 integrado; T32–T34 aún locales, sin nuevo commit/push. T35–T38 pendientes. Las secciones siguientes conservan la cronología.
 
 ## 1. Fuentes y evidencia de aprobación
 
@@ -52,14 +52,14 @@ El éxito es el ciclo MLOps auditable y reproducible, incluyendo baseline y dos 
 
 | ID | Estado y decisión | Responsable de resolver | Antes de / evidencia necesaria |
 |---|---|---|---|
-| D-01 | APROBADA. Train 2024; validation ene–mar 2025; test original abr–jun; replay jul–dic. Extensión final independiente ene–mar 2026 aprobada y auditada. | Equipo | [Protocolo original](d01-d02-protocol.md) y [evaluación final separada](../reports/evaluation/lightgbm_final_evaluation.md). T14 completa; sin presumir disponibilidad histórica de publicación. |
+| D-01 | APROBADOS: protocolo original intacto y ciclo T33 train 2025/validation conocida Q1 2026/final nueva Q2 2026. | Equipo | [Nuevo ciclo y cortes auditados](t32-t34-retraining.md); sin afirmar publicación histórica. |
 | D-02 | APROBADA. Todos los elegibles. Preparación 4/2; entrenamiento 8/4; inferencia final 2026 6 GiB libres/2 GiB RSS. Cuatro hilos, un candidato, 2 h y 50 GiB disco. CI exclusivo con fixtures: 2 CPU/4 GiB, 10 GiB disco y 20 min por job. | Equipo | [Revisión de entrenamiento](d02-t16-resource-review.md), [revisión final](d02-final-evaluation-resource-review.md) y [CI local](t26-t28.md). Presupuestos científicos y build local intactos. |
 | D-03 | APROBADO para T29–T31: Evidently 0.7.23/pandas 2.3.3 en renderer aislado; modelo y locks históricos intactos. CI separado con fixtures, 2 CPU/4 GiB/10 GiB/20 min. | Equipo | [Compatibilidad aprobada](t29-evidently-compatibility-review.md), [contrato y pruebas](t29-t31-monitoring.md). |
-| D-04 | V1 congelada; diez excepciones exactas de 2025 y tres de ene–mar 2026 por mes/hash/reporte aprobadas y aplicadas. | Equipo | 27 lotes: 14 pasan calidad y 13 aceptados excepcionalmente; FAIL y exclusiones conservados. [Excepciones finales](lightgbm-final-quality-exceptions-proposal.md). Cualquier nuevo incumplimiento requiere aprobación. |
-| D-05 | PARCIAL. T29 aprueba PSI >0,20, alpha 0,5 y mínimo 1.000 sobre referencia mensual train completa; solo revisión. 115 %/dos ventanas, mejora 2 %/no inferioridad y triggers futuros pendientes. | Equipo | [Protocolo aprobado](t29-t31-execution-proposal.md). T32/T34 requieren aprobar sus reglas y tolerancias. |
+| D-04 | V1 congelada; diez excepciones exactas de 2025 y seis de ene–jun 2026 aprobadas/aplicadas. | Equipo | 30 lotes: 14 pasan y 16 aceptados excepcionalmente. [Tres permisos Q2 2026](t34-quality-exceptions-proposal.md); FAIL/exclusiones conservados. Permisos futuros requieren aprobación. |
+| D-05 | APROBADO para este ciclo: recomendación por MAE >115 % o misma feature PSI >0,20 dos meses; gate mejora MAE >=2 %, RMSE/P90 global sin empeorar y segmentos <=5 %. No inferioridad deshabilitada. | Equipo | [Aprobación y pruebas](t32-t34-execution-proposal.md); sin entrenamiento/promoción automáticos. T35 requiere nueva autorización. |
 | D-06 | APROBADA el 2026-11-09: REST v1 con offset, origen del catálogo, pasajeros opcionales/null o entero 0–6; campos extra y coerciones rechazados. Destino deshabilitado. | Equipo | [Contrato y pruebas T20–T22](t20-t22-serving.md); versión cargada fija, 422/503/500 sin secretos. |
-| D-07 | APROBADA, IMPLEMENTADA Y VERIFICADA. MLflow 3.16.1 aislado, SQLite/artefactos persistentes y loopback; cuatro versiones; LightGBM v4 champion por T19. | Equipo | [Registro real, carga, linaje y reinicio auditados](../reports/tracking/t18_completion.md). Compose T24/T25 verificado con copia aislada; promociones futuras requieren aprobación. |
-| D-08 | T14–T31 con cierre técnico PASS; G3/G4/G5 verificados. Revisión humana independiente; PR #1 en borrador, sin merge. | Equipo | [Replay exhaustivo y CI 625+17](../reports/monitoring/t29-t31_monthly_replay.md). Sin promoción futura automática. |
+| D-07 | MLflow 3.16.1 persistente y local; cinco versiones. V4 champion y v5 challenger rechazado, sin alias. | Equipo | [Registro v5, reload y linaje](../reports/retraining/t33_challenger.md). Copia Docker v4 conservada; futuras promociones requieren aprobación. |
+| D-08 | T14–T34 con cierre técnico PASS; G3/G4/G5 verificados. PR #1 integrado; T32–T34 todavía locales. | Equipo | [Auditoría completa y rechazo T34](../reports/retraining/t34_comparison.md). Revisión humana independiente; G6 y T35–T38 pendientes. |
 
 La arquitectura local está confirmada en el [ADR 0001](adr/0001-arquitectura-local.md). Las propuestas técnicas de persistencia, modelos y librerías no se consideran aprobadas por ese ADR.
 
@@ -272,3 +272,43 @@ filas auditados completos. CI 625+17 aprobadas; [resultados y límites](../repor
 El [incidente de descargas](t29-dependency-download-incident.md) conserva el
 FAIL original; recuperación posterior 169,37 MiB dentro de 256 MiB aprobados.
 T32–T38 y triggers/promociones futuras permanecen pendientes.
+
+## Acuerdos y cierre T32–T34 (2026-11-09)
+
+El usuario aprobó tres bloques: reglas T32, ciclo temporal/descargas/recursos
+y gate T34. Ratificó 8 GiB libres para fit y liberó RAM; no se bajó ese mínimo.
+Aprobó después tres excepciones Q2 2026 por mes/hash/reporte, excluyendo
+155.207 inválidos, sin cambiar D-04 ni autorizar futuros fallos.
+
+Se auditaron completas 70.684.628 filas de cohortes. Primer fit cancelado por
+RSS combinado; corrección de escritura por bloques probada byte a byte,
+segundo fit 48.144.298 filas/100 árboles y 3,55 GiB combinados. V5 registrado
+con reload/smoke y sin alias; final nueva de 11.603.243 filas auditada.
+Gate CHALLENGER_REJECTED por mejora MAE 0,737317 % <2 %; demás controles
+aprobados, champion=4 intacto. [Resultados](../reports/retraining/t34_comparison.md).
+
+Suite final 663 PASS/una omisión prevista, Ruff y pip check PASS. Se conserva
+el fallo del primer lanzador de pruebas por mezcla UTF-8/CP1252 y su cierre
+posterior completo con codificación normal Windows. Los nuevos cambios aún
+son locales; no hay nuevo commit/push ni T35–T38.
+
+## Acuerdos T35–T38 (2026-11-09)
+
+Tres aprobaciones explícitas: operación v2/demo sintética con presupuesto
+4 GiB libres/2 GiB RSS combinado/50 GiB disco/cuatro hilos/20 minutos;
+workflow manual con reutilización real sin repetir ciencia; reproducción
+offline de export en venv limpio y material Markdown. Sin dependencias nuevas,
+descargas externas, promoción real, modificación de Docker ni commit/push.
+
+V5 sigue rechazado; v4 no cambia. La operación futura real requiere aprobación
+propia y gate elegible. Las aprobaciones son recibos locales auditables, no
+firmas criptográficas. El usuario autorizó separar cierre técnico de T37/T38
+de clon/ejecución por otro integrante y defensa oral, ambos NO VERIFICADOS.
+[Alcance aprobado](t35-t38-execution-proposal.md), [evidencia](../reports/final/completion.md).
+
+Cierre técnico T35–T38/G6 verificado el 2026-11-10: 681 PASS/una omisión,
+Ruff/formato/pip check PASS y reproducción limpia de 306 archivos sin red.
+Se preserva timeout inicial de API sintética; repetición HTTP y resto de suite
+en casos disjuntos PASS, mismo wheel/locks/presupuesto. Causa raíz del timeout
+no confirmada, riesgo local registrado. Sin cambios de champion, datos ni
+publicación Git; revisión cruzada/defensa humanas continúan NO VERIFICADAS.

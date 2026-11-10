@@ -1,6 +1,6 @@
 # PLAN — Implementación incremental NYC Yellow Taxi MLOps
 
-**Versión:** 1.0 · **Estado:** T14–T31 con cierre técnico verificado; G5 PASS técnico; T32–T38 pendientes; PR #1 en borrador, sin merge · **Entorno:** Windows local y Docker Linux amd64; API 8080/MLflow Docker 5001.
+**Versión:** 1.0 · **Estado:** T14–T34 con cierre técnico verificado; G5 PASS técnico; T35–T38 pendientes. PR #1 integrado en main (21a6abf), CI verde; T32–T34 locales, aún sin publicar · **Entorno:** Windows local y Docker Linux amd64; API 8080/MLflow Docker 5001.
 **Fuentes de verdad:** `intent.md`, `spec.md`, y PDF académico *Proyecto_Maestria_MLOps_NYC_Taxi_Estructura*, septiembre 2026. En caso de contradicción, detenerse y pedir decisión; no cambiar el alcance silenciosamente.
 
 ## 0. Protocolo obligatorio para Codex
@@ -17,14 +17,14 @@
 
 | ID | Decisión | Valor de trabajo / criterio | Estado |
 |---|---|---|---|
-| D-01 | Periodos | Train 2024 completo; validación ene–mar 2025; test original abr–jun 2025; replay jul–dic 2025. Extensión final independiente ene–mar 2026, sin reajustes | APROBADA y auditada; protocolo final separado, periodos originales intactos |
+| D-01 | Periodos | Ciclo original intacto. Nuevo ciclo T33: train 2025 completo, validation conocida ene–mar 2026 y comparación final nueva abr–jun 2026 | APROBADOS y auditados por separado; [contrato T32–T34](docs/t32-t34-retraining.md) |
 | D-02 | Recursos | Todos los elegibles. Preparación 4 GiB libres/2 GiB RSS; entrenamiento 8/4; inferencia final 6/2; cuatro hilos, un candidato, dos horas y 50 GiB disco. Docker serving: 2 GiB/2 CPU por API/MLflow y un worker | APROBADOS y verificados; sin entrenamiento Docker en T23–T25 |
 | D-03 | Herramientas | Locks Windows 24/95/97 y Linux serving 99 intactos. Actions verificado. Evidently 0.7.23 con pandas 2.3.3 en renderer aislado; predicciones conservan pandas 3.1.1 | APROBADO para T29–T31, compatibilidad y locks separados verificados; [evidencia](docs/t29-t31-monitoring.md) |
-| D-04 | Umbrales DQ | D-04 v1 congelada; diez excepciones exactas de 2025 y tres de ene–mar 2026, ligadas a mes/hash/reporte, inválidos excluidos | APROBADA E IMPLEMENTADA; 27 lotes incorporados: 14 pasan calidad y 13 aceptados excepcionalmente |
-| D-05 | Drift y promoción | T29 aprueba PSI >0,20, alpha 0,5 y mínimo 1.000 sobre referencia mensual train; alertas para revisión | PARCIAL; 115 %/dos ventanas, triggers, 2 %/no inferioridad y promociones futuras pendientes |
+| D-04 | Umbrales DQ | D-04 v1 congelada; diez excepciones exactas de 2025 y seis de ene–jun 2026, ligadas a mes/hash/reporte; inválidos excluidos | APROBADA E IMPLEMENTADA; 30 lotes: 14 pasan calidad y 16 aceptados excepcionalmente |
+| D-05 | Drift y promoción | T32/T34 aprobados: MAE >115 % o misma feature PSI >0,20, dos meses; gate MAE mejora >=2 %, RMSE/P90 globales sin empeorar y segmentos MAE/P90 <=5 % | APROBADO para este ciclo; solo recomendación/revisión humana, sin promoción. [Contrato](docs/t32-t34-execution-proposal.md) |
 | D-06 | API | Contrato REST v1 aprobado el 2026-11-09: offset, origen del catálogo, pasajeros opcionales 0–6, whitelist estricta y errores 422/503/500 | APROBADA; [contrato y pruebas T20–T22](docs/t20-t22-serving.md) |
 | D-07 | MLflow | MLflow 3.16.1 en entorno separado; SQLite persistente, artefactos locales, loopback y cuatro versiones; LightGBM v4 champion por T19 | APROBADA, IMPLEMENTADA Y VERIFICADA; registro/reinicio/carga/linaje auditados |
-| D-08 | Definition of Done | T14/T15/T16/T17, evaluación independiente y T18/T19 auditadas técnicamente; revisión humana de resultados independiente | PARCIAL; criterio general de PR pendiente; G3 verificado |
+| D-08 | Definition of Done | T14–T34 con cierre técnico, G3/G4/G5 verificados. PR #1 integrado por solicitud humana; T32–T34 aún locales | Revisión humana de resultados independiente; G6/T35–T38 pendientes |
 
 **Gate G0, decisiones:** D-01/D-02/D-04 aprobadas; excepción puntual de marzo aprobada posteriormente. T15 verificada técnicamente: mediana congelada 12,983333 min de 41.119.495 etiquetas train 2024; 11.163.264 predicciones enero–marzo 2025. MAE 7,741890 min y RMSE 11,912962 min. [evaluación real auditada](reports/quality/t15_baseline_validation.md). Marzo aceptado por excepción humana solo para su hash/reporte; FAIL original y exclusiones conservados, sin cambiar D-04 global. T14 integral y primera comparación T16/T17 ya auditadas; test evaluado tras selección, replay sin métricas predictivas. Sin registro/promoción. G2/G3 requieren sus condiciones y revisión propias.
 
@@ -320,44 +320,54 @@ Extensión adicional aprobada y completada: **LightGBM**, ajuste sobre todo trai
 - **Trabajo:** implementar condiciones configurables (propuestas 115 % MAE dos ventanas, PSI > 0.20, cambios sostenidos, revisión trimestral), severidad y volumen mínimo.
 - **Entregables:** `src/retraining/triggers.py`, `configs/monitoring.yaml`.
 - **Aceptación/prueba:** escenarios `NO_ACTION` y `RETRAIN_RECOMMENDED` deterministas; no confundir alerta con promoción.
+- **Estado:** PASS técnico. Reglas aprobadas, 100 pruebas focalizadas y ejecución real sobre seis reportes congelados: RETRAIN_RECOMMENDED por PSI de ausencia de pasajeros julio/agosto y deterioro MAE en parejas septiembre–diciembre. Sin entrenamiento desde el evaluador. [Evidencia](reports/retraining/t32_trigger.md).
 
 ### T33 — Entrenamiento challenger
 - **Depende de:** T18, T32.
 - **Trabajo:** entrenar con datos nuevos aprobados y ventanas temporales válidas; registrar nueva versión en MLflow.
 - **Entregables:** `src/retraining/train_challenger.py`.
 - **Aceptación/prueba:** challenger trazable, champion intacto, sin mezclar periodos futuros en evaluación retrospectiva.
+- **Estado:** PASS técnico. LightGBM desde cero, 100 árboles y 48.144.298 filas train 2025; validation conocida de 10.937.087 filas. Auditorías exhaustivas, fit/serialización y registro v5 sin alias completos. Primer fit cancelado conservado; escritura por bloques permitió respetar 4 GiB combinados sin cambiar datos/parámetros. Champion v4 intacto. [Resultados T33](reports/retraining/t33_challenger.md).
 
 ### T34 — Gate champion/challenger
 - **Depende de:** T17, T25, T33, D-05.
 - **Trabajo:** comparar sobre mismo conjunto temporal de evaluación, segmentos, calidad, smoke tests y criterio mejora ≥2 % o no inferioridad definida.
 - **Entregables:** `src/retraining/compare.py`, reporte firmado por ejecución.
 - **Aceptación/prueba:** challenger peor rechazado; mejora no basta si falla calidad o segmentos; decisión auditada.
+- **Estado:** PASS técnico. Abril–junio 2026, 11.603.243 filas y métricas de ambos modelos auditadas completas. Gate CHALLENGER_REJECTED: MAE mejora 0,737317 %, menor al 2 % exigido; demás controles y 27 segmentos cumplen. Resultado y métricas registrados en el run v5; champion=4 conservado. [Resultados T34](reports/retraining/t34_comparison.md). Las tres excepciones aprobadas excluyen 155.207 inválidos, más 874 por corte temporal, conservando FAIL y D-04.
 
 ### T35 — Promoción controlada y rollback
 - **Depende de:** T21, T34.
 - **Trabajo:** promover solo con aprobación explícita, registrar versión previa, actualizar alias/estado de manera controlada, reiniciar/recargar API, revertir si falla.
 - **Entregables:** `src/retraining/promote.py`, `src/retraining/rollback.py`, runbook.
 - **Aceptación/prueba:** versionado previo recuperable; rollback restituye versión anterior y smoke API verde; no borrar artefactos.
+- **Estado:** PASS técnico TEST_ONLY. MLflow/FastAPI aislados, promoción, rollback desde otro proceso y recuperación ante caída HTTP verificados. Diario encadenado, bytes previos, bloqueo local e identidad de procesos. V4 real intacto; v5 bloqueado. [Cierre](reports/final/completion.md).
 
 ### T36 — Workflow de reentrenamiento bajo demanda
 - **Depende de:** T32–T35.
 - **Trabajo:** orquestar pasos por CLI/Compose y, si corresponde, GitHub Actions manual; acciones de promoción protegidas por aprobación.
 - **Entregables:** `src/retraining/evaluate.py`, `.github/workflows/retraining.yml` (opcional según permisos/recursos).
 - **Aceptación/prueba:** ejecución sin trigger no entrena; con trigger registra challenger, pero no lo promueve automáticamente.
+- **Estado:** PASS técnico. CLI manual plan/resume, motor con autorización acotada y grafo sin promoción. Flujo completo con 48 filas sintéticas registra candidato sin alias; campaña real T32–T34 verificada/reutilizada sin fits/evaluaciones nuevas. Sin workflow remoto adicional. [Runbook](docs/runbook.md).
 
 ### T37 — README, reproducibilidad y revisión cruzada
 - **Depende de:** T25, T26, T31, T35.
 - **Trabajo:** guía Windows/VS Code, requisitos, bootstrap completo, troubleshooting, limpieza segura, comandos, decisiones, limitaciones, riesgos, rutas de evidencia.
 - **Entregables:** `README.md`, `docs/runbook.md`, ADR y matriz de trazabilidad.
 - **Aceptación/prueba:** otro integrante clona y ejecuta desde entorno limpio; documenta errores y correcciones.
+- **Estado:** PASS técnico aprobado por separado. Export de 306 archivos, venv limpio y wheels exactos de caché; 681 pruebas PASS/una omisión, Ruff/formato/pip check PASS. Timeout inicial y repetición trazados, sin cambiar código/presupuesto. Clon/ejecución por otro integrante NO VERIFICADOS. [Trazabilidad](reports/final/traceability.md).
 
 ### T38 — Demo final y evidencias académicas
 - **Depende de:** T37.
 - **Trabajo:** guion: ingesta → gate inválido → train → MLflow → API → CI → drift → trigger → challenger rechazado/promovido → rollback.
 - **Entregables:** `reports/final/`, guion de demostración, resultados reales y limitaciones, material para presentación.
 - **Aceptación/prueba:** cada afirmación tiene evidencia (comando/log/run/screenshot); reproducibilidad demostrada y ninguna métrica inventada.
+- **Estado:** PASS técnico. Guion, presentación Markdown y evidencias cruzadas verificados, sin nuevos fits reales ni consumo del holdout. Evidencia científica real separada de demos TEST_ONLY; defensa oral NO VERIFICADA. [Material](reports/final/presentation.md), [guion](reports/final/demo-script.md).
 
 **Gate G6:** ciclo MLOps de extremo a extremo demostrado, decisiones de promoción reversibles y defensa reproducible.
+
+La aprobación T35–T38 separa cierre técnico de revisión humana y defensa oral,
+que no se darán por realizadas. [Evaluación por condición](reports/final/completion.md).
 
 ## 9. Comandos de referencia y orden de arranque
 
@@ -385,12 +395,12 @@ python -m src.evaluation.run --help
 
 # SOLO después de aprobar y registrar un champion
 docker compose up -d api
-Invoke-RestMethod http://localhost:8000/health
-Invoke-RestMethod http://localhost:8000/model-info
+Invoke-RestMethod http://127.0.0.1:8080/health
+Invoke-RestMethod http://127.0.0.1:8080/model-info
 
 # Monitoreo y evaluación de trigger
 python -m src.monitoring.run --year 2025 --month 07
-python -m src.retraining.evaluate --config configs/monitoring.yaml
+python -m src.retraining.evaluate --help
 ```
 
 El entrenamiento real requiere todos los meses acordados, no solo enero; el comando de un mes es demostrativo. `docker compose down` conserva volúmenes por defecto; **no usar `down -v`** sin backup y autorización.
@@ -444,7 +454,7 @@ Prepara un guion reproducible para la demostración de la plataforma local. Usa 
 - [x] G3 Modelado temporal, MLflow y champion inicial aprobado/aplicado/auditado; alcance Sprint 3, no API/Docker.
 - [x] G4 API y Docker Compose operativos; smoke real, persistencia y champion v4 verificados técnicamente.
 - [x] G5 CI y observabilidad verificables; cierre técnico con replay completo y renderer aislado, revisión humana independiente.
-- [ ] G6 Retraining, rollback y demo reproducible.
+- [x] G6 Cierre técnico: retraining real, operación reversible TEST_ONLY y reproducción offline auditados; revisión cruzada humana/defensa NO VERIFICADAS por separación aprobada. [Evidencia](reports/final/completion.md).
 
 **Definición de terminado por tarea:** dependencias satisfechas; código y tests ejecutados; evidencia conservada; README/contratos actualizados cuando aplique; revisión humana; sin secretos ni datos grandes en Git. Una tarea que no se pudo ejecutar queda `NO VERIFICADO`, no completada.
 

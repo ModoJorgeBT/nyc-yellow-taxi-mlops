@@ -2,6 +2,22 @@
 
 Repositorio: [ModoJorgeBT/nyc-yellow-taxi-mlops](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops), rama `main`. El usuario autorizó cada publicación, incluida «Favor subir el tercer commit a github». Cada entrega conserva el estado y las aprobaciones de su momento; publicar no autoriza tareas, lotes ni promociones futuras.
 
+## Resumen de las cinco entregas
+
+La numeración identifica entregas funcionales. La cuarta contiene varios commits
+y un merge; la quinta continúa ese historial sin reescribirlo.
+
+| Entrega | Alcance | Identificación Git |
+|---|---|---|
+| 1 | T01–T11: arquitectura, entorno, ingesta y calidad | 164bf9e |
+| 2 | T12–T15: features, políticas reales y baseline; bloqueo histórico T14 | 27b09d2 |
+| 3 | T14 integral, candidatos, evaluación independiente, MLflow y champion v4 | 07f8729 |
+| 4 | T20–T31: API, Docker, CI, métricas y monitoreo | PR #1 y merge 21a6abf; commits detallados más abajo |
+| 5 | T32–T38: challenger/gate, operación reversible, reproducción y README renovado | Commit con mensaje `Complete T32-T38 retraining lifecycle and refresh project README` |
+
+El SHA de la quinta entrega se obtiene con el comando incluido en su sección;
+no se escribe un hash autorreferente dentro del propio commit.
+
 ## Primer commit — Base del proyecto y pipeline hasta T11
 
 - Commit: [`164bf9e3f08fe5ae528d36fc0a2fa06f33a74943`](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commit/164bf9e3f08fe5ae528d36fc0a2fa06f33a74943).
@@ -40,7 +56,7 @@ T15 tiene cierre técnico; la revisión humana sigue siendo independiente. **T14
 
 - Mensaje: `Complete T14-T19 modeling, MLflow tracking and LightGBM champion`.
 - Padre: `27b09d2d0a0344b88bd9dbfefabb8154f81a99ec`.
-- Identificación: es el commit que incorpora esta sección; su hash definitivo se consulta en Git. No se escribe dentro de su propio contenido porque lo modificaría.
+- Commit: [`07f8729d2ff94820631fe76fdf3e827d4e04f02d`](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commit/07f8729d2ff94820631fe76fdf3e827d4e04f02d).
 
 | Área | Cambios y evidencia |
 |---|---|
@@ -127,7 +143,16 @@ los tres commits anteriores; el PR #1 permanece en borrador, sin merge.
 
 ## Contenido público y consulta del historial
 
-Se versionan código, pruebas, fixtures sintéticas pequeñas, configuración pública, PDF de referencia/avance y reportes Markdown. Permanecen locales los 27 Parquet reales actuales y sus manifiestos generados, datasets procesados, modelos/predicciones, SQLite y artefactos MLflow, reportes JSON de ejecución, catálogos `*.local.json`, entornos, cachés y secretos. Los JSON de política/protocolo y las autorizaciones excepcionales son configuración pública; no contienen registros de viajes.
+**Integración posterior aprobada — 2026-11-09:** el usuario solicitó integrar
+PR #1. Se cambió de borrador a listo y se realizó merge conservando todos
+los commits: [`21a6abf`](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commit/21a6abf69748d44cde762696dde56fb6fee83d0f).
+README e historial verificados en main; rama local sincronizada y
+[CI del merge aprobado](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/actions/runs/42739752670).
+Las referencias anteriores a main con tres commits y PR en borrador describen
+los checkpoints previos a esa autorización. T32–T34 corresponden a trabajo
+local posterior, aún sin un nuevo commit/push solicitado.
+
+Se versionan código, pruebas, fixtures sintéticas pequeñas, configuración pública, PDF de referencia/avance y reportes Markdown. Permanecen locales los 30 Parquet reales actuales y sus manifiestos generados, datasets procesados, modelos/predicciones, SQLite y artefactos MLflow, reportes JSON de ejecución, catálogos `*.local.json`, entornos, cachés y secretos. Los JSON de política/protocolo y las autorizaciones excepcionales son configuración pública; no contienen registros de viajes.
 
 Los reportes históricos que indican «sin nuevo commit/push» describen el momento de su medición, anterior a la publicación correspondiente. Sus hashes, métricas y límites se conservan como evidencia; no son afirmaciones sobre el estado remoto posterior.
 
@@ -137,4 +162,86 @@ git show --stat 164bf9e
 git show --stat main
 ```
 
-El [historial de main](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commits/main) permite consultar hashes y diferencias de las tres entregas. En esta publicación, `main` identifica el tercer commit; futuras entregas pueden avanzar esa referencia.
+El [historial de main](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commits/main)
+permite consultar las entregas y sus diferencias. La referencia main avanza con
+las publicaciones; los SHA anteriores identifican sus checkpoints inmutables.
+
+## Checkpoint previo a la quinta entrega — T32–T34 locales
+
+Se implementaron triggers, cohortes nuevas y auditorías, LightGBM challenger
+con escritura acotada, evaluación emparejada, registro sin alias y gate.
+Nuevo ciclo 2025/Q1 2026 conocido/Q2 2026 independiente, con tres descargas
+limitadas y excepciones D-04 aprobadas por separado. Fallo inicial de memoria
+preservado, corrección sin elevar presupuesto ni reducir registros.
+
+V5 se registra y el gate lo rechaza por mejora MAE 0,737317 % <2 %; v4 sigue
+champion. 663 pruebas locales PASS/una omisión prevista, Ruff/pip check y
+auditorías completas. [Evidencia](../reports/retraining/t34_comparison.md).
+No se inventa un SHA para este trabajo no publicado ni se modifica el historial.
+`main` remoto sigue en el merge 21a6abf; la rama local tiene cambios sin commit.
+
+## Checkpoint previo a la quinta entrega — T35–T38 locales
+
+Mecanismo operativo v2 compatible con T19, promoción/rollback con diario y API
+por identidad; demo sintética MLflow/HTTP, rollback en otro proceso y caída
+compensada. Workflow completo con fixtures y reanudación real sin repetir
+fits/evaluaciones. Export aislado offline, runbook, guion y presentación.
+
+V4 real se conserva, v5 rechazado. Revisión cruzada por otro integrante y defensa
+oral NO VERIFICADAS; el cierre técnico separado fue aprobado por el usuario.
+[Resultados y pruebas](../reports/final/completion.md). Estos cambios, junto con
+T32–T34, no tienen commit/push nuevo; no se inventa un SHA ni se reescribe el historial.
+
+Cierre técnico local 2026-11-10: 681 pruebas PASS/una omisión, Ruff/formato/pip
+check PASS y export offline verificable. Timeout de arranque y repetición
+conservados, sin ampliar límites. [Resumen G6](../reports/final/completion.md).
+La última publicación verificada sigue siendo 21a6abf; este cierre no agrega
+un commit ni afirma que los archivos remotos ya incorporen T32–T38.
+
+## Quinta entrega — T32–T38 y presentación profesional del proyecto
+
+Solicitada por el usuario el **2026-11-10**: «Necesito que hagas el 5to commit
+y además cambies el readme principal o actualices para que se vea el trabajo
+profesional de todo lo hecho», y ratificada con «Continuar ... Ya habías empezado».
+
+- Mensaje: `Complete T32-T38 retraining lifecycle and refresh project README`.
+- Padre: `21a6abf69748d44cde762696dde56fb6fee83d0f`.
+- Identificación: commit que incorpora esta sección. Consultar su SHA sin
+  modificar su contenido:
+
+```powershell
+git log -1 --format="%H %s" --grep="^Complete T32-T38 retraining lifecycle and refresh project README$" main
+```
+
+| Área | Contenido y evidencia |
+|---|---|
+| T32 | Triggers sobre evidencia congelada de PSI/desempeño; recomiendan revisión sin ejecutar entrenamiento. [Resultado](../reports/retraining/t32_trigger.md). |
+| T33 | Cohortes nuevas, auditorías completas y LightGBM desde cero sobre 48.144.298 viajes elegibles de 2025; v5 registrado sin alias. Fallo inicial por memoria y corrección por bloques conservados. [Fit/registro](../reports/retraining/t33_challenger.md). |
+| T34 | Comparación independiente Q2 2026, 11.603.243 filas: mejora MAE 0,737317 % <2 %; v5 rechazado y v4 intacto. Tres descargas oficiales limitadas y excepciones D-04 exactas aprobadas, sin cambiar umbrales. [Gate](../reports/retraining/t34_comparison.md). |
+| T35 | Contrato operativo v2 compatible con T19; aprobación, gate, diario, API por identidad, promoción/rollback y compensación. Demo exclusivamente sintética con MLflow/FastAPI aislados. [Operación](runbook.md). |
+| T36 | Workflow manual, registro de fixture sin alias y verificación/reutilización de la campaña real; sin nuevos fits ni holdout reales. No incorpora promoción automática ni workflow remoto de retraining. [Contrato](../spec.md). |
+| T37 | Export aislado con manifiesto, venv limpio, wheels exactos de caché y cero descargas nuevas. Logs, JUnit, hashes y recuperación trazada. [Verificación final](../reports/final/completion.md). |
+| T38 | Runbook, trazabilidad, guion ejecutable y presentación Markdown; resultados científicos separados de demos TEST_ONLY. [Material](../reports/final/presentation.md). |
+| README | Portada con arquitectura Mermaid, resultados comparables, protocolos temporales, instalación, API, demos y documentación; elimina pendientes obsoletos de la página principal. |
+
+Verificación funcional previa: **681 pruebas aprobadas y una omisión prevista**
+en 682 casos distintos, Ruff/formato (146 archivos) y pip check PASS. El caso HTTP
+se repitió tras un timeout inicial de 90 segundos; se conservan el FAIL y ambos
+JUnit finales, sin cambiar código ni límites. La causa raíz del timeout no está
+confirmada y se mantiene como riesgo de arranque local.
+
+Las 71 fuentes del proyecto coinciden con el wheel probado
+`c162da4c19391e1c65cfa63ea2b17ba1c433e3992ebc4ada73c219868785eac2`.
+README e historial se renovaron después de esa verificación, sin cambiar lógica
+ni dependencias. Los hashes de 30 raw y 28 archivos originales se conservaron.
+Las comprobaciones de publicación verifican también referencias y contenido Git.
+Los atributos Git conservan los bytes CRLF de las tres autorizaciones T34
+ligadas por hash; reconocen ese fin de línea sin desactivar la revisión de
+espacios sobrantes ni normalizar los documentos aprobados.
+
+Se incorporan código, pruebas, configuración pública, ADR y reportes Markdown.
+Permanecen fuera datasets reales, modelos, SQLite, recibos JSON de ejecución,
+secretos, entornos, cachés y el PDF nuevo no solicitado para publicación.
+**Champion v4 conservado; v5 rechazado.** G6 tiene cierre técnico; revisión
+cruzada humana y defensa oral continúan NO VERIFICADAS. Los apartados previos
+«sin commit/push» describen el checkpoint anterior a esta quinta entrega.

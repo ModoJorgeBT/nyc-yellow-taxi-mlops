@@ -1,0 +1,72 @@
+{
+  "format_version": 2,
+  "exception_id": "d04-2026-06-t34-exact-v2",
+  "approval_status": "APPROVED",
+  "approved_by": "USER_EXPLICIT_IN_CONVERSATION",
+  "approval_recorded_on": "2026-11-09",
+  "approval_timezone": "America/Costa_Rica",
+  "user_instruction": "S\u00ed, aprobar las tres excepciones exactas",
+  "proposal_sha256_before_approval": "8c031cc59d203bd2bfaade2d9e416cbccf867e4bfc7e640ec020e4aa551c964d",
+  "year": 2026,
+  "month": 6,
+  "raw_sha256": "f340c62a18885c56176433c9db28e97d0a8a14e6e49869276ad8afb20ebf088b",
+  "config_sha256": "555f4b943b12884639369caeae348a37d97b7efb2918e72818fa8f1cd9a5dc48",
+  "policy_version": "d04-real-v1-2026-11-03",
+  "preserve_invalid_row_exclusions": true,
+  "allow_other_failures": false,
+  "allow_other_lots": false,
+  "rejected_report": {
+    "relative_path": "../reports/quality/2026/06/404601a2ed2145c7b85a147ab57759d3.json",
+    "sha256": "46a2c897d0bb8427ccdbcdc02af5661e6bb65336e64ebebf38dfaef1b144285a"
+  },
+  "allowed_failures": [
+    {
+      "evidence": {
+        "first_raw_row_indexes": [
+          116,
+          117,
+          137,
+          191,
+          365
+        ],
+        "index_base": 0
+      },
+      "observed": {
+        "count": 49807,
+        "rate": 0.012979875160531715
+      },
+      "rule": "rows.duration_nonpositive",
+      "severity": "critical",
+      "status": "FAIL",
+      "threshold": {
+        "denominator": "all_raw_rows",
+        "fail_above": 0.005,
+        "warn_above": null
+      }
+    },
+    {
+      "evidence": {
+        "first_raw_row_indexes": [
+          116,
+          117,
+          137,
+          191,
+          365
+        ],
+        "index_base": 0
+      },
+      "observed": {
+        "count": 50930,
+        "rate": 0.013272532815184215
+      },
+      "rule": "rows.union_invalid_rows",
+      "severity": "critical",
+      "status": "FAIL",
+      "threshold": {
+        "denominator": "all_raw_rows",
+        "fail_above": 0.01,
+        "warn_above": 0.005
+      }
+    }
+  ]
+}

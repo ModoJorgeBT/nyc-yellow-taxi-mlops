@@ -1,0 +1,132 @@
+{
+  "format_version": 1,
+  "status": "APPROVED",
+  "protocol": "challenger-2025-v1",
+  "approval": "USER_EXPLICIT_T32_T33_T34_THREE_APPROVALS_2026_11_09",
+  "triggers": {
+    "mae_ratio_strictly_above": 1.15,
+    "psi_strictly_above": 0.2,
+    "consecutive_calendar_months": 2,
+    "minimum_rows": 1000,
+    "quarterly_review_months": 3,
+    "automatic_training": false,
+    "automatic_promotion": false
+  },
+  "gate": {
+    "minimum_mae_improvement": 0.02,
+    "maximum_global_rmse_increase": 0.0,
+    "maximum_global_p90_increase": 0.0,
+    "maximum_segment_mae_increase": 0.05,
+    "maximum_segment_p90_increase": 0.05,
+    "minimum_segment_rows": 1000,
+    "noninferiority_enabled": false,
+    "automatic_promotion": false
+  },
+  "periods": {
+    "train": [
+      "2025-01-01T00:00:00-05:00",
+      "2026-01-01T00:00:00-05:00"
+    ],
+    "validation": [
+      "2026-01-01T00:00:00-05:00",
+      "2026-04-01T00:00:00-04:00"
+    ],
+    "final": [
+      "2026-04-01T00:00:00-04:00",
+      "2026-07-01T00:00:00-04:00"
+    ]
+  },
+  "resources": {
+    "preparation": {
+      "preflight_min_free_ram_gib": 4,
+      "process_rss_limit_gib": 2
+    },
+    "training": {
+      "preflight_min_free_ram_gib": 8,
+      "process_rss_limit_gib": 4
+    },
+    "evaluation": {
+      "preflight_min_free_ram_gib": 6,
+      "process_rss_limit_gib": 2
+    }
+  },
+  "downloads": {
+    "year": 2026,
+    "months": [
+      4,
+      5,
+      6
+    ],
+    "max_file_bytes": 536870912,
+    "max_total_bytes": 1073741824
+  },
+  "monitoring_config": {
+    "path": "configs/monitoring.yaml",
+    "sha256": "dfcf2a165e74a92892bd390c6cccca00da773fa8de8188b3dc4be6af9b287d6c"
+  },
+  "monitoring_reports": [
+    {
+      "path": "reports/monitoring/monthly/2025/07/8d2e2ebb1e774292a9bb6e018ed0e3cc/monitoring.json",
+      "sha256": "b83ff27d0380ba907ae9b9a42c1d91f6818119322f7ef3e253a2758c701a9f0f",
+      "year": 2025,
+      "month": 7
+    },
+    {
+      "path": "reports/monitoring/monthly/2025/08/52dda56295aa46c0a7ad9b4f9b97ecd7/monitoring.json",
+      "sha256": "bb22aafa60399e84e85e7ad12fc1bcf9bba8ee820eeda474bfe553e6d13505d7",
+      "year": 2025,
+      "month": 8
+    },
+    {
+      "path": "reports/monitoring/monthly/2025/09/33fdafd2fab846458a7d005a77ec69ce/monitoring.json",
+      "sha256": "1e3abffad6be0252451b624aff9d2f320bd35d07b52e205ed8dd30647cae92c7",
+      "year": 2025,
+      "month": 9
+    },
+    {
+      "path": "reports/monitoring/monthly/2025/10/2ec4697299d745588548bb1598a66e1d/monitoring.json",
+      "sha256": "05b76cdc796bfa85c547343eb6373eb87a1e296562db174d818fe9802e31c39d",
+      "year": 2025,
+      "month": 10
+    },
+    {
+      "path": "reports/monitoring/monthly/2025/11/97dec678e4d946bf83a00f29248485a4/monitoring.json",
+      "sha256": "d9d7c7d6e612d721f95686065bdd430eff5f33bc346abdf476d73650b866d8f0",
+      "year": 2025,
+      "month": 11
+    },
+    {
+      "path": "reports/monitoring/monthly/2025/12/f61a5c9429c8446b8bc14e1ce58273bd/monitoring.json",
+      "sha256": "2bd6ae55cbf9401d604ac49258e93ba709984c52ed992a540759492ee7f05894",
+      "year": 2025,
+      "month": 12
+    }
+  ],
+  "reference_mae_minutes": 6.496404304242834,
+  "champion_train_end": "2025-01-01T00:00:00-05:00",
+  "trigger_as_of_utc": "2026-01-02T05:00:00+00:00",
+  "champion_approval": {
+    "path": "configs/champion.yaml",
+    "sha256": "0b38d56282ed4f1e7e5578069ab27275fe149561390e153807c1d65bbb26c179"
+  },
+  "lightgbm_config": {
+    "path": "configs/lightgbm.yaml",
+    "sha256": "d4fa4bd2e2791eaecab5981d039efcfd9dd2e4fa62b20dc75d6d82c05db9de90"
+  },
+  "data_config": {
+    "path": "configs/data.yaml",
+    "sha256": "1429b37abe8a1aa09210f12308b5355ebfa8aed39c04243c107d952ea35cf167"
+  },
+  "original_split": {
+    "path": "data/processed/splits/e02156de2ac5477bafc4657774e31673/split_manifest.json",
+    "sha256": "c34f4712710a10181d2c04631e9cd05f550e7110c3142fb067a1bb5566fd592a"
+  },
+  "original_validation": {
+    "path": "data/processed/lightgbm-evaluations/e80728e5140a4bbd936fc7b740c73544/evaluation_manifest.json",
+    "sha256": "4d81c5e387439f55a4f3f6195eb86ab7e9b0768ed3139c125a612eb55f863f4b"
+  },
+  "runtime_lock": {
+    "path": "requirements-serving.lock",
+    "sha256": "7e71d888e7b18dcd31e521ca070d6477be38d22a80a7558b9bbeea8fba292093"
+  }
+}

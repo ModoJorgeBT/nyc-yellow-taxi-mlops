@@ -1,6 +1,7 @@
 """T21: instantanea verificada del champion, sin promover ni recargar alias."""
 
 import hashlib
+import json
 import math
 import os
 import tempfile
@@ -69,12 +70,26 @@ class LoadedChampion:
 
 @contextmanager
 def load_champion(
-    *, root: Path | None = None, config: Path | None = None
+    *, root: Path | None = None, config: Path | None = None, test_only: bool = False
 ) -> Iterator[LoadedChampion]:
     """Solo configuracion del operador; ninguna URI procede de una peticion HTTP."""
     root = (Path.cwd() if root is None else Path(root)).resolve()
     config = root / "configs/champion.yaml" if config is None else Path(config)
-    decision = read_approval(config)
+    if (
+        config.is_file()
+        and json.loads(config.read_text(encoding="utf-8")).get("format_version") == 2
+    ):
+        from functools import partial
+
+        from src.retraining import lifecycle
+
+        decision = lifecycle.read_approval(config, root=root, test_only=test_only)
+        resolver = partial(lifecycle.resolve_champion, test_only=test_only)
+    else:
+        if test_only:
+            raise ChampionUnavailable("Serving TEST_ONLY requiere contrato operativo v2 aislado")
+        decision = read_approval(config)
+        resolver = resolve_champion
     os.environ.setdefault("MLFLOW_DISABLE_TELEMETRY", "true")
     os.environ.setdefault("MLFLOW_DISABLE_AGENT_HINT", "1")
     os.environ.setdefault("MLFLOW_HTTP_REQUEST_TIMEOUT", "5")
@@ -90,7 +105,7 @@ def load_champion(
     # MLflow 3.16 consulta tambien el URI global al resolver un logged model anidado.
     mlflow.set_tracking_uri(endpoint)
     mlflow.set_registry_uri(endpoint)
-    identity = resolve_champion(config, root=root, **client_options)
+    identity = resolver(config, root=root, **client_options)
     cache = (root / ".cache/serving").resolve()
     if not cache.is_relative_to(root):
         raise ChampionUnavailable("Cache fuera del proyecto")
@@ -113,7 +128,7 @@ def load_champion(
             raise ChampionUnavailable("Bytecode no aprobado dentro del paquete")
         restore_generated_metadata(downloaded, decision)
         verify_artifact_files(downloaded, decision)  # Antes de pickle y codigo registrado.
-        if resolve_champion(config, root=root, **client_options) != identity:
+        if resolver(config, root=root, **client_options) != identity:
             raise ChampionUnavailable("Champion cambio durante la descarga")
         model = LoadedChampion(identity, load_model(str(downloaded)))
         for payload, expected in zip(

@@ -248,9 +248,9 @@ Montajes separados para datos, tracking y reportes. Variables configurables por 
 
 **[APROBADO T27/T28, 2026-11-09]** Ventanas operativas de 60 segundos; p50/p95 exactos hasta 10.000 solicitudes por ventana, no disponibles al superarlas y contadores conservados. Logs agregados y exportación local, sin endpoint adicional ni afirmación de disponibilidad continua. Calidad/schema utiliza los reportes completos congelados, preserva D-04 y excepciones exactas; cambios de volumen/tasas descriptivos, sin nuevos umbrales ni distribuciones inventadas. [Contrato y evidencia](docs/t26-t28.md).
 
-**[DECISIÓN T29: D-05 parcial]** PSI >0,20, suavizado aditivo 0,5 por categoría y mínimo 1.000 filas en ambas poblaciones; seis features discretas y referencia del mismo mes de train 2024. Cálculo sobre todas las filas, sin defaults de drift de Evidently ni muestreo. Solo alerta para revisión. **[PROPUESTA pendiente, PDF §9.1]** El trigger de MAE >115 % durante dos ventanas, cambios sostenidos de calidad/esquema y evaluación preventiva siguen pendientes para T32; no son configuración ejecutable aprobada.
+**[DECISIÓN T29/T32]** PSI >0,20, suavizado 0,5 por categoría y mínimo 1.000 filas; seis features discretas y referencia mensual train completa. T32 aprueba recomendar reentrenamiento por MAE >115 % de validation durante dos meses consecutivos o por la misma feature con PSI >0,20 en dos meses. Calidad no aceptada bloquea; revisión trimestral solo avisa. No se entrena automáticamente. [Protocolo aprobado](docs/t32-t34-execution-proposal.md).
 
-**[BASE]** Separar entrenamiento de promoción, exigir calidad, pruebas y evaluación por segmentos; si falla, champion permanece activo. **[PROPUESTA: D-05 pendiente, PDF §9.2]** Exigir mejora de MAE de al menos 2 % **o** no inferioridad predefinida, junto con smoke tests. El margen de no inferioridad y las tolerancias por segmento aún deben definirse y aprobarse.
+**[BASE]** Separar entrenamiento de promoción; si el gate falla, champion permanece activo. **[DECISIÓN T34]** Mejora global MAE >=2 %, RMSE/P90 globales sin empeorar y aumento MAE/P90 <=5 % en cada mes, franja y las 20 rutas congeladas, con mínimo 1.000 filas por segmento; además calidad, integridad y smoke. No inferioridad deshabilitada. Solo elegibilidad para revisión humana; no promoción automática. [Resultado: v5 rechazado, v4 conservado](reports/retraining/t34_comparison.md).
 
 **[PROPUESTA]** Los triggers generan una **recomendación auditable**, no una promoción automática. Registrar reportes y decisiones `NO_ACTION`, `RETRAIN_RECOMMENDED`, `CHALLENGER_REJECTED`, `PROMOTED`, `ROLLED_BACK`. Para medir performance se requieren etiquetas posteriores al viaje: no inferir MAE a partir de solicitudes sin ground truth.
 
@@ -368,14 +368,14 @@ docker compose build
 
 | ID | Decisión | Propuesta inicial | Responsable |
 |---|---|---|---|
-| D-01 | Meses y volumen | APROBADA: train 2024; validation ene–mar 2025; test original abr–jun; replay jul–dic. Evaluación final independiente ene–mar 2026 aprobada y auditada por separado | equipo |
+| D-01 | Meses y volumen | Protocolo original intacto. Ciclo T33/T34 aprobado y auditado: train 2025, validation conocida ene–mar 2026 y final nueva abr–jun 2026 | equipo |
 | D-02 | Límites de hardware | Todos los elegibles; preparación 4/2, entrenamiento 8/4 e inferencia final 2026 6 GiB libres/2 GiB RSS; cuatro hilos, un candidato, 2 h/candidato y 50 GiB disco. Perfiles aprobados y verificados | equipo |
 | D-03 | Herramientas | Locks históricos y serving intactos. Evidently 0.7.23/pandas 2.3.3 aprobados y verificados solo en renderer; modelo conserva pandas 3.1.1. CI separado y locks propios | equipo/docente |
-| D-04 | Umbrales DQ | V1 global congelada; diez excepciones exactas de 2025 y tres de ene–mar 2026 aplicadas. 14 lotes pasan calidad y 13 aceptados excepcionalmente; FAIL y exclusiones conservados. Todo incumplimiento nuevo requiere consulta/aprobación | equipo |
-| D-05 | Drift/retraining | PSI >0,20/alpha 0,5/mínimo 1.000 aprobados para revisión en T29. Triggers 115 %/dos ventanas y promoción 2 %/no inferioridad pendientes; champion T19 intacto | equipo |
-| D-06 | Contrato API | whitelist origen/calendario/pasajeros, convención temporal y catálogo operativo aprobados; destino deshabilitado. Contrato REST completo pendiente | equipo |
-| D-07 | Persistencia MLflow | APROBADA/IMPLEMENTADA/VERIFICADA: SQLite y artefactos locales, loopback, entorno aislado y cuatro versiones registradas y LightGBM v4 champion por T19. [Evidencia T18](reports/tracking/t18_completion.md) | equipo |
-| D-08 | Criterio de terminado | T14–T31 y G3/G4/G5 con cierre técnico auditado; revisión humana y criterio general de PR independientes. PR #1 en borrador, sin merge | equipo |
+| D-04 | Umbrales DQ | V1 congelada; diez excepciones exactas de 2025 y seis de ene–jun 2026 aprobadas/aplicadas. 30 lotes: 14 pasan y 16 aceptados excepcionalmente; FAIL/exclusiones intactos. Nuevos incumplimientos requieren aprobación | equipo |
+| D-05 | Drift/retraining | Triggers T32 y gate T34 aprobados/implementados; MAE >115 % o misma feature PSI >0,20 dos meses; gate mejora >=2 %, sin regresión RMSE/P90 global y segmentos <=5 %. No inferioridad deshabilitada; promoción manual pendiente T35 | equipo |
+| D-06 | Contrato API | Contrato REST completo aprobado/verificado T20–T22; whitelist origen/calendario/pasajeros, offset y catálogo; destino deshabilitado | equipo |
+| D-07 | Persistencia MLflow | MLflow local persistente verificado; cinco versiones registradas. V4 champion, v5 candidato rechazado por T34 y sin alias. Copia Docker v4 conservada | equipo |
+| D-08 | Criterio de terminado | T14–T34 y G3/G4/G5 con cierre técnico; PR #1 integrado por aprobación humana. T32–T34 locales, sin nuevo commit/push; G6/T35–T38 pendientes | equipo |
 
 ## 18. Instrucciones para Codex / agente
 
@@ -461,3 +461,41 @@ de TLC. Servicio 2025 NOT_AVAILABLE, observaciones actuales T27 separadas.
 G5 PASS técnico con CI 625+17; revisión humana del PR independiente. Champion,
 D-04, excepciones y evaluaciones anteriores intactos. T32–T38 pendientes.
 [Contrato](docs/t29-t31-monitoring.md) y [resultados](reports/monitoring/t29-t31_monthly_replay.md).
+
+## Cierre técnico T32–T34 (2026-11-09)
+
+Nuevo ciclo aprobado: train 2025/validation conocida Q1 2026/final nueva Q2
+2026. Tres cohortes con 70.684.628 filas auditadas contra fuentes y cortes;
+parámetros LightGBM congelados, train-only y todos los elegibles. V5 registrado
+sin alias; comparación emparejada y auditoría completa de 11.603.243 filas.
+Gate CHALLENGER_REJECTED por mejora MAE 0,737317 % <2 %, sin otros controles
+incumplidos. V4 permanece champion; decisiones/métricas trazadas en MLflow.
+
+663 pruebas locales aprobadas y una omitida, Ruff/pip check PASS. Fallo inicial
+de fit por memoria y su corrección con escritura por bloques preservados,
+sin relajar límites ni cambiar dependencias. Tres excepciones exactas Q2
+aprobadas, 155.207 exclusiones DQ y 874 temporales; D-04 global intacta.
+[Contrato](docs/t32-t34-retraining.md) y [resultado](reports/retraining/t34_comparison.md).
+T32–T34 aún locales, sin nuevo commit/push. T35–T38 pendientes.
+
+## Contrato operativo T35–T38 aprobado
+
+V2 mantiene compatibilidad con T19/v1 y usa aprobación/estado activo separados,
+gate elegible recalculable, artefactos verificados y diario encadenado con
+rollback. Control de concurrencia local y compensación, sin atomicidad global.
+Solo API propia por identidad; Docker/alias v4 reales no se alteran. Fixtures
+exigen TEST_ONLY/raíz/namespace/puerto aislados y no se admiten como reales.
+
+Workflow manual plan/resume y motor con autorización, registro sin alias y
+sin promoción automática; la campaña real existente se reutiliza sin fits ni
+holdout nuevos. T37 reproduce export del trabajo local con venv limpio y wheels
+exactos ya aprobados, cero descargas. Material T38 en Markdown. Revisión cruzada
+humana y defensa NO VERIFICADAS; cierre técnico se informa por separado.
+[Runbook](docs/runbook.md), [evaluación G6](reports/final/completion.md).
+
+**Cierre 2026-11-10:** T35–T38/G6 PASS técnico en el alcance aprobado.
+Reproducción offline de 306 archivos y 71 fuentes del wheel verificadas;
+681 pruebas PASS/una omisión prevista, Ruff/formato/pip check PASS. Timeout
+HTTP inicial preservado y repetición trazada sin cambiar bytes/recursos.
+30 raw y 28 archivos originales intactos; v4 champion/v5 bloqueado.
+Revisión humana/defensa NO VERIFICADAS; cambios aún sin commit/push.

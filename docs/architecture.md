@@ -190,3 +190,38 @@ alertas para revisión; servicio histórico NOT_AVAILABLE y D-04 intacta.
 G5 satisface el alcance técnico de observación; no acredita disponibilidad
 histórica de archivos TLC ni autoriza retraining/promoción.
 [Contrato, recursos y evidencia](t29-t31-monitoring.md).
+
+## T32–T34: nuevo ciclo temporal, sin promoción
+
+T32 consume reportes por hash y recomienda; no lanza entrenamiento. Cohortes
+separadas train 2025/validation Q1 2026 conocida/final Q2 2026 nueva, con
+auditorías completas de fuentes, valores, identidades y disponibilidad de
+etiquetas. T33 usa el worker LightGBM supervisado y archivos escritos por
+bloques; máximo combinado 4 GiB y todos los registros, sin nuevos servicios.
+
+V5 se registra sin alias en MLflow nativo 5000. Predicciones iniciales y unión
+posterior de etiquetas permanecen separadas. Reserva final de un solo uso,
+gate y auditoría independiente sobre el mismo conjunto congelado. Mejora MAE
+0,737317 % <2 %: candidato rechazado; champion v4 y copia Docker 5001/API 8080
+conservados. No se inició T35 ni se modificó el runtime de serving.
+[Contrato y evidencia](t32-t34-retraining.md). Cambios todavía locales.
+
+## T35–T38: operación reversible y reproducción aislada
+
+Aprobación operativa v2 separada de T19/v1, gate recalculado antes de writes,
+paquete por hash antes de deserializar y diario encadenado con bytes/alias
+previos. Controlador de API verifica token/PID/comando/raíz; compensación
+ante fallo y rollback manual conservan versiones. Bloqueo local, sin afirmar
+transacción distribuida ni sobrescribir cambios externos. Loader v1 compatible.
+
+La demo usa namespace synthetic- y puertos libres distintos de 5000/5001/8000/8080.
+V4 y Docker real intactos; v5 real no elegible. Workflow manual sin promoción,
+registro fixture aislado y reanudación de evidencia real ya congelada.
+Export sin .git/datos/modelos/secretos, venv nuevo y wheels exactos de caché;
+no es clon remoto ni revisión de otra persona. [Runbook](runbook.md) y
+[cierre técnico/pendientes humanos](../reports/final/completion.md).
+
+Verificación final: 681 pruebas PASS/una omisión, export offline con 71 fuentes
+idénticas al wheel y 306 archivos verificados. Timeout de arranque aislado
+preservado; repetición y cobertura restante trazadas sin cambios de código
+o presupuesto. G6 PASS técnico; no acredita revisión humana/defensa.
