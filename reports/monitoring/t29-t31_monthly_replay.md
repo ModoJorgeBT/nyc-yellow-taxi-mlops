@@ -1,9 +1,13 @@
 # T29–T31 — Replay mensual completo
 
-**Datos y auditoría PASS, 2026-11-09.** Champion LightGBM v4 congelado;
+**T29–T31 y G5 PASS técnico, 2026-11-09.** Champion LightGBM v4 congelado;
 24.266.924 viajes elegibles de julio–diciembre 2025, sin submuestreo.
-CI del nuevo renderer está en corrección tras detectar un WORKDIR incorrecto;
-el cierre de G5 requiere observar su ejecución verde.
+CI del PR y push pasó: 625 pruebas principales y una omisión intencional de
+Evidently, cubierta por 17 pruebas del renderer en su entorno separado.
+[PR verde 42730725351](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/actions/runs/42730725351),
+[push verde 42730720584](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/actions/runs/42730720584).
+El fallo anterior de WORKDIR se conserva en el historial; quedó corregido
+en 05e5358. PR #1 en borrador, sin merge.
 
 | Cohorte | Filas evaluadas | MAE min | RMSE min | MedAE min | P90 min | Features con PSI >0,20 |
 |---|---:|---:|---:|---:|---:|---|
@@ -65,3 +69,17 @@ seis carpetas versionadas bajo reports/monitoring/monthly/2025/MM/;
 catálogo y auditoría en .cache/t29-t31/month-catalog.json y full-replay-audit.json.
 Auditor reproducible: `python scripts/audit_monitoring.py --catalog <catalogo> --output <nuevo-audit.json>`.
 Los datos/modelos y el PDF nuevo del equipo permanecen locales.
+
+Las 54 fuentes Python ejecutadas coinciden con el wheel archivado SHA-256
+`52697dd878eba52b4633ece81ebf3d48687dbfb7b158d44d283579de73603851`.
+Se verificaron los mismos 28 archivos originales de modelos/evaluaciones,
+configuración y locks contra su snapshot anterior. T32–T38 siguen pendientes.
+
+Verificación Windows adicional: 202 pruebas aprobadas y una omitida antes
+de un fallo de permisos al detener un servidor MLflow de fixture. Se verificó
+la identidad del proceso propio y se limpió con permisos adecuados; luego
+pasaron las 423 pruebas restantes, incluida la que falló por permisos.
+Cobertura completa de 625 aprobadas/una omitida en dos ejecuciones, sin
+ocultar el fallo original. El renderer aprobó además 24 pruebas locales
+(incluye las siete del auditor). La ejecución Linux completa de CI indicada
+arriba terminó sin ese incidente de permisos.

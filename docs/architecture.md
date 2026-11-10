@@ -36,9 +36,9 @@ flowchart TD
     PREV[Versión anterior conservada] -->|Rollback controlado| CHAMP
 ```
 
-El diagrama expresa responsabilidades y dependencias futuras. No representa despliegue ni ejecución ya realizados. Evidently es la herramienta propuesta para reportes, pendiente en D-03. El destino se incorporará a features solo si se aprueba D-06.
+El diagrama inicial expresa responsabilidades y dependencias. Los acuerdos posteriores documentados abajo registran la ejecución real; T29 aprueba Evidently aislado. El destino permanece excluido de las features del champion.
 
-Los lotes rechazados solo aportan sus reportes a la observación de calidad; su contenido no continúa al entrenamiento ni se considera aprobado para desempeño. La referencia de drift debe quedar identificada; su selección y ventanas permanecen pendientes en D-05.
+Los lotes rechazados solo aportan sus reportes a la observación de calidad; consumirlos requiere una excepción exacta aprobada. T29 identifica la referencia completa de train por hash y compara el mismo mes de replay; las reglas de retraining y promoción permanecen pendientes en D-05.
 
 ## 3. Responsabilidades y artefactos
 
@@ -174,3 +174,19 @@ congelados: referencia train 2024 y comparación del mismo mes del replay
 julio–diciembre 2025. Preserva FAIL, exclusiones y excepciones. No incorpora
 Evidently, drift de distribuciones, reentrenamiento ni promociones automáticas.
 [Contratos](t26-t28.md) y [evidencia GitHub](../reports/monitoring/t26_github_ci.md).
+
+## T29–T31: aislamiento y replay verificados
+
+Cierre técnico PASS: el coordinador conserva .venv-mlflow y pandas 3.1.1;
+el renderer separado usa Evidently 0.7.23/pandas 2.3.3 y recibe solo bins JSON.
+Se supervisan identidad, hashes y RSS combinado <=2 GiB. CI prueba ambos
+entornos por separado; no se añade un servicio permanente ni otro endpoint.
+
+Referencia mensual train 2024 completa y sellada; replay julio–diciembre
+2025 completo con unión por identidad y etiquetas maduras fin de mes +24 h.
+Destino solo segmenta resultados. PSI >0,20/alpha 0,5/mínimo 1.000 produce
+alertas para revisión; servicio histórico NOT_AVAILABLE y D-04 intacta.
+
+G5 satisface el alcance técnico de observación; no acredita disponibilidad
+histórica de archivos TLC ni autoriza retraining/promoción.
+[Contrato, recursos y evidencia](t29-t31-monitoring.md).

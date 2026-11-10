@@ -245,3 +245,23 @@ producción. **T26 PASS técnico:** [PR #1 verde](https://github.com/ModoJorgeBT
 y demostración roja/verde separada; [evidencia](reports/monitoring/t26_github_ci.md).
 La [publicación](docs/t26-publication-proposal.md) fue aprobada por el usuario;
 queda en PR borrador para revisión, sin merge a main. G5 y T29–T31 continúan pendientes.
+
+## Monitoreo T29–T31 — 2026-11-09
+
+**G5 PASS técnico.** Referencia de train 2024 completo y seis meses de replay
+julio–diciembre 2025: 24.266.924 predicciones/etiquetas maduras auditadas.
+PSI, calidad, métricas y reportes Evidently versionados; no se cambia el champion.
+CI verifica 625 pruebas principales y 17 del renderer aislado. La omisión de
+Evidently en el runtime original se cubre explícitamente en ese segundo entorno.
+
+```powershell
+.\.venv-mlflow\Scripts\python.exe -m src.monitoring.run --year 2025 --month 7
+```
+
+El renderer usa `.venv-monitoring`, Evidently 0.7.23 y pandas 2.3.3; el modelo
+conserva su runtime pandas 3.1.1. Sin etiquetas, desempeño NOT_AVAILABLE.
+Las observaciones actuales de servicio no se atribuyen a meses de 2025.
+[Operación y límites](docs/t29-t31-monitoring.md),
+[resultados y CI](reports/monitoring/t29-t31_monthly_replay.md).
+El [historial](docs/commit-history.md) distingue código, correcciones y evidencia
+de la cuarta entrega ampliada. PR #1 en borrador; T32–T38 pendientes.

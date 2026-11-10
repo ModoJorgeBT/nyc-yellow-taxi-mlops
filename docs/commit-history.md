@@ -77,7 +77,7 @@ verde. Demostración roja `22396d9` y restauración verde `3d89195` en
 `ci/t26-signal`, separada del PR. Un commit documental posterior conserva
 [los resultados reales y enlaces](../reports/monitoring/t26_github_ci.md).
 [Alcance aprobado](t26-publication-proposal.md) y [evidencia](t26-t28.md).
-G5 y T29–T31 siguen pendientes.
+En ese checkpoint G5 y T29–T31 seguían pendientes; la ampliación siguiente documenta su cierre técnico posterior.
 
 ### Ampliación aprobada de la cuarta entrega — T29–T31
 
@@ -87,7 +87,7 @@ replay con predicciones/etiquetas separadas y reportes mensuales versionados.
 Evidently 0.7.23 requiere un renderer con pandas 2.3.3; las predicciones conservan
 el runtime original. Locks y etapas CI separados, con hashes y supervisión.
 
-Estado inicial de publicación: implementación y pruebas enfocadas verificadas;
+Checkpoint inicial de publicación (histórico): implementación y pruebas enfocadas verificadas;
 referencia completa de 41.119.495 filas congelada; replay real de julio/agosto
 completado y septiembre–diciembre en ejecución. CI remoto y auditoría final
 siguen pendientes; G5 no se cierra por publicar el código. Un seguimiento
@@ -103,6 +103,27 @@ en la etapa Docker del renderer (`/workspace` en lugar de `/build`); no fue
 un incumplimiento de calidad de datos. Se conserva la ejecución fallida
 [42729494259](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/actions/runs/42729494259)
 y se corrige en un commit posterior, junto con el auditor exhaustivo.
+
+Corrección y auditor exhaustivo en
+[`05e5358`](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commit/05e5358aac72f273aba9b098549680d746525da3):
+directorio Docker corregido, auditor público independiente y siete pruebas de
+cuantiles mediante CDF. [CI del PR verde](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/actions/runs/42730725351):
+**625 pruebas aprobadas y una omitida** en el runtime original; **17 aprobadas**
+en el renderer aislado; builds e inspección de producción correctos. El fallo
+anterior queda visible en el historial y no se reescribieron commits.
+
+Cierre técnico T29–T31/G5: referencia sellada de **41.119.495 filas** y seis
+meses de replay con **24.266.924 filas**, todas auditadas. PSI, predicciones,
+métricas exactas, cobertura y segmentos verificados; las alertas solo solicitan
+revisión. Pesos, alias champion v4, evaluaciones originales y locks históricos
+conservados. [Resultados](../reports/monitoring/t29-t31_monthly_replay.md) y
+[operación](t29-t31-monitoring.md). No se implementa T32.
+
+Un seguimiento documental incorpora este cierre y sincroniza plan, spec,
+intent, README, decisiones y arquitectura. La cuarta **entrega funcional**
+contiene varios commits trazables: T20–T28, su evidencia CI, implementación
+T29–T31, corrección/auditor y cierre documental. `main` conserva exactamente
+los tres commits anteriores; el PR #1 permanece en borrador, sin merge.
 
 ## Contenido público y consulta del historial
 

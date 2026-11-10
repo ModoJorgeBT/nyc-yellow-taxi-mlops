@@ -145,7 +145,7 @@ trip_duration_minutes = (
 
 **[BASE]** Comprobar esquema, volumen, fechas, duración, duplicados, nulos de zonas, categorías, rangos, cambios de esquema y trazabilidad. Cada gate genera resultado `PASS`, `WARN` o `FAIL`, con regla, valor observado, umbral, severidad y evidencia. Por defecto, un fallo crítico detiene el pipeline y no genera un dataset aprobado. La excepción humana puntual de marzo, descrita abajo, conserva el FAIL medido y excluye las filas inválidas antes de aceptar el lote.
 
-Los reportes de lotes rechazados también alimentan la observación de calidad. Los datos rechazados no pasan al entrenamiento ni se presentan como lotes aprobados para evaluación de desempeño. T28 tiene una referencia aprobada e identificable para calidad/schema: los doce reportes completos de train 2024, con comparación por mismo mes de replay julio–diciembre 2025. La referencia para drift de distribuciones y sus umbrales D-05 siguen pendientes; no se deducen de esos agregados.
+Los reportes de lotes rechazados también alimentan la observación de calidad. Los datos rechazados no pasan al entrenamiento ni se presentan como lotes aprobados para evaluación de desempeño. T28 tiene una referencia aprobada e identificable para calidad/schema: los doce reportes completos de train 2024, con comparación por mismo mes de replay julio–diciembre 2025. T29 añade una referencia independiente de distribuciones completas de train, sellada por hash; no se deduce de los agregados de calidad.
 
 **[CONTINUACIÓN APROBADA 2026-11-05]** Los nueve permisos exactos de abril–diciembre de 2025 ya se aplicaron por mes/hash/reporte y conjunto de fallos. Se excluyeron 543.725 filas inválidas, manteniendo D-04 y los FAIL originales; el lector v2 conserva marzo v1. Las 24 versiones y sus cuatro particiones terminaron la auditoría. [Evidencia](reports/quality/t14_completion.md). Cualquier archivo, medición o fallo distinto requiere nueva consulta/aprobación.
 
@@ -244,11 +244,11 @@ Montajes separados para datos, tracking y reportes. Variables configurables por 
 
 ## 11. Monitoreo y reentrenamiento
 
-**[BASE]** Monitorear calidad de entradas, drift de distribuciones, desempeño cuando existan etiquetas verdaderas y métricas del servicio (latencia p50/p95, tasa de errores 4xx/5xx, throughput, disponibilidad). **[PROPUESTA: D-03 pendiente]** Utilizar Evidently para reportes por ventana temporal.
+**[BASE]** Monitorear calidad de entradas, drift de distribuciones, desempeño cuando existan etiquetas verdaderas y métricas del servicio (latencia p50/p95, tasa de errores 4xx/5xx, throughput, disponibilidad). **[DECISIÓN T29]** Evidently 0.7.23 genera reportes con pandas 2.3.3 en un subproceso aislado; las predicciones conservan el runtime original con pandas 3.1.1. Locks Windows/Linux propios y RSS combinado supervisado <=2 GiB. [Contrato y evidencia](docs/t29-t31-monitoring.md).
 
 **[APROBADO T27/T28, 2026-11-09]** Ventanas operativas de 60 segundos; p50/p95 exactos hasta 10.000 solicitudes por ventana, no disponibles al superarlas y contadores conservados. Logs agregados y exportación local, sin endpoint adicional ni afirmación de disponibilidad continua. Calidad/schema utiliza los reportes completos congelados, preserva D-04 y excepciones exactas; cambios de volumen/tasas descriptivos, sin nuevos umbrales ni distribuciones inventadas. [Contrato y evidencia](docs/t26-t28.md).
 
-**[PROPUESTA: D-05 pendiente, PDF §9.1]** Posible trigger si MAE mensual supera 115 % del MAE de referencia durante dos ventanas consecutivas; PSI > 0.20 en features críticas; cambios sostenidos de calidad/esquema; evaluación trimestral preventiva. Estos valores no están aprobados como configuración ejecutable.
+**[DECISIÓN T29: D-05 parcial]** PSI >0,20, suavizado aditivo 0,5 por categoría y mínimo 1.000 filas en ambas poblaciones; seis features discretas y referencia del mismo mes de train 2024. Cálculo sobre todas las filas, sin defaults de drift de Evidently ni muestreo. Solo alerta para revisión. **[PROPUESTA pendiente, PDF §9.1]** El trigger de MAE >115 % durante dos ventanas, cambios sostenidos de calidad/esquema y evaluación preventiva siguen pendientes para T32; no son configuración ejecutable aprobada.
 
 **[BASE]** Separar entrenamiento de promoción, exigir calidad, pruebas y evaluación por segmentos; si falla, champion permanece activo. **[PROPUESTA: D-05 pendiente, PDF §9.2]** Exigir mejora de MAE de al menos 2 % **o** no inferioridad predefinida, junto con smoke tests. El margen de no inferioridad y las tolerancias por segmento aún deben definirse y aprobarse.
 
@@ -370,12 +370,12 @@ docker compose build
 |---|---|---|---|
 | D-01 | Meses y volumen | APROBADA: train 2024; validation ene–mar 2025; test original abr–jun; replay jul–dic. Evaluación final independiente ene–mar 2026 aprobada y auditada por separado | equipo |
 | D-02 | Límites de hardware | Todos los elegibles; preparación 4/2, entrenamiento 8/4 e inferencia final 2026 6 GiB libres/2 GiB RSS; cuatro hilos, un candidato, 2 h/candidato y 50 GiB disco. Perfiles aprobados y verificados | equipo |
-| D-03 | Herramientas | Locks históricos 24/95 intactos; serving Windows 97 y Linux 99 fijados. API/Compose y Actions verificados; Ruff/BuildKit fijados y perfil CI aprobado, PR verde y demostración roja/verde reales. Evidently pendiente | equipo/docente |
+| D-03 | Herramientas | Locks históricos y serving intactos. Evidently 0.7.23/pandas 2.3.3 aprobados y verificados solo en renderer; modelo conserva pandas 3.1.1. CI separado y locks propios | equipo/docente |
 | D-04 | Umbrales DQ | V1 global congelada; diez excepciones exactas de 2025 y tres de ene–mar 2026 aplicadas. 14 lotes pasan calidad y 13 aceptados excepcionalmente; FAIL y exclusiones conservados. Todo incumplimiento nuevo requiere consulta/aprobación | equipo |
-| D-05 | Drift/retraining | Reglas automáticas 115 %, PSI 0.20 y 2 % pendientes; elección humana inicial LightGBM v4 aprobada y aplicada en T19 | equipo |
+| D-05 | Drift/retraining | PSI >0,20/alpha 0,5/mínimo 1.000 aprobados para revisión en T29. Triggers 115 %/dos ventanas y promoción 2 %/no inferioridad pendientes; champion T19 intacto | equipo |
 | D-06 | Contrato API | whitelist origen/calendario/pasajeros, convención temporal y catálogo operativo aprobados; destino deshabilitado. Contrato REST completo pendiente | equipo |
 | D-07 | Persistencia MLflow | APROBADA/IMPLEMENTADA/VERIFICADA: SQLite y artefactos locales, loopback, entorno aislado y cuatro versiones registradas y LightGBM v4 champion por T19. [Evidencia T18](reports/tracking/t18_completion.md) | equipo |
-| D-08 | Criterio de terminado | T14/T15/T16/T17, evaluación final independiente y T18/T19 auditadas con datos reales; revisión humana independiente y criterio general de PR pendiente | equipo |
+| D-08 | Criterio de terminado | T14–T31 y G3/G4/G5 con cierre técnico auditado; revisión humana y criterio general de PR independientes. PR #1 en borrador, sin merge | equipo |
 
 ## 18. Instrucciones para Codex / agente
 
@@ -449,3 +449,15 @@ G3 cumple sus condiciones de Sprint 3. D-05 conserva pendientes sus reglas
 automáticas de drift y promociones futuras; no se aprueban nuevos umbrales.
 [Decisión, pruebas y evidencia](reports/model_selection.md). Las menciones anteriores a champion
 pendiente son históricas; API y despliegue siguen en sus tareas posteriores.
+
+## Cierre técnico T29–T31 y G5 (2026-11-09)
+
+Referencia mensual completa de train y replay julio–diciembre 2025 auditados:
+24.266.924 predicciones con identidad, cobertura y métricas exactas verificadas.
+Etiquetas unidas después de predecir; corte mensual por recogida NY y madurez
+fin de mes UTC +24 h. Es replay de eventos; no prueba publicación histórica
+de TLC. Servicio 2025 NOT_AVAILABLE, observaciones actuales T27 separadas.
+
+G5 PASS técnico con CI 625+17; revisión humana del PR independiente. Champion,
+D-04, excepciones y evaluaciones anteriores intactos. T32–T38 pendientes.
+[Contrato](docs/t29-t31-monitoring.md) y [resultados](reports/monitoring/t29-t31_monthly_replay.md).

@@ -22,3 +22,11 @@ El usuario aprobó expresamente la recuperación con caché y un máximo
 adicional de 256 MiB para wheels exactos faltantes, con contador persistente
 y bloqueo estricto. El intento original permanece FAIL y no se
 presentará como si hubiese respetado 1 GiB.
+
+Recuperación completada: el contador persistente registró **177.600.252 bytes
+(169,37 MiB)** adicionales, dentro de los 256 MiB autorizados, incluyendo
+metadatos. Se fijaron 141 paquetes por plataforma en locks propios Windows y
+Linux. El renderer usa la excepción pandas 2.3.3 aprobada por separado; las
+dependencias del modelo no cambiaron. Importación, reportes reales y CI
+separado pasaron. El exceso inicial conserva su estado FAIL/ABORTADO y su
+evidencia; el resultado de la recuperación no lo elimina.

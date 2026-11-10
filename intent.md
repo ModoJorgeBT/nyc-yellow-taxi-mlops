@@ -138,3 +138,13 @@ técnico con perfil CI aprobado 2 CPU/4 GiB/10 GiB disco/20 minutos, 601 pruebas
 PR verde y demostración roja/verde reales. PR en borrador, sin merge a main.
 G5 y T29–T31 siguen abiertos.
 [Detalle y límites](docs/t26-t28.md).
+
+**Actualización T29–T31 — 2026-11-09:** G5 verificado técnicamente. Referencia
+completa train 2024 y 24.266.924 filas de replay julio–diciembre 2025 auditadas;
+PSI, calidad, desempeño con etiquetas maduras y reportes mensuales versionados.
+Evidently 0.7.23 utiliza un renderer pandas 2.3.3 aislado, aprobado tras probar
+la incompatibilidad; las predicciones conservan pandas 3.1.1 y el modelo v4.
+CI verde con 625 pruebas principales y 17 del renderer. Se conservan el
+incidente de descargas, su recuperación autorizada y los FAIL originales.
+[Evidencia](reports/monitoring/t29-t31_monthly_replay.md). Cuarta entrega
+ampliada en PR #1, sin merge; reglas T32 y promociones futuras pendientes.

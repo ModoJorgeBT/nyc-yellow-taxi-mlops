@@ -1,6 +1,6 @@
 # PLAN — Implementación incremental NYC Yellow Taxi MLOps
 
-**Versión:** 1.0 · **Estado:** T14–T28 con cierre técnico verificado; T26 con PR verde y demostración roja/verde reales; T29–T38 pendientes · **Entorno:** Windows local y Docker Linux amd64; API 8080/MLflow Docker 5001.
+**Versión:** 1.0 · **Estado:** T14–T31 con cierre técnico verificado; G5 PASS técnico; T32–T38 pendientes; PR #1 en borrador, sin merge · **Entorno:** Windows local y Docker Linux amd64; API 8080/MLflow Docker 5001.
 **Fuentes de verdad:** `intent.md`, `spec.md`, y PDF académico *Proyecto_Maestria_MLOps_NYC_Taxi_Estructura*, septiembre 2026. En caso de contradicción, detenerse y pedir decisión; no cambiar el alcance silenciosamente.
 
 ## 0. Protocolo obligatorio para Codex
@@ -19,9 +19,9 @@
 |---|---|---|---|
 | D-01 | Periodos | Train 2024 completo; validación ene–mar 2025; test original abr–jun 2025; replay jul–dic 2025. Extensión final independiente ene–mar 2026, sin reajustes | APROBADA y auditada; protocolo final separado, periodos originales intactos |
 | D-02 | Recursos | Todos los elegibles. Preparación 4 GiB libres/2 GiB RSS; entrenamiento 8/4; inferencia final 6/2; cuatro hilos, un candidato, dos horas y 50 GiB disco. Docker serving: 2 GiB/2 CPU por API/MLflow y un worker | APROBADOS y verificados; sin entrenamiento Docker en T23–T25 |
-| D-03 | Herramientas | Locks Windows 24/95/97 intactos; Linux 99 y Debian fijados. Workflow CI con Ruff y BuildKit por hash; perfil CI aprobado y verificado local/remoto | PARCIAL; serving/Compose y Actions verificados; Evidently pendiente |
+| D-03 | Herramientas | Locks Windows 24/95/97 y Linux serving 99 intactos. Actions verificado. Evidently 0.7.23 con pandas 2.3.3 en renderer aislado; predicciones conservan pandas 3.1.1 | APROBADO para T29–T31, compatibilidad y locks separados verificados; [evidencia](docs/t29-t31-monitoring.md) |
 | D-04 | Umbrales DQ | D-04 v1 congelada; diez excepciones exactas de 2025 y tres de ene–mar 2026, ligadas a mes/hash/reporte, inválidos excluidos | APROBADA E IMPLEMENTADA; 27 lotes incorporados: 14 pasan calidad y 13 aceptados excepcionalmente |
-| D-05 | Drift y promoción | Evaluar propuestas PDF: MAE > 115 % dos ventanas, PSI > 0.20, mejora MAE ≥ 2 % o no inferioridad definida | PENDIENTE para automatismos; elección inicial T19 aprobada |
+| D-05 | Drift y promoción | T29 aprueba PSI >0,20, alpha 0,5 y mínimo 1.000 sobre referencia mensual train; alertas para revisión | PARCIAL; 115 %/dos ventanas, triggers, 2 %/no inferioridad y promociones futuras pendientes |
 | D-06 | API | Contrato REST v1 aprobado el 2026-11-09: offset, origen del catálogo, pasajeros opcionales 0–6, whitelist estricta y errores 422/503/500 | APROBADA; [contrato y pruebas T20–T22](docs/t20-t22-serving.md) |
 | D-07 | MLflow | MLflow 3.16.1 en entorno separado; SQLite persistente, artefactos locales, loopback y cuatro versiones; LightGBM v4 champion por T19 | APROBADA, IMPLEMENTADA Y VERIFICADA; registro/reinicio/carga/linaje auditados |
 | D-08 | Definition of Done | T14/T15/T16/T17, evaluación independiente y T18/T19 auditadas técnicamente; revisión humana de resultados independiente | PARCIAL; criterio general de PR pendiente; G3 verificado |
@@ -293,20 +293,25 @@ Extensión adicional aprobada y completada: **LightGBM**, ajuste sobre todo trai
 - **Trabajo:** comparar distribuciones de features críticas respecto a referencia; generar reporte reproducible; parametrizar umbrales.
 - **Entregables:** `src/monitoring/drift.py`, `reports/monitoring/`.
 - **Aceptación/prueba:** referencia estable y muestra alterada producen resultados distinguibles; reporte indica ventanas y tamaños.
+- **Estado:** PASS técnico. Referencia de las 41.119.495 filas train y seis meses replay completos; bins agregados, PSI y Evidently JSON/HTML verificados. Renderer aislado por incompatibilidad pandas, aprobado y probado. [Resultados](reports/monitoring/t29-t31_monthly_replay.md).
 
 ### T30 — Performance con ground truth posterior
 - **Depende de:** T17, T29.
 - **Trabajo:** unir predicciones con resultados observados mediante identificador o protocolo de simulación explícito; calcular MAE/RMSE por mes y segmento solo cuando haya etiqueta.
 - **Entregables:** `src/monitoring/performance.py`.
 - **Aceptación/prueba:** sin etiquetas reporta `NOT_AVAILABLE` y no inventa MAE; con etiquetas calcula métricas correctas.
+- **Estado:** PASS técnico. 24.266.924 predicciones/etiquetas maduras, identidad por split/feature/fila, métricas exactas y segmentos T17. Auditoría recalculó todas las predicciones y validó cuantiles por CDF; modelo/runtime congelados, sin test/holdout nuevos ni reajuste.
 
 ### T31 — Comando y reporte mensual de monitoreo
 - **Depende de:** T27–T30.
 - **Trabajo:** `python -m src.monitoring.run --year YYYY --month MM`; persistir reportes versionados y decisión preliminar de alerta.
 - **Entregables:** CLI, JSON/HTML según compatibilidad Evidently, tests.
 - **Aceptación/prueba:** dos ventanas de simulación producen evidencia, sin modificar champion.
+- **Estado:** PASS técnico. CLI, seis reportes reales versionados, dos ventanas sintéticas y ausencia de etiquetas probados. CI verde: 625 pruebas principales y 17 del renderer separado; FAIL/excepciones conservados. Servicio histórico 2025 NOT_AVAILABLE; T27 aporta métricas actuales. [Guía](docs/t29-t31-monitoring.md).
 
 **Gate G5:** CI ejecutado en GitHub, reportes de drift/calidad, desempeño condicionado a etiquetas y métricas de servicio.
+
+**G5 PASS técnico — 2026-11-09.** Evidencia en [T29–T31](reports/monitoring/t29-t31_monthly_replay.md) y T27/T28. Revisión humana/merge independientes; no se inicia T32 ni se aprueban triggers o promociones.
 
 ## 8. Sprint 6 — Retraining, promoción, rollback y defensa
 
@@ -438,7 +443,7 @@ Prepara un guion reproducible para la demostración de la plataforma local. Usa 
 - [ ] G2 Ingesta y DQ auditables.
 - [x] G3 Modelado temporal, MLflow y champion inicial aprobado/aplicado/auditado; alcance Sprint 3, no API/Docker.
 - [x] G4 API y Docker Compose operativos; smoke real, persistencia y champion v4 verificados técnicamente.
-- [ ] G5 CI y observabilidad verificables.
+- [x] G5 CI y observabilidad verificables; cierre técnico con replay completo y renderer aislado, revisión humana independiente.
 - [ ] G6 Retraining, rollback y demo reproducible.
 
 **Definición de terminado por tarea:** dependencias satisfechas; código y tests ejecutados; evidencia conservada; README/contratos actualizados cuando aplique; revisión humana; sin secretos ni datos grandes en Git. Una tarea que no se pudo ejecutar queda `NO VERIFICADO`, no completada.
