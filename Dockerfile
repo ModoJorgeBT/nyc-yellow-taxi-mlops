@@ -30,12 +30,14 @@ WORKDIR /workspace
 CMD ["python", "scripts/ci_checks.py"]
 
 FROM ci AS ci-monitoring
+WORKDIR /build
 COPY configs/monitoring-wheels-linux.json ./configs/
 COPY requirements-monitoring-linux.lock ./
 RUN python scripts/container_build.py --fetch-monitoring --destination /tmp/wheels \
     && python -m pip install --no-index --find-links=/tmp/wheels --require-hashes \
        --only-binary=:all: -r requirements-monitoring-linux.lock \
     && python -m pip check
+WORKDIR /workspace
 
 FROM python:3.14.7-slim-bookworm@sha256:998acd06f485adfd6890e3e15a4b542543e0cf22ff904310095da328a5e3e561 AS runtime
 ENV PATH=/opt/venv/bin:$PATH PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \

@@ -97,6 +97,13 @@ Se registran explícitamente el intento fallido de generación de hashes y la
 recuperación adicional autorizada: [incidente](t29-dependency-download-incident.md).
 No se incluyen datasets, modelos ni el PDF nuevo del equipo. No hay merge.
 
+Checkpoint de código: [`fe2b530`](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/commit/fe2b5308fc63550748eee07bea2e32e4516ac94b).
+El primer CI de esta ampliación detectó un directorio de trabajo incorrecto
+en la etapa Docker del renderer (`/workspace` en lugar de `/build`); no fue
+un incumplimiento de calidad de datos. Se conserva la ejecución fallida
+[42729494259](https://github.com/ModoJorgeBT/nyc-yellow-taxi-mlops/actions/runs/42729494259)
+y se corrige en un commit posterior, junto con el auditor exhaustivo.
+
 ## Contenido público y consulta del historial
 
 Se versionan código, pruebas, fixtures sintéticas pequeñas, configuración pública, PDF de referencia/avance y reportes Markdown. Permanecen locales los 27 Parquet reales actuales y sus manifiestos generados, datasets procesados, modelos/predicciones, SQLite y artefactos MLflow, reportes JSON de ejecución, catálogos `*.local.json`, entornos, cachés y secretos. Los JSON de política/protocolo y las autorizaciones excepcionales son configuración pública; no contienen registros de viajes.
