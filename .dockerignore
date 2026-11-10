@@ -6,12 +6,14 @@
 !README.md
 !requirements-serving-linux.lock
 !requirements-ci-linux.lock
+!requirements-monitoring-linux.lock
 !src/
 !src/**
 !configs/
 !configs/container-wheels-linux.json
 !configs/container-system-packages.json
 !configs/ci-tools-linux.json
+!configs/monitoring-wheels-linux.json
 !configs/champion.yaml
 !configs/data.yaml
 !configs/serving-logging.json

@@ -49,3 +49,17 @@ def test_ci_build_limits_are_checked_not_just_documented(tmp_path):
     (tmp_path / "cpu.max").write_text("max 100000")
     with pytest.raises(ValueError, match="efectivos"):
         container_build.check_ci_limits(tmp_path)
+
+
+def test_renderer_pandas_exception_never_changes_serving_artifacts():
+    baseline = json.loads((ROOT / "configs/container-wheels-linux.json").read_text())["wheels"]
+    renderer = json.loads((ROOT / "configs/monitoring-wheels-linux.json").read_text())
+    assert renderer["scope"] == "EVIDENTLY_RENDERER_ONLY_NOT_MODEL_RUNTIME"
+    assert renderer["wheels"]["pandas"]["version"] == "2.3.3"
+    assert all(
+        renderer["wheels"][name] == row for name, row in baseline.items() if name != "pandas"
+    )
+    workflow = (ROOT / ".github/workflows/ci.yml").read_text()
+    assert "--target ci -t nyc-taxi-ci:local" in workflow
+    assert "--target ci-monitoring -t nyc-taxi-monitoring-ci:local" in workflow
+    assert "Verify isolated Evidently renderer with fixtures" in workflow

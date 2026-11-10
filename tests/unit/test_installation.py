@@ -29,9 +29,13 @@ packages = ["src", "src.ingestion", "src.validation", "src.features", "src.train
             "src.training.lightgbm_worker", "src.training.native_supervisor",
             "src.evaluation.lightgbm_run", "src.evaluation.final_data", "src.evaluation.final_run",
             "src.training.tracking", "src.training.tracking_model", "src.training.champion",
-            "src.api.model_loader", "src.api.metrics", "src.monitoring.data_quality"]
+            "src.api.model_loader", "src.api.metrics", "src.monitoring.data_quality",
+            "src.monitoring.protocol", "src.monitoring.drift", "src.monitoring.performance",
+            "src.monitoring.run", "src.monitoring.renderer", "src.monitoring.render_worker"]
 if importlib.util.find_spec("fastapi") is not None:
     packages += ["src.api.schemas", "src.api.main"]
+if importlib.util.find_spec("evidently") is not None:
+    packages += ["src.monitoring.evidently_adapter"]
 for package in packages:
     importlib.import_module(package)
 print(json.dumps({"version": distribution.version, "packages": packages}))
@@ -48,4 +52,4 @@ print(json.dumps({"version": distribution.version, "packages": packages}))
     observed = json.loads(result.stdout)
     assert observed["version"] == "0.1.0"
     assert "src.api.model_loader" in observed["packages"]
-    assert len(observed["packages"]) in (43, 45)
+    assert len(observed["packages"]) in (49, 51, 52)

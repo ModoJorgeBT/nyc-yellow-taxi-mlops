@@ -86,11 +86,44 @@ def fetch(kind: str, folder: Path, *, root=Path(".")) -> dict:
     return {"files": len(statuses), "skipped": statuses.count("SKIPPED"), "profile_bytes": total}
 
 
+def fetch_monitoring(folder: Path, *, root=Path(".")) -> dict:
+    baseline = json.loads((root / "configs/container-wheels-linux.json").read_text())
+    monitoring = json.loads((root / "configs/monitoring-wheels-linux.json").read_text())
+    system = json.loads((root / "configs/container-system-packages.json").read_text())
+    if any(
+        monitoring["wheels"].get(name) != info
+        for name, info in baseline["wheels"].items()
+        if name != "pandas"
+    ):
+        raise ValueError("Monitoreo no puede cambiar artefactos compartidos de serving")
+    if (
+        monitoring.get("scope") != "EVIDENTLY_RENDERER_ONLY_NOT_MODEL_RUNTIME"
+        or monitoring["wheels"]["pandas"].get("version") != "2.3.3"
+    ):
+        raise ValueError("Excepcion pandas limitada al renderer aprobado")
+    additional = [
+        info
+        for name, info in monitoring["wheels"].items()
+        if name not in baseline["wheels"] or name == "pandas"
+    ]
+    total = (
+        baseline["base_and_wheels_transfer_bytes"]
+        + sum(info["size_bytes"] for info in system["packages"])
+        + sum(info["size_bytes"] for info in additional)
+        + json.loads((root / "configs/ci-tools-linux.json").read_text())["ruff"]["size_bytes"]
+    )
+    if total > TRANSFER_LIMIT:
+        raise ValueError("Presupuesto de imagen con monitoreo excedido")
+    statuses = [download_file(info, folder) for info in monitoring["wheels"].values()]
+    return {"files": len(statuses), "skipped": statuses.count("SKIPPED"), "profile_bytes": total}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fetch", choices=("wheels", "system"))
     parser.add_argument("--destination", type=Path)
     parser.add_argument("--preflight", action="store_true")
+    parser.add_argument("--fetch-monitoring", action="store_true")
     parser.add_argument("--profile", choices=("local", "ci"), default="local")
     args = parser.parse_args()
     if args.preflight:
@@ -100,6 +133,8 @@ def main():
         print("PREFLIGHT_PASS")
     elif args.fetch and args.destination:
         print(json.dumps(fetch(args.fetch, args.destination)))
+    elif args.fetch_monitoring and args.destination:
+        print(json.dumps(fetch_monitoring(args.destination)))
     else:
         parser.error("Usar --preflight o --fetch con --destination")
 

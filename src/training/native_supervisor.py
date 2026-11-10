@@ -128,8 +128,11 @@ def terminate_worker(pid):
         kernel.CloseHandle(handle)
 
 
-def supervise(command, *, policy, guard, log_path, env=None, identity=None):
+def supervise(
+    command, *, policy, guard, log_path, env=None, identity=None, aggregate_parent_rss=False
+):
     peak = 0
+    combined_peak = 0
     worker_pid = None
     flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
     with Path(log_path).open("w", encoding="utf-8") as log:
@@ -159,6 +162,10 @@ def supervise(command, *, policy, guard, log_path, env=None, identity=None):
                             raise
                     if peak > policy["process_rss_limit_gib"] * 2**30:
                         raise ResourceLimitError("D-02: RSS nativo excedido; intento cancelado")
+                    if aggregate_parent_rss:
+                        combined_peak = max(combined_peak, peak + process_peak_rss(os.getpid()))
+                        if combined_peak > policy["process_rss_limit_gib"] * 2**30:
+                            raise ResourceLimitError("D-02: RSS combinado de renderer excedido")
                     if identity is not None and not Path(identity[1]).exists():
                         ready = Path(identity[1])
                         temporary = ready.with_suffix(".tmp")
@@ -179,13 +186,16 @@ def supervise(command, *, policy, guard, log_path, env=None, identity=None):
                     process.kill()
                     process.wait(timeout=10)
                 raise
-    return {
+    result = {
         "native_peak_rss_bytes": peak,
         "exit_code": process.returncode,
         "worker_pid_verified": identity is not None and worker_pid is not None,
         "worker_pid": worker_pid,
         "launcher_pid": process.pid,
     }
+    if aggregate_parent_rss:
+        result["combined_peak_rss_bytes"] = combined_peak
+    return result
 
 
 def run_worker(request_path, *, policy, guard, log_path):

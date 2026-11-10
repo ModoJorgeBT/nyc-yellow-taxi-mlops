@@ -79,6 +79,24 @@ verde. Demostración roja `22396d9` y restauración verde `3d89195` en
 [Alcance aprobado](t26-publication-proposal.md) y [evidencia](t26-t28.md).
 G5 y T29–T31 siguen pendientes.
 
+### Ampliación aprobada de la cuarta entrega — T29–T31
+
+El usuario autorizó ampliar el PR #1 con T29–T31, conservando main y todos los
+commits existentes. Se incorporan PSI sobre distribuciones completas de train,
+replay con predicciones/etiquetas separadas y reportes mensuales versionados.
+Evidently 0.7.23 requiere un renderer con pandas 2.3.3; las predicciones conservan
+el runtime original. Locks y etapas CI separados, con hashes y supervisión.
+
+Estado inicial de publicación: implementación y pruebas enfocadas verificadas;
+referencia completa de 41.119.495 filas congelada; replay real de julio/agosto
+completado y septiembre–diciembre en ejecución. CI remoto y auditoría final
+siguen pendientes; G5 no se cierra por publicar el código. Un seguimiento
+documental registrará los SHA, resultados y enlaces observados.
+
+Se registran explícitamente el intento fallido de generación de hashes y la
+recuperación adicional autorizada: [incidente](t29-dependency-download-incident.md).
+No se incluyen datasets, modelos ni el PDF nuevo del equipo. No hay merge.
+
 ## Contenido público y consulta del historial
 
 Se versionan código, pruebas, fixtures sintéticas pequeñas, configuración pública, PDF de referencia/avance y reportes Markdown. Permanecen locales los 27 Parquet reales actuales y sus manifiestos generados, datasets procesados, modelos/predicciones, SQLite y artefactos MLflow, reportes JSON de ejecución, catálogos `*.local.json`, entornos, cachés y secretos. Los JSON de política/protocolo y las autorizaciones excepcionales son configuración pública; no contienen registros de viajes.
